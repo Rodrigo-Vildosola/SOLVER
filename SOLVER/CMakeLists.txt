@@ -41,13 +41,13 @@ add_library(SOLVER_STATIC STATIC ${SOLVER_SRC})
 target_include_directories(SOLVER_STATIC PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Set properties for the SWIG interface file
-set_source_files_properties(solver.i PROPERTIES CPLUSPLUS ON)
+set_source_files_properties(solver.swig PROPERTIES CPLUSPLUS ON)
 
 # Generate the SWIG module (Python bindings) and compile the C++ code
 swig_add_library(SOLVER_PYTHON
     TYPE MODULE
     LANGUAGE python
-    SOURCES solver.i ${SOLVER_SRC}
+    SOURCES solver.swig ${SOLVER_SRC}
 )
 
 # Link the SWIG module against the Python libraries

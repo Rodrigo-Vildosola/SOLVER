@@ -17,7 +17,8 @@
 // Specialize std::vector<Token> for Python list conversion
 %template(TokenVector) std::vector<Token>;
 
-%typemap(in) std::vector<Token> (PyObject* obj) {
+// Typemap for converting a Python list of tuples (TokenType, string) to std::vector<Token>
+%typemap(in, numinputs=1) std::vector<Token> (PyObject* obj) {
     std::cout << "[DEBUG] Typemap invoked for std::vector<Token>" << std::endl;
     
     if (obj == nullptr) {
@@ -62,7 +63,6 @@
 
     std::cout << "[DEBUG] Finished processing the token list" << std::endl;
 }
-
 
 // Typemap for returning std::vector<Token> from C++ to Python
 %typemap(out) std::vector<Token> {
