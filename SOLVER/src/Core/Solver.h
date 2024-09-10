@@ -1,0 +1,45 @@
+#pragma once
+
+#include "Token.h"
+#include "ExprNode.h"
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+#include <memory>
+#include <queue>
+
+struct Function {
+    std::vector<std::string> args;
+    std::string expression;
+};
+
+class Solver {
+public:
+    Solver();
+    
+    void declareVariable(const std::string& name, double value, bool isGlobal = false);
+    void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
+    double evaluate(const std::string& expression);
+    
+    // Expose the pipeline steps
+    std::vector<Token> tokenize(const std::string& equation);
+    ExprNode* parseExpression(const std::vector<Token>& tokens);
+
+    double evaluateNode(const ExprNode* node);
+
+private:
+    std::unordered_map<std::string, double> globalSymbols;
+    std::unordered_map<std::string, double> localSymbols;
+    std::unordered_map<std::string, Function> functions;
+
+    std::queue<Token> shuntingYard(const std::vector<Token>& tokens);
+
+
+    double evaluateFunction(const std::string& func, const std::vector<double>& args);
+    void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
+
+    const std::unordered_set<std::string> standardFunctions = {"sin", "cos", "tan", "exp", "log", "sqrt"};
+    void setLocalSymbols(const std::unordered_map<std::string, double>& args);
+    void clearLocalSymbols();
+};

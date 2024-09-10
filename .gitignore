@@ -1,0 +1,21 @@
+# Visual Studio Code
+.vscode/
+
+# Build directories
+.build/
+
+# CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+CMakeUserPresets.json
+vcpkg_installed/
+__pycache__/
+
+# Others
+*.log
+*.tmp
+*.bak
+*.swp
+*.env
