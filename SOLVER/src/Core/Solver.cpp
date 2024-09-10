@@ -32,7 +32,13 @@ void Solver::validateFunctionExpression(const std::string& expression, const std
     }
 }
 
-ExprNode* Solver::parseExpression(const std::vector<Token>& tokens) {
+ExprNode* Solver::parseExpression(const std::vector<Token> tokens) {
+    // std::cout << "[DEBUG] Entering parseExpression with " << tokens.size() << " tokens" << std::endl;
+    
+    // for (const auto& token : tokens) {
+    //     std::cout << "Token Type: " << token.type << " Value: " << token.value << std::endl;
+    // }
+
     auto postfixQueue = shuntingYard(tokens);
     std::stack<ExprNode*> nodeStack;
 

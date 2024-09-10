@@ -8,9 +8,9 @@ def test_equation(solver, equation):
         print(f"Error: Tokenization failed for equation: {equation}")
         return
     
-    print(tokens)
+    # print(tokens)
     expr_tree = solver.parseExpression(tokens)
-    print(expr_tree)
+    print(expr_tree.left.value)
 
     # Evaluate the equation (this function should exist in your C++ class)
     evaluated_value = solver.evaluate(equation)
@@ -39,6 +39,15 @@ def main():
 
     for expression in expressions:
         test_equation(solver, expression)
+
+    # tokens = [(3, 'sh'), (4, '('), (1, 'x'), (4, ')'), (2, '*'), (3, 'sh'), (4, '('), (1, 'y'), (4, ')')]
+    # print("Tokens before passing to C++:", tokens)
+    # print("Type of tokens:", type(tokens))
+    # for t in tokens:
+    #     print("Tuple:", t, " Type of tuple:", type(t))
+    # expr_tree = solver.parseExpression(tokens)
+    # print(expr_tree.value)
+
 
 if __name__ == "__main__":
     main()

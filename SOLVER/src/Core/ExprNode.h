@@ -14,11 +14,11 @@ public:
     ExprNode(const std::string& val) : value(val), left(nullptr), right(nullptr) {}
 
     // Destructor to free child nodes
-    ~ExprNode() {
-        delete left;
-        delete right;
-        for (auto* arg : arguments) {
-            delete arg;
-        }
-    }
+    // ~ExprNode() {
+    //     delete left;
+    //     delete right;
+    //     for (auto* arg : arguments) {
+    //         delete arg;
+    //     }
+    // }
 };
