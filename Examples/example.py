@@ -1,18 +1,52 @@
 from lib.solver import Solver
+
+def print_tree(node, depth=0, prefix="", is_left=True):
+    """
+    Recursively prints the tree structure of the expression.
+    """
+    if node:
+        # Print the current node
+        print(prefix, end="")
+
+        # Add an appropriate connector (either a corner or a line)
+        if depth == 0:
+            print(node.value)
+        else:
+            print("├── " if is_left else "└── ", end="")
+            print(node.value)
+
+        # Prepare the prefix for the children
+        child_prefix = prefix + ("│   " if is_left else "    ")
+
+        # Print the left subtree first
+        if node.left:
+            print_tree(node.left, depth + 1, child_prefix, True)
+
+        # Print the right subtree
+        if node.right:
+            print_tree(node.right, depth + 1, child_prefix, False)
+
 def test_equation(solver, equation):
     print(f"Testing equation: {equation}")
 
-    # Tokenize the equation (this function should exist in your C++ class)
+    # Tokenize the equation
     tokens = solver.tokenize(equation)
     if not tokens:
         print(f"Error: Tokenization failed for equation: {equation}")
         return
-    
-    # print(tokens)
-    expr_tree = solver.parseExpression(tokens)
-    print(expr_tree.left.value)
 
-    # Evaluate the equation (this function should exist in your C++ class)
+    # Parse the tokens into an expression tree
+    expr_tree = solver.parseExpression(tokens)
+    if not expr_tree:
+        print(f"Error: Parsing failed for equation: {equation}")
+        return
+
+    # Print the parsed expression tree
+    print("Expression tree:")
+    print(expr_tree.left.value)
+    # print_tree(expr_tree)
+
+    # Evaluate the equation
     evaluated_value = solver.evaluate(equation)
     print(f"Evaluated expression value: {evaluated_value}")
     print("--------------------------\n")
@@ -39,15 +73,6 @@ def main():
 
     for expression in expressions:
         test_equation(solver, expression)
-
-    # tokens = [(3, 'sh'), (4, '('), (1, 'x'), (4, ')'), (2, '*'), (3, 'sh'), (4, '('), (1, 'y'), (4, ')')]
-    # print("Tokens before passing to C++:", tokens)
-    # print("Type of tokens:", type(tokens))
-    # for t in tokens:
-    #     print("Tuple:", t, " Type of tuple:", type(t))
-    # expr_tree = solver.parseExpression(tokens)
-    # print(expr_tree.value)
-
 
 if __name__ == "__main__":
     main()
