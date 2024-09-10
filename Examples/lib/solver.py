@@ -382,7 +382,21 @@ class ExprNode(object):
 
 # Register ExprNode in _SOLVER_PYTHON:
 _SOLVER_PYTHON.ExprNode_swigregister(ExprNode)
+NUMBER = _SOLVER_PYTHON.NUMBER
+VARIABLE = _SOLVER_PYTHON.VARIABLE
+OPERATOR = _SOLVER_PYTHON.OPERATOR
+FUNCTION = _SOLVER_PYTHON.FUNCTION
+PAREN = _SOLVER_PYTHON.PAREN
+class Token(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+    type = property(_SOLVER_PYTHON.Token_type_get, _SOLVER_PYTHON.Token_type_set)
+    value = property(_SOLVER_PYTHON.Token_value_get, _SOLVER_PYTHON.Token_value_set)
 
-    # Optional: Add any Python-specific code if necessary
+    def __init__(self):
+        _SOLVER_PYTHON.Token_swiginit(self, _SOLVER_PYTHON.new_Token())
+    __swig_destroy__ = _SOLVER_PYTHON.delete_Token
 
+# Register Token in _SOLVER_PYTHON:
+_SOLVER_PYTHON.Token_swigregister(Token)
 

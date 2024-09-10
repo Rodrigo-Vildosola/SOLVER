@@ -6,7 +6,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <memory>
 #include <queue>
 
 struct Function {
@@ -22,7 +21,6 @@ public:
     void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
     double evaluate(const std::string& expression);
     
-    // Expose the pipeline steps
     std::vector<Token> tokenize(const std::string& equation);
     ExprNode* parseExpression(const std::vector<Token>& tokens);
 

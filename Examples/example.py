@@ -8,8 +8,9 @@ def test_equation(solver, equation):
         print(f"Error: Tokenization failed for equation: {equation}")
         return
     
+    print(tokens)
     expr_tree = solver.parseExpression(tokens)
-    print(expr_tree.value)
+    print(expr_tree)
 
     # Evaluate the equation (this function should exist in your C++ class)
     evaluated_value = solver.evaluate(equation)
