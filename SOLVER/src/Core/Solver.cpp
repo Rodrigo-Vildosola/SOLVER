@@ -144,6 +144,6 @@ double Solver::evaluate(const std::string& expression) {
     auto tokens = tokenize(expression);
     ExprNode* exprTree = parseExpression(tokens);
     double result = evaluateNode(exprTree);
-    // delete exprTree;  
+    delete exprTree;  
     return result;
 }
