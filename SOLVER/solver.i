@@ -66,5 +66,5 @@
 
 // Include the Solver class definition
 %include "Core/Solver.h"
-%include "Core/ExprNode.h"
+// %include "Core/ExprNode.h"
 %include "Core/Token.h"

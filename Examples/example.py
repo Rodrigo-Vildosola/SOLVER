@@ -1,77 +1,64 @@
 from lib.solver import Solver
+import matplotlib.pyplot as plt
+import numpy as np
 
-def print_tree(node, depth=0, prefix="", is_left=True):
+def plot_expression(solver, expression, x_range=(-10, 10), num_points=400):
     """
-    Recursively prints the tree structure of the expression.
+    Plots the given mathematical expression over the specified x range.
+
+    Parameters:
+    solver (Solver): The solver object used to evaluate the expression.
+    expression (str): The mathematical expression to plot (e.g., "x^2 + 3*x + 2").
+    x_range (tuple): The range of x values to plot (start, end).
+    num_points (int): The number of points to calculate between the range.
     """
-    if node:
-        # Print the current node
-        print(prefix, end="")
+    x_values = np.linspace(x_range[0], x_range[1], num_points)
+    y_values = []
 
-        # Add an appropriate connector (either a corner or a line)
-        if depth == 0:
-            print(node.value)
-        else:
-            print("├── " if is_left else "└── ", end="")
-            print(node.value)
+    for x in x_values:
+        # Replace 'x' in the expression with the current x value
+        print(expression)
+        expr = expression.replace('x', f'({x})')
+        print(expression)
+        try:
+            # Evaluate the expression using the solver
+            y = solver.evaluate(expr)
+            print("Here")
+            y_values.append(y)
+        except Exception as e:
+            print(f"Error evaluating expression at x = {x}: {e}")
+            y_values.append(np.nan)  # Use NaN for plotting errors
 
-        # Prepare the prefix for the children
-        child_prefix = prefix + ("│   " if is_left else "    ")
-
-        # Print the left subtree first
-        if node.left:
-            print_tree(node.left, depth + 1, child_prefix, True)
-
-        # Print the right subtree
-        if node.right:
-            print_tree(node.right, depth + 1, child_prefix, False)
-
-def test_equation(solver, equation):
-    print(f"Testing equation: {equation}")
-
-    # Tokenize the equation
-    tokens = solver.tokenize(equation)
-    if not tokens:
-        print(f"Error: Tokenization failed for equation: {equation}")
-        return
-
-    # Parse the tokens into an expression tree
-    expr_tree = solver.parseExpression(tokens)
-    if not expr_tree:
-        print(f"Error: Parsing failed for equation: {equation}")
-        return
-
-    # Print the parsed expression tree
-    print("Expression tree:")
-    print_tree(expr_tree)
-
-    # Evaluate the equation
-    evaluated_value = solver.evaluate(equation)
-    print(f"Evaluated expression value: {evaluated_value}")
-    print("--------------------------\n")
+    # Plot the results using matplotlib
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_values, y_values, label=expression)
+    plt.xlabel('x')
+    plt.ylabel('f(x)')
+    plt.title(f'Plot of {expression}')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 def main():
     solver = Solver()
 
     # Declare variables
-    solver.declareVariable("x", 1)
-    solver.declareVariable("y", 2)
-    solver.declareVariable("z", 3)
-    solver.declareVariable("w", 4)
+    solver.declareVariable("x", 0)  # Default variable declaration
 
-    # Declare custom functions
+    # Declare custom functions if needed
     solver.declareFunction("sh", ["y"], "y + 3")
     solver.declareFunction("f", ["x"], "x * 2 + 1")
 
-    # Test expressions
+    # Expressions to plot
     expressions = [
-        "sh(x) * sh(y)",
-        "f(z) + sh(w)",
-        "(x^2 + 4 * y) / (3 - z)"
+        "x^2 + 3*x + 2",
+        "sh(x) * sh(x)",
+        "f(x) + sh(x)",
+        "(x^2 + 4 * x) / (3 - x)"
     ]
 
     for expression in expressions:
-        test_equation(solver, expression)
+        plot_expression(solver, expression, x_range=(-10, 10))
 
 if __name__ == "__main__":
     main()

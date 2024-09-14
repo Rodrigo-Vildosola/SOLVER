@@ -355,33 +355,10 @@ class Solver(object):
 
     def evaluate(self, expression):
         return _SOLVER_PYTHON.Solver_evaluate(self, expression)
-
-    def tokenize(self, equation):
-        return _SOLVER_PYTHON.Solver_tokenize(self, equation)
-
-    def parseExpression(self, tokens):
-        return _SOLVER_PYTHON.Solver_parseExpression(self, tokens)
-
-    def evaluateNode(self, node):
-        return _SOLVER_PYTHON.Solver_evaluateNode(self, node)
     __swig_destroy__ = _SOLVER_PYTHON.delete_Solver
 
 # Register Solver in _SOLVER_PYTHON:
 _SOLVER_PYTHON.Solver_swigregister(Solver)
-class ExprNode(object):
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
-    __repr__ = _swig_repr
-    value = property(_SOLVER_PYTHON.ExprNode_value_get, _SOLVER_PYTHON.ExprNode_value_set)
-    left = property(_SOLVER_PYTHON.ExprNode_left_get, _SOLVER_PYTHON.ExprNode_left_set)
-    right = property(_SOLVER_PYTHON.ExprNode_right_get, _SOLVER_PYTHON.ExprNode_right_set)
-    arguments = property(_SOLVER_PYTHON.ExprNode_arguments_get, _SOLVER_PYTHON.ExprNode_arguments_set)
-
-    def __init__(self, val):
-        _SOLVER_PYTHON.ExprNode_swiginit(self, _SOLVER_PYTHON.new_ExprNode(val))
-    __swig_destroy__ = _SOLVER_PYTHON.delete_ExprNode
-
-# Register ExprNode in _SOLVER_PYTHON:
-_SOLVER_PYTHON.ExprNode_swigregister(ExprNode)
 NUMBER = _SOLVER_PYTHON.NUMBER
 VARIABLE = _SOLVER_PYTHON.VARIABLE
 OPERATOR = _SOLVER_PYTHON.OPERATOR

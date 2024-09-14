@@ -22,12 +22,15 @@ public:
     void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
     double evaluate(const std::string& expression);
     
-    std::vector<Token> tokenize(const std::string& equation);
-    ExprNode* parseExpression(std::vector<Token> tokens);
 
-    double evaluateNode(const ExprNode* node);
 
 private:
+
+    std::vector<Token> tokenize(const std::string& equation);
+    std::unique_ptr<ExprNode> parseExpression(std::vector<Token> tokens);
+
+    double evaluateNode(const std::unique_ptr<ExprNode>& node);
+
     std::unordered_map<std::string, double> globalSymbols;
     std::unordered_map<std::string, double> localSymbols;
     std::unordered_map<std::string, Function> functions;
@@ -38,6 +41,4 @@ private:
     void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
 
     const std::unordered_set<std::string> standardFunctions = {"sin", "cos", "tan", "exp", "log", "sqrt"};
-    // void setLocalSymbols(const std::unordered_map<std::string, double>& args);
-    // void clearLocalSymbols();
 };

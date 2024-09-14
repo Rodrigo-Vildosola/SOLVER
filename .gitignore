@@ -3,6 +3,7 @@
 
 # Build directories
 .build/
+.venv/
 
 # CMake files
 CMakeFiles/

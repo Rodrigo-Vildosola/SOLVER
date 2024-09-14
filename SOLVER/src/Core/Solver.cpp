@@ -32,33 +32,32 @@ void Solver::validateFunctionExpression(const std::string& expression, const std
     }
 }
 
-ExprNode* Solver::parseExpression(const std::vector<Token> tokens) {
-
+std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
     auto postfixQueue = shuntingYard(tokens);
-    std::stack<ExprNode*> nodeStack;
+    std::stack<std::unique_ptr<ExprNode>> nodeStack;
 
     while (!postfixQueue.empty()) {
         Token token = postfixQueue.front();
         postfixQueue.pop();
 
         if (token.type == NUMBER || token.type == VARIABLE) {
-            nodeStack.push(new ExprNode(token.value));
+            nodeStack.push(std::make_unique<ExprNode>(token.value));
         } else if (token.type == OPERATOR) {
-            ExprNode* node = new ExprNode(token.value);
-            node->right = nodeStack.top();  // Take ownership of the top node
+            auto node = std::make_unique<ExprNode>(token.value);
+            node->right = std::move(nodeStack.top());
             nodeStack.pop();
-            node->left = nodeStack.top();   // Take ownership of the second node
+            node->left = std::move(nodeStack.top());
             nodeStack.pop();
-            nodeStack.push(node);
+            nodeStack.push(std::move(node));
         } else if (token.type == FUNCTION) {
-            ExprNode* node = new ExprNode(token.value);
-            node->arguments.push_back(nodeStack.top());  // Take ownership of the top node
+            auto node = std::make_unique<ExprNode>(token.value);
+            node->arguments.push_back(std::move(nodeStack.top()));
             nodeStack.pop();
-            nodeStack.push(node);
+            nodeStack.push(std::move(node));
         }
     }
 
-    return nodeStack.top();  // The caller is responsible for freeing the returned pointer
+    return std::move(nodeStack.top());  // Return the unique_ptr, ownership transferred
 }
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
@@ -91,7 +90,7 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     throw std::invalid_argument("Unknown function: " + func);
 }
 
-double Solver::evaluateNode(const ExprNode* node) {
+double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     if (!node->left && !node->right && node->arguments.empty()) {
         if (localSymbols.find(node->value) != localSymbols.end()) {
             return localSymbols.at(node->value);
@@ -134,7 +133,7 @@ double Solver::evaluateNode(const ExprNode* node) {
 
 double Solver::evaluate(const std::string& expression) {
     auto tokens = tokenize(expression);
-    ExprNode* exprTree = parseExpression(tokens);
+    auto exprTree = parseExpression(tokens);
     double result = evaluateNode(exprTree);
     return result;
 }

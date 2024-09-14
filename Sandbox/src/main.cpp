@@ -22,12 +22,12 @@ void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = 
 
         // Print the left subtree first
         if (node->left) {
-            printTree(node->left, depth + 1, childPrefix, true);
+            printTree(node->left.get(), depth + 1, childPrefix, true);
         }
 
         // Print the right subtree
         if (node->right) {
-            printTree(node->right, depth + 1, childPrefix, false);
+            printTree(node->right.get(), depth + 1, childPrefix, false);
         }
     }
 }
@@ -35,19 +35,19 @@ void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = 
 void testEquation(Solver& solver, const std::string& equation) {
     std::cout << "Testing equation: " << equation << std::endl;
 
-    auto tokens = solver.tokenize(equation);
-    if (tokens.empty()) {
-        std::cerr << "Error: Tokenization failed for equation: " << equation << std::endl;
-        return;
-    }
+    // auto tokens = solver.tokenize(equation);
+    // if (tokens.empty()) {
+    //     std::cerr << "Error: Tokenization failed for equation: " << equation << std::endl;
+    //     return;
+    // }
 
-    auto exprTree = solver.parseExpression(tokens);
-    if (!exprTree) {
-        std::cerr << "Error: Parsing failed for equation: " << equation << std::endl;
-        return;
-    }
+    // auto exprTree = solver.parseExpression(tokens);
+    // if (!exprTree) {
+    //     std::cerr << "Error: Parsing failed for equation: " << equation << std::endl;
+    //     return;
+    // }
 
-    printTree(exprTree);
+    // printTree(exprTree.get());
 
     double evaluatedValue = solver.evaluate(equation);
     std::cout << "Evaluated expression value: " << evaluatedValue << std::endl;
