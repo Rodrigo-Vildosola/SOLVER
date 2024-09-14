@@ -43,6 +43,10 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
         if (token.type == NUMBER || token.type == VARIABLE) {
             nodeStack.push(std::make_unique<ExprNode>(token.value));
         } else if (token.type == OPERATOR) {
+            if (nodeStack.size() < 2) {
+                std::cerr << "Error: Not enough operands for operator: " << token.value << std::endl;
+                return nullptr; // Error: not enough operands
+            }
             auto node = std::make_unique<ExprNode>(token.value);
             node->right = std::move(nodeStack.top());
             nodeStack.pop();
@@ -50,11 +54,20 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
             nodeStack.pop();
             nodeStack.push(std::move(node));
         } else if (token.type == FUNCTION) {
+            if (nodeStack.empty()) {
+                std::cerr << "Error: No operands for function: " << token.value << std::endl;
+                return nullptr; // Error: no operand
+            }
             auto node = std::make_unique<ExprNode>(token.value);
             node->arguments.push_back(std::move(nodeStack.top()));
             nodeStack.pop();
             nodeStack.push(std::move(node));
         }
+    }
+
+    if (nodeStack.empty()) {
+        std::cerr << "Error: The expression could not be parsed into an expression tree." << std::endl;
+        return nullptr; // Error: empty stack
     }
 
     return std::move(nodeStack.top());  // Return the unique_ptr, ownership transferred
@@ -91,6 +104,11 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
 }
 
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
+    if (!node) {
+        std::cerr << "Error: Trying to evaluate a null node." << std::endl;
+        throw std::runtime_error("Error: Trying to evaluate a null node.");
+    }
+
     if (!node->left && !node->right && node->arguments.empty()) {
         if (localSymbols.find(node->value) != localSymbols.end()) {
             return localSymbols.at(node->value);
@@ -123,6 +141,10 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     } else if (node->value == "*") {
         return leftValue * rightValue;
     } else if (node->value == "/") {
+        if (rightValue == 0) {
+            std::cerr << "Error: Division by zero." << std::endl;
+            throw std::runtime_error("Division by zero.");
+        }
         return leftValue / rightValue;
     } else if (node->value == "^") {
         return std::pow(leftValue, rightValue);
@@ -131,9 +153,14 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     }
 }
 
+
 double Solver::evaluate(const std::string& expression) {
     auto tokens = tokenize(expression);
     auto exprTree = parseExpression(tokens);
+    if (!exprTree) {
+        std::cerr << "Error: Failed to parse the expression into a tree." << std::endl;
+        throw std::runtime_error("Failed to parse the expression.");
+    }
     double result = evaluateNode(exprTree);
     return result;
 }

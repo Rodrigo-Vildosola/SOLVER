@@ -51,7 +51,7 @@ def main():
 
     # Expressions to plot
     expressions = [
-        "x^2 + 3*x + 2",
+        # "x^2 + 3*x + 2",
         "sh(x) * sh(x)",
         "f(x) + sh(x)",
         "(x^2 + 4 * x) / (3 - x)"

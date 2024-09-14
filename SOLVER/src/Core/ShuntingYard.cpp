@@ -14,23 +14,30 @@ std::queue<Token> Solver::shuntingYard(const std::vector<Token>& tokens) {
     };
 
     auto isLeftAssociative = [](const std::string& op) {
-        if (op == "^") return false;
-        return true;
+        if (op == "^") return false; // Right-associative
+        return true; // All other operators are left-associative
     };
 
-    for (const auto& token : tokens) {
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        const auto& token = tokens[i];
         if (token.type == NUMBER || token.type == VARIABLE) {
             outputQueue.push(token);
         } else if (token.type == FUNCTION) {
             operatorStack.push(token);
         } else if (token.type == OPERATOR) {
-            while (!operatorStack.empty() &&
-                   ((isLeftAssociative(token.value) && precedence(token.value) <= precedence(operatorStack.top().value)) ||
-                   (!isLeftAssociative(token.value) && precedence(token.value) < precedence(operatorStack.top().value)))) {
-                outputQueue.push(operatorStack.top());
-                operatorStack.pop();
+            // Handle unary minus
+            if (token.value == "-" && (i == 0 || tokens[i-1].type == OPERATOR || tokens[i-1].value == "(")) {
+                // This is a unary minus, treat it as a function
+                operatorStack.push(Token{FUNCTION, "neg"});
+            } else {
+                while (!operatorStack.empty() &&
+                       ((isLeftAssociative(token.value) && precedence(token.value) <= precedence(operatorStack.top().value)) ||
+                       (!isLeftAssociative(token.value) && precedence(token.value) < precedence(operatorStack.top().value)))) {
+                    outputQueue.push(operatorStack.top());
+                    operatorStack.pop();
+                }
+                operatorStack.push(token);
             }
-            operatorStack.push(token);
         } else if (token.value == "(") {
             operatorStack.push(token);
         } else if (token.value == ")") {
