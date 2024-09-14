@@ -54,15 +54,6 @@
     }
 }
 
-// // Typemap for returning std::shared_ptr<ExprNode> from C++ to Python
-// %typemap(out) std::shared_ptr<ExprNode> {
-//     if ($1 == nullptr) {
-//         Py_RETURN_NONE;
-//     } else {
-//         $result = SWIG_NewPointerObj($1.get(), SWIGTYPE_p_ExprNode, 0);  // Return without ownership
-//     }
-// }
-
 // Typemap for returning std::vector<Token> from C++ to Python
 %typemap(out) std::vector<Token> {
     PyObject* list = PyList_New($1.size());
