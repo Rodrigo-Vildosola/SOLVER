@@ -33,11 +33,6 @@ void Solver::validateFunctionExpression(const std::string& expression, const std
 }
 
 ExprNode* Solver::parseExpression(const std::vector<Token> tokens) {
-    // std::cout << "[DEBUG] Entering parseExpression with " << tokens.size() << " tokens" << std::endl;
-    
-    // for (const auto& token : tokens) {
-    //     std::cout << "Token Type: " << token.type << " Value: " << token.value << std::endl;
-    // }
 
     auto postfixQueue = shuntingYard(tokens);
     std::stack<ExprNode*> nodeStack;
@@ -80,10 +75,8 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
             throw std::invalid_argument("Function argument count mismatch: " + func);
         }
 
-        // Save current state of local symbols
         auto savedLocalSymbols = localSymbols;
 
-        // Temporarily set local symbols with function arguments
         localSymbols.clear();
         for (size_t i = 0; i < funcDef.args.size(); ++i) {
             localSymbols[funcDef.args[i]] = args[i];
@@ -91,7 +84,6 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
 
         double result = evaluate(funcDef.expression);
 
-        // Restore original local symbols
         localSymbols = savedLocalSymbols;
 
         return result;
@@ -144,6 +136,5 @@ double Solver::evaluate(const std::string& expression) {
     auto tokens = tokenize(expression);
     ExprNode* exprTree = parseExpression(tokens);
     double result = evaluateNode(exprTree);
-    // delete exprTree;  
     return result;
 }
