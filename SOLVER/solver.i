@@ -5,6 +5,7 @@
 #include "Core/Solver.h"
 #include "Core/ExprNode.h"
 #include "Core/Token.h"
+#include <memory>  // Ensure you include memory for shared_ptr
 %}
 
 %include <exception.i>
@@ -19,20 +20,20 @@
 
 // Typemap for converting a Python list of tuples (TokenType, string) to std::vector<Token>
 %typemap(in, numinputs=1) std::vector<Token> (PyObject* obj) {    
-    if ($input == nullptr) {  // Use $input instead of obj or obj2
+    if ($input == nullptr) {
         SWIG_exception_fail(SWIG_TypeError, "Received a null object.");
     }
 
-    if (!PyList_Check($input)) {  // Again, use $input here
+    if (!PyList_Check($input)) {
         SWIG_exception_fail(SWIG_TypeError, "Expected a list of tokens (tuple: (TokenType, string))");
     }
 
-    Py_ssize_t size = PyList_Size($input);  // Use $input instead of obj or obj2
+    Py_ssize_t size = PyList_Size($input);
 
     $1.reserve(size); // Reserve space in the C++ vector
 
     for (Py_ssize_t i = 0; i < size; ++i) {
-        PyObject* tuple = PyList_GetItem($input, i);  // Use $input here
+        PyObject* tuple = PyList_GetItem($input, i);
         if (!PyTuple_Check(tuple) || PyTuple_Size(tuple) != 2) {
             SWIG_exception_fail(SWIG_TypeError, "Each token must be a tuple of (TokenType, string)");
         }
@@ -51,8 +52,16 @@
 
         $1.push_back(Token{type, value});
     }
-
 }
+
+// // Typemap for returning std::shared_ptr<ExprNode> from C++ to Python
+// %typemap(out) std::shared_ptr<ExprNode> {
+//     if ($1 == nullptr) {
+//         Py_RETURN_NONE;
+//     } else {
+//         $result = SWIG_NewPointerObj($1.get(), SWIGTYPE_p_ExprNode, 0);  // Return without ownership
+//     }
+// }
 
 // Typemap for returning std::vector<Token> from C++ to Python
 %typemap(out) std::vector<Token> {
@@ -62,15 +71,6 @@
         PyList_SetItem(list, i, item);
     }
     $result = list;
-}
-
-// Typemap for returning ExprNode* from C++ to Python
-%typemap(out) ExprNode* {
-    if ($1 == nullptr) {
-        Py_RETURN_NONE;
-    } else {
-        $result = SWIG_NewPointerObj($1, SWIGTYPE_p_ExprNode, SWIG_POINTER_OWN);  // SWIG will manage memory
-    }
 }
 
 // Include the Solver class definition

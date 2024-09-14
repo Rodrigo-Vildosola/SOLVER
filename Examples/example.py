@@ -43,11 +43,7 @@ def test_equation(solver, equation):
 
     # Print the parsed expression tree
     print("Expression tree:")
-    # print(expr_tree.value)
-    print(expr_tree.left.value)
-    # print(expr_tree.left.value)
-
-    # print_tree(expr_tree)
+    print_tree(expr_tree)
 
     # Evaluate the equation
     evaluated_value = solver.evaluate(equation)

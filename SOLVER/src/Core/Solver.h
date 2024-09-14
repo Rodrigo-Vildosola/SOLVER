@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <vector>
 #include <queue>
+#include <memory>
 
 struct Function {
     std::vector<std::string> args;
@@ -32,7 +33,6 @@ private:
     std::unordered_map<std::string, Function> functions;
 
     std::queue<Token> shuntingYard(const std::vector<Token>& tokens);
-
 
     double evaluateFunction(const std::string& func, const std::vector<double>& args);
     void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
