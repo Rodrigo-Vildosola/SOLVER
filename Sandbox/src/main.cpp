@@ -2,7 +2,6 @@
 #include <sstream>
 #include <string>
 #include <cctype>
-#include <cmath>
 
 double parseTerm(const std::string& term) {
     std::istringstream iss(term);
@@ -30,20 +29,23 @@ void solveEquation(const std::string& equation) {
     // Parse the left side (e.g., 4 + x)
     std::istringstream lhsStream(lhs);
     std::string token;
+    char op = '+'; // default operator
+
     while (lhsStream >> token) {
-        if (token.find('x') != std::string::npos) {
+        if (token == "+" || token == "-") {
+            op = token[0];
+        } else if (token.find('x') != std::string::npos) {
             // Handle coefficients of x (e.g., 2x, -x)
             size_t pos = token.find('x');
             std::string coeffStr = token.substr(0, pos);
-            double coeff = coeffStr.empty() || coeffStr == "+" ? 1 : coeffStr == "-" ? -1 : parseTerm(coeffStr);
+            double coeff = coeffStr.empty() ? 1 : parseTerm(coeffStr);
+            coeff = (op == '-') ? -coeff : coeff;
             lhsCoeff += coeff;
-        } else if (token == "+" || token == "-") {
-            std::string nextToken;
-            lhsStream >> nextToken;
-            token += nextToken; // Handle +4 or -3
-            lhsConstant += parseTerm(token);
         } else {
-            lhsConstant += parseTerm(token);
+            // Parse a constant term
+            double constant = parseTerm(token);
+            constant = (op == '-') ? -constant : constant;
+            lhsConstant += constant;
         }
     }
 
@@ -67,7 +69,7 @@ void solveEquation(const std::string& equation) {
 }
 
 int main() {
-    std::string equation = "4 + x = 55";
+    std::string equation = "-3 - x = 55";
     std::cout << "Equation: " << equation << std::endl;
     solveEquation(equation);
     return 0;

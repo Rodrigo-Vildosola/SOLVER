@@ -22,7 +22,8 @@ public:
     void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
     double evaluate(const std::string& expression);
     
-
+    // New method to solve linear equations
+    double solveLinearEquation(const std::string& equation);
 
 private:
 
@@ -30,6 +31,8 @@ private:
     std::unique_ptr<ExprNode> parseExpression(std::vector<Token> tokens);
 
     double evaluateNode(const std::unique_ptr<ExprNode>& node);
+    double evaluateFunction(const std::string& func, const std::vector<double>& args);
+    void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
 
     std::unordered_map<std::string, double> globalSymbols;
     std::unordered_map<std::string, double> localSymbols;
@@ -37,8 +40,8 @@ private:
 
     std::queue<Token> shuntingYard(const std::vector<Token>& tokens);
 
-    double evaluateFunction(const std::string& func, const std::vector<double>& args);
-    void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
+    // New helper method to extract linear terms
+    void extractLinearTerms(const std::string& expression, double& coefficient, double& constant);
 
     const std::unordered_set<std::string> standardFunctions = {"sin", "cos", "tan", "exp", "log", "sqrt"};
 };

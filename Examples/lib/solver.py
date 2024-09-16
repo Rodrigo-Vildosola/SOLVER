@@ -355,6 +355,9 @@ class Solver(object):
 
     def evaluate(self, expression):
         return _SOLVER_PYTHON.Solver_evaluate(self, expression)
+
+    def solveLinearEquation(self, equation):
+        return _SOLVER_PYTHON.Solver_solveLinearEquation(self, equation)
     __swig_destroy__ = _SOLVER_PYTHON.delete_Solver
 
 # Register Solver in _SOLVER_PYTHON:

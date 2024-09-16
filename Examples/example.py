@@ -18,11 +18,9 @@ def plot_expression(solver, expression, x_range=(-10, 10), num_points=400):
     for x in x_values:
         # Replace 'x' in the expression with the current x value
         expr = expression.replace('x', f'({x})')
-        print(expr)
         try:
             # Evaluate the expression using the solver
             y = solver.evaluate(expr)
-            print(f"Y:{y} for X:{x}")
             y_values.append(y)
         except Exception as e:
             print(f"Error evaluating expression at x = {x}: {e}")
@@ -50,14 +48,37 @@ def main():
 
     # Expressions to plot
     expressions = [
-        # "x^2 + 3*x - 2",
+        "x^2 + 3*x - 2",
         "sh(x) * sh(x)",
-        # "f(x) + sh(x)",
-        # "(x^2 + 4 * x) / (3 - x)"
+        "f(x) + sh(x)",
+        "(x^2 + 4 * x) / (3 - x)",
+        "2 * sin(x)",
+        "exp(x) - 2",
+        "log(x) * x",
+        "x^2 + 4 * x + 4",
+        "1 / (x - 2)",  # This will show infinity near x=2
     ]
 
-    for expression in expressions:
-        plot_expression(solver, expression, x_range=(-10, 10))
+    # for expression in expressions:
+    #     plot_expression(solver, expression, x_range=(-10, 10))
+
+    # Linear equations to solve
+    linear_equations = [
+        "2 * x + 5 = 20 + x",
+        "3 * x - 4 = 2 * x + 6",
+        "x - 3 = 2 * x + 1",
+        "-2 * x + 4 = x - 2",
+        "5 = 5 + x",
+        "x / 2 = 3",
+        "0 = x + 5",
+    ]
+
+    for equation in linear_equations:
+        try:
+            solution = solver.solveLinearEquation(equation)
+            print(f"Solution for '{equation}': x = {solution}")
+        except Exception as e:
+            print(f"Error solving '{equation}': {e}")
 
 if __name__ == "__main__":
     main()
