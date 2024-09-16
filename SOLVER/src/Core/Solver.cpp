@@ -54,14 +54,27 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
             nodeStack.pop();
             nodeStack.push(std::move(node));
         } else if (token.type == FUNCTION) {
-            if (nodeStack.empty()) {
-                std::cerr << "Error: No operands for function: " << token.value << std::endl;
-                return nullptr; // Error: no operand
+            if (token.value == "neg") {
+                // Handle unary minus
+                if (nodeStack.empty()) {
+                    std::cerr << "Error: Not enough operands for function: neg" << std::endl;
+                    return nullptr; // Error: no operand
+                }
+                auto node = std::make_unique<ExprNode>("-");
+                node->left = std::make_unique<ExprNode>("0"); // Negation is treated as 0 - x
+                node->right = std::move(nodeStack.top());
+                nodeStack.pop();
+                nodeStack.push(std::move(node));
+            } else {
+                if (nodeStack.empty()) {
+                    std::cerr << "Error: No operands for function: " << token.value << std::endl;
+                    return nullptr; // Error: no operand
+                }
+                auto node = std::make_unique<ExprNode>(token.value);
+                node->arguments.push_back(std::move(nodeStack.top()));
+                nodeStack.pop();
+                nodeStack.push(std::move(node));
             }
-            auto node = std::make_unique<ExprNode>(token.value);
-            node->arguments.push_back(std::move(nodeStack.top()));
-            nodeStack.pop();
-            nodeStack.push(std::move(node));
         }
     }
 
@@ -72,6 +85,7 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
 
     return std::move(nodeStack.top());  // Return the unique_ptr, ownership transferred
 }
+
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
     if (standardFunctions.find(func) != standardFunctions.end()) {

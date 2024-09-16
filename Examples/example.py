@@ -17,13 +17,12 @@ def plot_expression(solver, expression, x_range=(-10, 10), num_points=400):
 
     for x in x_values:
         # Replace 'x' in the expression with the current x value
-        print(expression)
         expr = expression.replace('x', f'({x})')
-        print(expression)
+        print(expr)
         try:
             # Evaluate the expression using the solver
             y = solver.evaluate(expr)
-            print("Here")
+            print(f"Y:{y} for X:{x}")
             y_values.append(y)
         except Exception as e:
             print(f"Error evaluating expression at x = {x}: {e}")
@@ -46,15 +45,15 @@ def main():
     solver.declareVariable("x", 0)  # Default variable declaration
 
     # Declare custom functions if needed
-    solver.declareFunction("sh", ["y"], "y + 3")
+    solver.declareFunction("sh", ["x"], "x + 3")
     solver.declareFunction("f", ["x"], "x * 2 + 1")
 
     # Expressions to plot
     expressions = [
-        # "x^2 + 3*x + 2",
+        # "x^2 + 3*x - 2",
         "sh(x) * sh(x)",
-        "f(x) + sh(x)",
-        "(x^2 + 4 * x) / (3 - x)"
+        # "f(x) + sh(x)",
+        # "(x^2 + 4 * x) / (3 - x)"
     ]
 
     for expression in expressions:

@@ -1,87 +1,74 @@
 #include <iostream>
-#include "SOLVER.h"
+#include <sstream>
+#include <string>
+#include <cctype>
+#include <cmath>
 
-void printTokens(const std::vector<Token>& tokens) {
-    for (const auto& token : tokens) {
-        std::cout << "Token: " << token.value << " Type: " << token.type << std::endl;
-    }
+double parseTerm(const std::string& term) {
+    std::istringstream iss(term);
+    double value;
+    iss >> value;
+    return value;
 }
 
-void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = "", bool isLeft = true) {
-    if (node) {
-        // Print the current node
-        std::cout << prefix;
+void solveEquation(const std::string& equation) {
+    std::string lhs, rhs;
+    size_t equalsPos = equation.find('=');
+    
+    // Split the equation into LHS and RHS
+    if (equalsPos != std::string::npos) {
+        lhs = equation.substr(0, equalsPos);
+        rhs = equation.substr(equalsPos + 1);
+    } else {
+        std::cerr << "Invalid equation format." << std::endl;
+        return;
+    }
 
-        // Add an appropriate connector (either a corner or a line)
-        std::cout << (depth == 0 ? "" : (isLeft ? "├── " : "└── "));
+    double lhsConstant = 0, lhsCoeff = 0;
+    double rhsConstant = 0;
 
-        std::cout << node->value << std::endl;
-
-        // Prepare the prefix for the children
-        std::string childPrefix = prefix + (depth == 0 ? "" : (isLeft ? "│   " : "    "));
-
-        // Print the left subtree first
-        if (node->left) {
-            printTree(node->left.get(), depth + 1, childPrefix, true);
-        }
-
-        // Print the right subtree
-        if (node->right) {
-            printTree(node->right.get(), depth + 1, childPrefix, false);
+    // Parse the left side (e.g., 4 + x)
+    std::istringstream lhsStream(lhs);
+    std::string token;
+    while (lhsStream >> token) {
+        if (token.find('x') != std::string::npos) {
+            // Handle coefficients of x (e.g., 2x, -x)
+            size_t pos = token.find('x');
+            std::string coeffStr = token.substr(0, pos);
+            double coeff = coeffStr.empty() || coeffStr == "+" ? 1 : coeffStr == "-" ? -1 : parseTerm(coeffStr);
+            lhsCoeff += coeff;
+        } else if (token == "+" || token == "-") {
+            std::string nextToken;
+            lhsStream >> nextToken;
+            token += nextToken; // Handle +4 or -3
+            lhsConstant += parseTerm(token);
+        } else {
+            lhsConstant += parseTerm(token);
         }
     }
-}
 
-void testEquation(Solver& solver, const std::string& equation) {
-    std::cout << "Testing equation: " << equation << std::endl;
+    // Parse the right side (e.g., 55)
+    rhsConstant = parseTerm(rhs);
 
-    // auto tokens = solver.tokenize(equation);
-    // if (tokens.empty()) {
-    //     std::cerr << "Error: Tokenization failed for equation: " << equation << std::endl;
-    //     return;
-    // }
+    // Move lhsConstant to the right side
+    rhsConstant -= lhsConstant;
 
-    // auto exprTree = solver.parseExpression(tokens);
-    // if (!exprTree) {
-    //     std::cerr << "Error: Parsing failed for equation: " << equation << std::endl;
-    //     return;
-    // }
-
-    // printTree(exprTree.get());
-
-    double evaluatedValue = solver.evaluate(equation);
-    std::cout << "Evaluated expression value: " << evaluatedValue << std::endl;
-    std::cout << "--------------------------" << std::endl << std::endl;
+    // Now the equation is of the form: lhsCoeff * x = rhsConstant
+    if (lhsCoeff == 0) {
+        if (rhsConstant == 0) {
+            std::cout << "Infinite solutions (identity equation)." << std::endl;
+        } else {
+            std::cout << "No solution." << std::endl;
+        }
+    } else {
+        double solution = rhsConstant / lhsCoeff;
+        std::cout << "x = " << solution << std::endl;
+    }
 }
 
 int main() {
-    Solver solver;
-
-    // Declare variables
-    solver.declareVariable("x", 1);
-    solver.declareVariable("y", 2);
-    solver.declareVariable("z", 3);
-    solver.declareVariable("w", 4);
-
-    // Declare custom functions
-    solver.declareFunction("sh", {"y"}, "y + 3");
-    solver.declareFunction("f", {"x"}, "x * 2 + 1");
-
-    // Test expressions
-    std::vector<std::string> expressions = {
-        "sh(x) * sh(y)",
-        "f(z) + sh(w)",
-        // "3 * (x + y) + 2 * z",
-        // "sin(x) + cos(y) - log(z)",
-        "(x^2 + 4 * y) / (3 - z)",
-        // "x * (sin(y) + cos(z)) + exp(w)",
-        // "(x + y + z + w) / (x * y - z + w)",
-        // "2 + 2"
-    };
-
-    for (const auto& expression : expressions) {
-        testEquation(solver, expression);
-    }
-
+    std::string equation = "4 + x = 55";
+    std::cout << "Equation: " << equation << std::endl;
+    solveEquation(equation);
     return 0;
 }
