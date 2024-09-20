@@ -20,6 +20,7 @@ public:
     
     void declareVariable(const std::string& name, double value, bool isGlobal = false);
     void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
+    std::vector<double> evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression);
     double evaluate(const std::string& expression);
     
 private:

@@ -1,5 +1,8 @@
 #include <iostream>
 #include "SOLVER.h"
+#include <cmath> // For NaN
+#include <iomanip> // For setting precision
+
 
 void printTokens(const std::vector<Token>& tokens) {
     for (const auto& token : tokens) {
@@ -35,53 +38,44 @@ void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = 
 void testEquation(Solver& solver, const std::string& equation) {
     std::cout << "Testing equation: " << equation << std::endl;
 
-    // auto tokens = solver.tokenize(equation);
-    // if (tokens.empty()) {
-    //     std::cerr << "Error: Tokenization failed for equation: " << equation << std::endl;
-    //     return;
-    // }
-
-    // auto exprTree = solver.parseExpression(tokens);
-    // if (!exprTree) {
-    //     std::cerr << "Error: Parsing failed for equation: " << equation << std::endl;
-    //     return;
-    // }
-
-    // printTree(exprTree.get());
-
     double evaluatedValue = solver.evaluate(equation);
     std::cout << "Evaluated expression value: " << evaluatedValue << std::endl;
     std::cout << "--------------------------" << std::endl << std::endl;
 }
 
+std::vector<double> linspace(double start, double end, int num_points) {
+    std::vector<double> points;
+    if (num_points <= 0) return points;
+
+    double step = (end - start) / (num_points - 1);
+    for (int i = 0; i < num_points; ++i) {
+        points.push_back(start + i * step);
+    }
+    return points;
+}
+
 int main() {
     Solver solver;
 
-    // Declare variables
-    solver.declareVariable("x", 1);
-    solver.declareVariable("y", 2);
-    solver.declareVariable("z", 3);
-    solver.declareVariable("w", 4);
+    // Declare the variable "x" to be dynamically evaluated
+    solver.declareVariable("z", 0);  // This can be overwritten by evaluateForRange
 
-    // Declare custom functions
-    solver.declareFunction("sh", {"y"}, "y + 3");
-    solver.declareFunction("f", {"x"}, "x * 2 + 1");
+    // Expression to evaluate for the range of x values
+    std::string expression = "x^2 + 3*x + 2";
 
-    // Test expressions
-    std::vector<std::string> expressions = {
-        "sh(x) * sh(y)",
-        "f(z) + sh(w)",
-        // "3 * (x + y) + 2 * z",
-        // "sin(x) + cos(y) - log(z)",
-        "(x^2 + 4 * y) / (3 - z)",
-        // "x * (sin(y) + cos(z)) + exp(w)",
-        // "(x + y + z + w) / (x * y - z + w)",
-        // "2 + 2"
-    };
+    // Generate 400 evenly spaced numbers between -10 and 10
+    std::vector<double> x_values = linspace(-10, 10, 400);
 
-    for (const auto& expression : expressions) {
-        testEquation(solver, expression);
+    // Get the results by evaluating the expression over the range of x values
+    std::vector<double> results = solver.evaluateForRange("x", x_values, expression);
+
+    // Print the results
+    std::cout << "Results for the expression: " << expression << std::endl;
+    std::cout << std::fixed << std::setprecision(5); // Set precision for printing
+    for (size_t i = 0; i < x_values.size(); ++i) {
+        std::cout << "x = " << x_values[i] << " -> f(x) = " << results[i] << std::endl;
     }
 
     return 0;
+
 }

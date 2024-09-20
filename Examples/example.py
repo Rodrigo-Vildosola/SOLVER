@@ -42,7 +42,7 @@ def main():
     solver = Solver()
 
     # Declare variables
-    solver.declareVariable("x", 0)  # Default variable declaration
+    solver.declareVariable("z", 0)  # Default variable declaration
 
     # Declare custom functions if needed
     solver.declareFunction("sh", ["x"], "x + 3")
@@ -50,8 +50,8 @@ def main():
 
     # Expressions to plot
     expressions = [
-        # "x^2 + 3*x - 2",
-        "sh(x) * sh(x)",
+        "x^2 + 3*x + 2",
+        # "sh(x) * sh(x)",
         # "f(x) + sh(x)",
         # "(x^2 + 4 * x) / (3 - x)"
     ]

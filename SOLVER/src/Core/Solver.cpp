@@ -180,3 +180,23 @@ double Solver::evaluate(const std::string& expression) {
 }
 
 
+
+std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression) {
+    std::vector<double> results;
+
+    for (double value : values) {
+        // Dynamically update the variable in the localSymbols
+        declareVariable(variable, value, false);
+
+        // Evaluate the expression with the current variable value
+        try {
+            double result = evaluate(expression);
+            results.push_back(result);
+        } catch (const std::exception& e) {
+            std::cerr << "Error evaluating expression with " << variable << " = " << value << ": " << e.what() << std::endl;
+            results.push_back(std::nan(""));  // Insert NaN for errors
+        }
+    }
+
+    return results;
+}
