@@ -5,7 +5,10 @@
 #include "Core/Solver.h"
 #include "Core/ExprNode.h"
 #include "Core/Token.h"
-#include <memory>  // Ensure you include memory for shared_ptr
+#include "Core/Exception.h"
+
+// Declare the Python exception object for SolverException
+static PyObject* pSolverException;
 %}
 
 %include <exception.i>
@@ -64,7 +67,38 @@
     $result = list;
 }
 
+%init %{
+    pSolverException = PyErr_NewException("_solver.SolverException", NULL, NULL);
+    Py_INCREF(pSolverException);
+    PyModule_AddObject(m, "SolverException", pSolverException);
+%}
+
+// Exception handling logic for C++ exceptions
+%exception {
+    try {
+        $action
+    } catch (SolverException &e) {
+        PyErr_SetString(pSolverException, e.what());
+        SWIG_fail;
+    } catch (const std::out_of_range &e) {
+        SWIG_exception(SWIG_IndexError, ("Index out of range: " + std::string(e.what())).c_str());
+    } catch (const std::bad_alloc &e) {
+        SWIG_exception(SWIG_MemoryError, ("Memory allocation failed: " + std::string(e.what())).c_str());
+    } catch (const std::exception &e) {
+        SWIG_exception(SWIG_RuntimeError, ("Standard exception: " + std::string(e.what())).c_str());
+    } catch (...) {
+        SWIG_exception(SWIG_UnknownError, "An unknown error occurred");
+    }
+}
+
 // Include the Solver class definition
 %include "Core/Solver.h"
-// %include "Core/ExprNode.h"
 %include "Core/Token.h"
+
+%pythoncode %{
+class SolverException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+SolverException = _SOLVER_PYTHON.SolverException
+%}

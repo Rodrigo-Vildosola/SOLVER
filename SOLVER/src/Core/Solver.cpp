@@ -1,4 +1,5 @@
 #include "Solver.h"
+#include "Exception.h"
 #include <stdexcept>
 #include <cmath> // For mathematical functions like sin, cos, etc.
 #include <stack>
@@ -26,7 +27,7 @@ void Solver::validateFunctionExpression(const std::string& expression, const std
         if (token.type == VARIABLE) {
             if (std::find(args.begin(), args.end(), token.value) == args.end() &&
                 globalSymbols.find(token.value) == globalSymbols.end()) {
-                throw std::invalid_argument("Variable " + token.value + " is not declared in the function scope or globally.");
+                throw SolverException("Variable '" + token.value + "' is not declared in the function scope or globally.");
             }
         }
     }
@@ -44,8 +45,7 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
             nodeStack.push(std::make_unique<ExprNode>(token.value));
         } else if (token.type == OPERATOR) {
             if (nodeStack.size() < 2) {
-                std::cerr << "Error: Not enough operands for operator: " << token.value << std::endl;
-                return nullptr; // Error: not enough operands
+                throw SolverException("Error: Not enough operands for operator '" + token.value + "'");
             }
             auto node = std::make_unique<ExprNode>(token.value);
             node->right = std::move(nodeStack.top());
@@ -55,20 +55,17 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
             nodeStack.push(std::move(node));
         } else if (token.type == FUNCTION) {
             if (token.value == "neg") {
-                // Handle unary minus
                 if (nodeStack.empty()) {
-                    std::cerr << "Error: Not enough operands for function: neg" << std::endl;
-                    return nullptr; // Error: no operand
+                    throw SolverException("Error: Not enough operands for unary minus (neg).");
                 }
                 auto node = std::make_unique<ExprNode>("-");
-                node->left = std::make_unique<ExprNode>("0"); // Negation is treated as 0 - x
+                node->left = std::make_unique<ExprNode>("0");
                 node->right = std::move(nodeStack.top());
                 nodeStack.pop();
                 nodeStack.push(std::move(node));
             } else {
                 if (nodeStack.empty()) {
-                    std::cerr << "Error: No operands for function: " << token.value << std::endl;
-                    return nullptr; // Error: no operand
+                    throw SolverException("Error: No operands for function: '" + token.value + "'.");
                 }
                 auto node = std::make_unique<ExprNode>(token.value);
                 node->arguments.push_back(std::move(nodeStack.top()));
@@ -79,13 +76,11 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
     }
 
     if (nodeStack.empty()) {
-        std::cerr << "Error: The expression could not be parsed into an expression tree." << std::endl;
-        return nullptr; // Error: empty stack
+        throw SolverException("Error: The expression could not be parsed into an expression tree.");
     }
 
-    return std::move(nodeStack.top());  // Return the unique_ptr, ownership transferred
+    return std::move(nodeStack.top()); // Return the unique_ptr, ownership transferred
 }
-
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
     if (standardFunctions.find(func) != standardFunctions.end()) {
@@ -98,29 +93,27 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     } else if (functions.find(func) != functions.end()) {
         auto funcDef = functions[func];
         if (funcDef.args.size() != args.size()) {
-            throw std::invalid_argument("Function argument count mismatch: " + func);
+            throw SolverException("Function argument count mismatch for '" + func + "'. Expected " +
+                                  std::to_string(funcDef.args.size()) + " but got " + std::to_string(args.size()) + ".");
         }
 
         auto savedLocalSymbols = localSymbols;
-
         localSymbols.clear();
         for (size_t i = 0; i < funcDef.args.size(); ++i) {
             localSymbols[funcDef.args[i]] = args[i];
         }
 
         double result = evaluate(funcDef.expression);
-
         localSymbols = savedLocalSymbols;
 
         return result;
     }
-    throw std::invalid_argument("Unknown function: " + func);
+    throw SolverException("Unknown function: '" + func + "'.");
 }
 
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     if (!node) {
-        std::cerr << "Error: Trying to evaluate a null node." << std::endl;
-        throw std::runtime_error("Error: Trying to evaluate a null node.");
+        throw SolverException("Error: Trying to evaluate a null node.");
     }
 
     if (!node->left && !node->right && node->arguments.empty()) {
@@ -131,9 +124,8 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
         }
         try {
             return std::stod(node->value);
-        } catch (const std::invalid_argument& e) {
-            std::cerr << "Invalid argument: " << node->value << std::endl;
-            throw;
+        } catch (const std::invalid_argument&) {
+            throw SolverException("Invalid argument: Unable to convert '" + node->value + "' to a number.");
         }
     }
 
@@ -156,45 +148,38 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
         return leftValue * rightValue;
     } else if (node->value == "/") {
         if (rightValue == 0) {
-            std::cerr << "Error: Division by zero." << std::endl;
-            throw std::runtime_error("Division by zero.");
+            throw SolverException("Division by zero error.");
         }
         return leftValue / rightValue;
     } else if (node->value == "^") {
         return std::pow(leftValue, rightValue);
     } else {
-        throw std::invalid_argument("Unknown operator: " + node->value);
+        throw SolverException("Unknown operator: '" + node->value + "'.");
     }
 }
-
 
 double Solver::evaluate(const std::string& expression) {
     auto tokens = tokenize(expression);
     auto exprTree = parseExpression(tokens);
     if (!exprTree) {
-        std::cerr << "Error: Failed to parse the expression into a tree." << std::endl;
-        throw std::runtime_error("Failed to parse the expression.");
+        throw SolverException("Error: Failed to parse the expression into a tree.");
     }
     double result = evaluateNode(exprTree);
     return result;
 }
 
-
-
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression) {
     std::vector<double> results;
 
     for (double value : values) {
-        // Dynamically update the variable in the localSymbols
-        declareVariable(variable, value, false);
+        declareVariable(variable, value, false); // Dynamically update the variable
 
-        // Evaluate the expression with the current variable value
         try {
             double result = evaluate(expression);
             results.push_back(result);
-        } catch (const std::exception& e) {
-            std::cerr << "Error evaluating expression with " << variable << " = " << value << ": " << e.what() << std::endl;
-            results.push_back(std::nan(""));  // Insert NaN for errors
+        } catch (const SolverException& e) {
+            std::cerr << "Error evaluating expression with '" << variable << "' = " << value << ": " << e.what() << std::endl;
+            results.push_back(std::nan("")); // Insert NaN for errors
         }
     }
 

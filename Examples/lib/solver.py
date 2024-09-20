@@ -353,6 +353,9 @@ class Solver(object):
     def declareFunction(self, name, args, expression):
         return _SOLVER_PYTHON.Solver_declareFunction(self, name, args, expression)
 
+    def evaluateForRange(self, variable, values, expression):
+        return _SOLVER_PYTHON.Solver_evaluateForRange(self, variable, values, expression)
+
     def evaluate(self, expression):
         return _SOLVER_PYTHON.Solver_evaluate(self, expression)
     __swig_destroy__ = _SOLVER_PYTHON.delete_Solver
@@ -376,4 +379,11 @@ class Token(object):
 
 # Register Token in _SOLVER_PYTHON:
 _SOLVER_PYTHON.Token_swigregister(Token)
+
+class SolverException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+SolverException = _SOLVER_PYTHON.SolverException
+
 

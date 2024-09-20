@@ -1,64 +1,83 @@
-from lib.solver import Solver
+from lib.solver import Solver, SolverException
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_expression(solver, expression, x_range=(-10, 10), num_points=400):
-    """
-    Plots the given mathematical expression over the specified x range.
+# Initialize solver
+solver = Solver()
 
-    Parameters:
-    solver (Solver): The solver object used to evaluate the expression.
-    expression (str): The mathematical expression to plot (e.g., "x^2 + 3*x + 2").
-    x_range (tuple): The range of x values to plot (start, end).
-    num_points (int): The number of points to calculate between the range.
-    """
-    x_values = np.linspace(x_range[0], x_range[1], num_points)
-    y_values = []
+# Utility function for evaluating and printing results
+def test_expression(expression):
+    try:
+        result = solver.evaluate(expression)
+        print(f"Evaluating: {expression} -> Result: {result}")
+    except SolverException as e:
+        print(f"Error evaluating {expression}: {e}")
 
-    for x in x_values:
-        # Replace 'x' in the expression with the current x value
-        expr = expression.replace('x', f'({x})')
-        print(expr)
-        try:
-            # Evaluate the expression using the solver
-            y = solver.evaluate(expr)
-            print(f"Y:{y} for X:{x}")
-            y_values.append(y)
-        except Exception as e:
-            print(f"Error evaluating expression at x = {x}: {e}")
-            y_values.append(np.nan)  # Use NaN for plotting errors
-
-    # Plot the results using matplotlib
-    plt.figure(figsize=(10, 6))
-    plt.plot(x_values, y_values, label=expression)
-    plt.xlabel('x')
-    plt.ylabel('f(x)')
-    plt.title(f'Plot of {expression}')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
+# Test different expressions with variables, functions, and ranges
 def main():
-    solver = Solver()
+    try:
+        # Declare global variables
+        solver.declareVariable("x", 0, True)   # Global x
+        solver.declareVariable("y", 0, True)   # Global y
 
-    # Declare variables
-    solver.declareVariable("z", 0)  # Default variable declaration
+        # Test with basic variables
+        print("=== Testing Variables ===")
+        test_expression("x + y")  # Expected: 0
 
-    # Declare custom functions if needed
-    solver.declareFunction("sh", ["x"], "x + 3")
-    solver.declareFunction("f", ["x"], "x * 2 + 1")
+        # Update the values of x and y and test again
+        solver.declareVariable("x", 5, False)  # Local x
+        solver.declareVariable("y", 10, False) # Local y
+        test_expression("x + y")  # Expected: 15
 
-    # Expressions to plot
-    expressions = [
-        "x^2 + 3*x + 2",
-        # "sh(x) * sh(x)",
-        # "f(x) + sh(x)",
-        # "(x^2 + 4 * x) / (3 - x)"
-    ]
+        # Test more complex expressions
+        print("\n=== Testing Complex Expressions ===")
+        test_expression("x * y + x^2")  # Expected: 5 * 10 + 5^2 = 75
+        test_expression("y / x")  # Expected: 10 / 5 = 2
 
-    for expression in expressions:
-        plot_expression(solver, expression, x_range=(-10, 10))
-        
+        # Test division by zero (expecting an exception)
+        test_expression("x / (y - 10)")  # This will cause a division by zero
+
+        # Declare a custom function f(x) = x^2 + 2*x + 1
+        print("\n=== Declaring and Testing Custom Function f(x) ===")
+        solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
+        test_expression("f(3)")  # Expected: 3^2 + 2*3 + 1 = 16
+        test_expression("f(-1)")  # Expected: (-1)^2 + 2*(-1) + 1 = 0
+
+        # Declare another function g(x, y) = x * y + x + y
+        print("\n=== Declaring and Testing Custom Function g(x, y) ===")
+        solver.declareFunction("g", ["x", "y"], "x * y + x + y")
+        test_expression("g(3, 4)")  # Expected: 3 * 4 + 3 + 4 = 19
+        test_expression("g(-2, 2)")  # Expected: -2 * 2 + (-2) + 2 = -4
+
+        # Test plotting a range of values using the custom function f(x)
+        print("\n=== Plotting Results for f(x) ===")
+        x_values = np.linspace(-10, 10, 400)
+        f_results = solver.evaluateForRange("x", x_values.tolist(), "f(x)")
+
+        plt.plot(x_values, f_results, label="f(x) = x^2 + 2x + 1")
+        plt.title("Plot of f(x) = x^2 + 2x + 1")
+        plt.xlabel("x")
+        plt.ylabel("f(x)")
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+
+        # Testing a range for another custom expression with x and y
+        print("\n=== Testing Range for g(x, y) ===")
+        x_values = np.linspace(0, 10, 100)
+        y_values = np.linspace(0, 10, 100)
+        g_results = solver.evaluateForRange("x", x_values.tolist(), "g(x, 5)")  # y = 5
+
+        plt.plot(x_values, g_results, label="g(x, 5) = x * 5 + x + 5")
+        plt.title("Plot of g(x, 5) = x * 5 + x + 5")
+        plt.xlabel("x")
+        plt.ylabel("g(x, 5)")
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+
+    except SolverException as e:
+        print(f"Solver error: {e}")
 
 if __name__ == "__main__":
     main()
