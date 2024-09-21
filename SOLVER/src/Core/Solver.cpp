@@ -91,6 +91,46 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
     return std::move(nodeStack.top()); // Return the unique_ptr, ownership transferred
 }
 
+std::unique_ptr<ExprNode> Solver::simplify(std::unique_ptr<ExprNode> node) {
+    if (!node) return nullptr;
+
+    // Simplify the left and right subtrees (if applicable)
+    node->left = simplify(std::move(node->left));
+    node->right = simplify(std::move(node->right));
+
+    // Simplify based on the operator
+    if (node->value == "+") {
+        // x + 0 = x
+        if (isZero(node->right)) return std::move(node->left);
+        if (isZero(node->left)) return std::move(node->right);
+        // x + x = 2 * x
+        if (areEqual(node->left, node->right)) {
+            return makeMulNode(2, std::move(node->left));
+        }
+    } else if (node->value == "*") {
+        // x * 1 = x
+        if (isOne(node->right)) return std::move(node->left);
+        if (isOne(node->left)) return std::move(node->right);
+        // x * 0 = 0
+        if (isZero(node->right) || isZero(node->left)) {
+            return makeConstNode(0);
+        }
+    } else if (node->value == "-") {
+        // x - 0 = x
+        if (isZero(node->right)) return std::move(node->left);
+    } else if (node->value == "/") {
+        // x / 1 = x
+        if (isOne(node->right)) return std::move(node->left);
+    } else if (node->value == "^") {
+        // x^1 = x
+        if (isOne(node->right)) return std::move(node->left);
+        // x^0 = 1
+        if (isZero(node->right)) return makeConstNode(1);
+    }
+
+    return node;  // Return the simplified (or original) node
+}
+
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
     if (standardFunctions.find(func) != standardFunctions.end()) {
@@ -174,9 +214,13 @@ double Solver::evaluate(const std::string& expression) {
     if (!exprTree) {
         throw SolverException("Error: Failed to parse the expression into a tree.");
     }
+
+    exprTree = simplify(std::move(exprTree));
+
     double result = evaluateNode(exprTree);
     return result;
 }
+
 
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression) {
     std::vector<double> results;

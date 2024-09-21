@@ -472,6 +472,7 @@ VARIABLE = _SOLVER_PYTHON.VARIABLE
 OPERATOR = _SOLVER_PYTHON.OPERATOR
 FUNCTION = _SOLVER_PYTHON.FUNCTION
 PAREN = _SOLVER_PYTHON.PAREN
+SEPARATOR = _SOLVER_PYTHON.SEPARATOR
 class Token(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr

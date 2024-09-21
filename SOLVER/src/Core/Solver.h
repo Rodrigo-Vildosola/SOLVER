@@ -35,9 +35,16 @@ private:
     std::unordered_map<std::string, Function> functions;
 
     std::queue<Token> shuntingYard(const std::vector<Token>& tokens);
+    std::unique_ptr<ExprNode> simplify(std::unique_ptr<ExprNode> node);
 
     double evaluateFunction(const std::string& func, const std::vector<double>& args);
     void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
 
     const std::unordered_set<std::string> standardFunctions = {"sin", "cos", "tan", "exp", "log", "sqrt"};
+
+    bool isZero(const std::unique_ptr<ExprNode>& node);
+    bool isOne(const std::unique_ptr<ExprNode>& node);
+    bool areEqual(const std::unique_ptr<ExprNode>& left, const std::unique_ptr<ExprNode>& right);
+    std::unique_ptr<ExprNode> makeMulNode(double coefficient, std::unique_ptr<ExprNode> node);
+    std::unique_ptr<ExprNode> makeConstNode(double value);
 };
