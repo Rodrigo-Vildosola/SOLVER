@@ -1,7 +1,7 @@
 #include "Solver.h"
 #include "Exception.h"
 #include <stdexcept>
-#include <cmath> // For mathematical functions like sin, cos, etc.
+#include <cmath>
 #include <stack>
 #include <iostream>
 #include <unordered_set>

@@ -19,7 +19,6 @@ def main():
         # Declare global variables
         solver.declareVariable("x", 0, True)   # Global x
         solver.declareVariable("y", 0, True)   # Global y
-        solver.declareVariable("pi", np.pi, True)  # Declare global pi
 
         # Test with basic variables
         print("=== Testing Variables ===")
@@ -38,26 +37,41 @@ def main():
         # Test division by zero (expecting an exception)
         test_expression("x / (y - 10)")  # This will cause a division by zero
 
-        # Declare a custom function f(x) = pi * x^2 (uses the global variable pi)
-        print("\n=== Declaring and Testing Custom Function f(x) with global pi ===")
-        solver.declareFunction("f", ["x"], "pi * x^2")
-        test_expression("f(3)")  # Expected: pi * 3^2 = 28.2743...
-        test_expression("f(5)")  # Expected: pi * 5^2 = 78.5398...
+        # Declare a custom function f(x) = x^2 + 2*x + 1
+        print("\n=== Declaring and Testing Custom Function f(x) ===")
+        solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
+        test_expression("f(3)")  # Expected: 3^2 + 2*3 + 1 = 16
+        test_expression("f(-1)")  # Expected: (-1)^2 + 2*(-1) + 1 = 0
 
-        # Declare a custom function g(x, y) = x * y + z (z is not passed, should throw an error)
-        print("\n=== Declaring and Testing Custom Function g(x, y) with missing z ===")
-        solver.declareFunction("g", ["x", "y"], "x * y + z")
-        test_expression("g(3, 4)")  # This should raise an error because z is not defined
+        # Declare another function g(x, y) = x * y + x + y
+        print("\n=== Declaring and Testing Custom Function g(x, y) ===")
+        solver.declareFunction("g", ["x", "y"], "x * y + x + y")
+        test_expression("g(3, 4)")  # Expected: 3 * 4 + 3 + 4 = 19
+        test_expression("g(-2, 2)")  # Expected: -2 * 2 + (-2) + 2 = -4
 
         # Test plotting a range of values using the custom function f(x)
         print("\n=== Plotting Results for f(x) ===")
         x_values = np.linspace(-10, 10, 400)
         f_results = solver.evaluateForRange("x", x_values.tolist(), "f(x)")
 
-        plt.plot(x_values, f_results, label="f(x) = pi * x^2")
-        plt.title("Plot of f(x) = pi * x^2")
+        plt.plot(x_values, f_results, label="f(x) = x^2 + 2x + 1")
+        plt.title("Plot of f(x) = x^2 + 2x + 1")
         plt.xlabel("x")
         plt.ylabel("f(x)")
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+
+        # Testing a range for another custom expression with x and y
+        print("\n=== Testing Range for g(x, y) ===")
+        x_values = np.linspace(0, 10, 100)
+        y_values = np.linspace(0, 10, 100)
+        g_results = solver.evaluateForRange("x", x_values.tolist(), "g(x, 5)")  # y = 5
+
+        plt.plot(x_values, g_results, label="g(x, 5) = x * 5 + x + 5")
+        plt.title("Plot of g(x, 5) = x * 5 + x + 5")
+        plt.xlabel("x")
+        plt.ylabel("g(x, 5)")
         plt.grid(True)
         plt.legend()
         plt.show()
