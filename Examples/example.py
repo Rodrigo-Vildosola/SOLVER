@@ -47,7 +47,7 @@ def main():
         print("\n=== Declaring and Testing Custom Function g(x, y) ===")
         solver.declareFunction("g", ["x", "y"], "x * y + x + y")
         test_expression("g(3, 4)")  # Expected: 3 * 4 + 3 + 4 = 19
-        test_expression("g(-2, 2) + 1")  # Expected: -2 * 2 + (-2) + 2 = -4
+        test_expression("g(-2, 2)")  # Expected: -2 * 2 + (-2) + 2 = -4
 
         # Test plotting a range of values using the custom function f(x)
         # print("\n=== Plotting Results for f(x) ===")

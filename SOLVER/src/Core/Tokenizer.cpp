@@ -1,4 +1,5 @@
 #include "Solver.h"
+#include "Exception.h"
 #include <cctype>
 #include <iostream>
 
@@ -37,12 +38,9 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
             } else if (c == '(' || c == ')') {
                 tokens.push_back({PAREN, std::string(1, c)});
             } else if (c == ',') {
-                std::cout << equation << std::endl;
-                tokens.push_back({SEPARATOR, ","});
+                tokens.push_back({SEPARATOR, ","});  // Ensure comma is properly tokenized
             } else {
-                // Handle invalid characters
-                std::cerr << "Error: Unknown character " << c << std::endl;
-                return {};
+                throw SolverException("Error: Unknown character '" + std::string(1, c) + "'");
             }
         }
     }

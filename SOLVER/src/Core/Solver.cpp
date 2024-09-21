@@ -67,10 +67,15 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
             } else {
                 // Handle regular functions (with possibly multiple arguments)
                 std::vector<std::unique_ptr<ExprNode>> arguments;
+                while (!nodeStack.empty() && nodeStack.top()) {
+                    arguments.insert(arguments.begin(), std::move(nodeStack.top()));
+                    nodeStack.pop();
+                }
 
                 // Collect all the arguments (assumed to be already separated by commas)
-                arguments.push_back(std::move(nodeStack.top()));
-                nodeStack.pop();
+                if (arguments.empty()) {
+                    throw SolverException("Error: No operands for function: '" + token.value + "'.");
+                }
 
                 auto node = std::make_unique<ExprNode>(token.value);
                 node->arguments = std::move(arguments);
@@ -139,7 +144,6 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
         for (const auto& argNode : node->arguments) {
             args.push_back(evaluateNode(argNode));
         }
-        std::cout << "HEreee" << std::to_string(args.size()) << std::endl;
         return evaluateFunction(node->value, args);
     }
 
