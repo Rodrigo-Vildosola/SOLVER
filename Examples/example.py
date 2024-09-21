@@ -50,31 +50,31 @@ def main():
         test_expression("g(-2, 2)")  # Expected: -2 * 2 + (-2) + 2 = -4
 
         # Test plotting a range of values using the custom function f(x)
-        # print("\n=== Plotting Results for f(x) ===")
-        # x_values = np.linspace(-10, 10, 400)
-        # f_results = solver.evaluateForRange("x", x_values.tolist(), "f(x)")
+        print("\n=== Plotting Results for f(x) ===")
+        x_values = np.linspace(-10, 10, 400)
+        f_results = solver.evaluateForRange("x", x_values.tolist(), "f(x)")
 
-        # plt.plot(x_values, f_results, label="f(x) = x^2 + 2x + 1")
-        # plt.title("Plot of f(x) = x^2 + 2x + 1")
-        # plt.xlabel("x")
-        # plt.ylabel("f(x)")
-        # plt.grid(True)
-        # plt.legend()
-        # plt.show()
+        plt.plot(x_values, f_results, label="f(x) = x^2 + 2x + 1")
+        plt.title("Plot of f(x) = x^2 + 2x + 1")
+        plt.xlabel("x")
+        plt.ylabel("f(x)")
+        plt.grid(True)
+        plt.legend()
+        plt.show()
 
-        # # Testing a range for another custom expression with x and y
-        # print("\n=== Testing Range for g(x, y) ===")
-        # x_values = np.linspace(0, 10, 100)
-        # y_values = np.linspace(0, 10, 100)
-        # g_results = solver.evaluateForRange("x", x_values.tolist(), "g(x, 5)")  # y = 5
+        # Testing a range for another custom expression with x and y
+        print("\n=== Testing Range for g(x, y) ===")
+        x_values = np.linspace(0, 10, 100)
+        y_values = np.linspace(0, 10, 100)
+        g_results = solver.evaluateForRange("x", x_values.tolist(), "g(x, 5)")  # y = 5
 
-        # plt.plot(x_values, g_results, label="g(x, 5) = x * 5 + x + 5")
-        # plt.title("Plot of g(x, 5) = x * 5 + x + 5")
-        # plt.xlabel("x")
-        # plt.ylabel("g(x, 5)")
-        # plt.grid(True)
-        # plt.legend()
-        # plt.show()
+        plt.plot(x_values, g_results, label="g(x, 5) = x * 5 + x + 5")
+        plt.title("Plot of g(x, 5) = x * 5 + x + 5")
+        plt.xlabel("x")
+        plt.ylabel("g(x, 5)")
+        plt.grid(True)
+        plt.legend()
+        plt.show()
 
     except SolverException as e:
         print(f"Solver error: {e}")
