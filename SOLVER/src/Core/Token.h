@@ -2,7 +2,7 @@
 
 #include <string>
 
-enum TokenType { NUMBER, VARIABLE, OPERATOR, FUNCTION, PAREN };
+enum TokenType { NUMBER, VARIABLE, OPERATOR, FUNCTION, PAREN, SEPARATOR };
 
 struct Token {
     TokenType type;

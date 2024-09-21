@@ -1,10 +1,12 @@
 #include "Solver.h"
+#include "Exception.h"
 #include <stack>
 #include <stdexcept>
 
 std::queue<Token> Solver::shuntingYard(const std::vector<Token>& tokens) {
     std::queue<Token> outputQueue;
     std::stack<Token> operatorStack;
+    std::stack<int> argumentCounts; // To track the number of arguments for multi-param functions
 
     auto precedence = [](const std::string& op) {
         if (op == "+" || op == "-") return 1;
@@ -24,6 +26,7 @@ std::queue<Token> Solver::shuntingYard(const std::vector<Token>& tokens) {
             outputQueue.push(token);
         } else if (token.type == FUNCTION) {
             operatorStack.push(token);
+            argumentCounts.push(1); // Initialize argument count for the function (at least 1 argument expected)
         } else if (token.type == OPERATOR) {
             // Handle unary minus
             if (token.value == "-" && (i == 0 || tokens[i-1].type == OPERATOR || tokens[i-1].value == "(")) {
@@ -41,19 +44,41 @@ std::queue<Token> Solver::shuntingYard(const std::vector<Token>& tokens) {
         } else if (token.value == "(") {
             operatorStack.push(token);
         } else if (token.value == ")") {
+            // Pop until the left parenthesis is found
             while (!operatorStack.empty() && operatorStack.top().value != "(") {
                 outputQueue.push(operatorStack.top());
                 operatorStack.pop();
             }
-            operatorStack.pop(); // Pop the "("
+            if (operatorStack.empty()) {
+                throw SolverException("Mismatched parentheses.");
+            }
+            operatorStack.pop(); // Pop the left parenthesis
+
+            // If a function is on top of the stack, add it to the output queue
             if (!operatorStack.empty() && operatorStack.top().type == FUNCTION) {
                 outputQueue.push(operatorStack.top());
                 operatorStack.pop();
+            }
+        } else if (token.value == ",") {
+            // Comma should pop the operators until a left parenthesis is found
+            while (!operatorStack.empty() && operatorStack.top().value != "(") {
+                outputQueue.push(operatorStack.top());
+                operatorStack.pop();
+            }
+            if (operatorStack.empty()) {
+                throw SolverException("Mismatched parentheses or misplaced comma.");
+            }
+            // Increase the argument count for the current function
+            if (!argumentCounts.empty()) {
+                argumentCounts.top()++;
             }
         }
     }
 
     while (!operatorStack.empty()) {
+        if (operatorStack.top().value == "(" || operatorStack.top().value == ")") {
+            throw SolverException("Mismatched parentheses.");
+        }
         outputQueue.push(operatorStack.top());
         operatorStack.pop();
     }

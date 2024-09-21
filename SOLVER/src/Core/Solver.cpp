@@ -54,22 +54,26 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
             nodeStack.pop();
             nodeStack.push(std::move(node));
         } else if (token.type == FUNCTION) {
+            // Handle the "neg" function (unary minus)
             if (token.value == "neg") {
                 if (nodeStack.empty()) {
                     throw SolverException("Error: Not enough operands for unary minus (neg).");
                 }
                 auto node = std::make_unique<ExprNode>("-");
-                node->left = std::make_unique<ExprNode>("0");
+                node->left = std::make_unique<ExprNode>("0"); // neg(x) is 0 - x
                 node->right = std::move(nodeStack.top());
                 nodeStack.pop();
                 nodeStack.push(std::move(node));
             } else {
-                if (nodeStack.empty()) {
-                    throw SolverException("Error: No operands for function: '" + token.value + "'.");
-                }
-                auto node = std::make_unique<ExprNode>(token.value);
-                node->arguments.push_back(std::move(nodeStack.top()));
+                // Handle regular functions (with possibly multiple arguments)
+                std::vector<std::unique_ptr<ExprNode>> arguments;
+
+                // Collect all the arguments (assumed to be already separated by commas)
+                arguments.push_back(std::move(nodeStack.top()));
                 nodeStack.pop();
+
+                auto node = std::make_unique<ExprNode>(token.value);
+                node->arguments = std::move(arguments);
                 nodeStack.push(std::move(node));
             }
         }
@@ -81,6 +85,7 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
 
     return std::move(nodeStack.top()); // Return the unique_ptr, ownership transferred
 }
+
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
     if (standardFunctions.find(func) != standardFunctions.end()) {
@@ -134,6 +139,7 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
         for (const auto& argNode : node->arguments) {
             args.push_back(evaluateNode(argNode));
         }
+        std::cout << "HEreee" << std::to_string(args.size()) << std::endl;
         return evaluateFunction(node->value, args);
     }
 

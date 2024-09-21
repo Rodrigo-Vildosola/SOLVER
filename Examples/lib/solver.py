@@ -328,6 +328,111 @@ class TokenVector(object):
 
 # Register TokenVector in _SOLVER_PYTHON:
 _SOLVER_PYTHON.TokenVector_swigregister(TokenVector)
+class DoubleVector(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+
+    def iterator(self):
+        return _SOLVER_PYTHON.DoubleVector_iterator(self)
+    def __iter__(self):
+        return self.iterator()
+
+    def __nonzero__(self):
+        return _SOLVER_PYTHON.DoubleVector___nonzero__(self)
+
+    def __bool__(self):
+        return _SOLVER_PYTHON.DoubleVector___bool__(self)
+
+    def __len__(self):
+        return _SOLVER_PYTHON.DoubleVector___len__(self)
+
+    def __getslice__(self, i, j):
+        return _SOLVER_PYTHON.DoubleVector___getslice__(self, i, j)
+
+    def __setslice__(self, *args):
+        return _SOLVER_PYTHON.DoubleVector___setslice__(self, *args)
+
+    def __delslice__(self, i, j):
+        return _SOLVER_PYTHON.DoubleVector___delslice__(self, i, j)
+
+    def __delitem__(self, *args):
+        return _SOLVER_PYTHON.DoubleVector___delitem__(self, *args)
+
+    def __getitem__(self, *args):
+        return _SOLVER_PYTHON.DoubleVector___getitem__(self, *args)
+
+    def __setitem__(self, *args):
+        return _SOLVER_PYTHON.DoubleVector___setitem__(self, *args)
+
+    def pop(self):
+        return _SOLVER_PYTHON.DoubleVector_pop(self)
+
+    def append(self, x):
+        return _SOLVER_PYTHON.DoubleVector_append(self, x)
+
+    def empty(self):
+        return _SOLVER_PYTHON.DoubleVector_empty(self)
+
+    def size(self):
+        return _SOLVER_PYTHON.DoubleVector_size(self)
+
+    def swap(self, v):
+        return _SOLVER_PYTHON.DoubleVector_swap(self, v)
+
+    def begin(self):
+        return _SOLVER_PYTHON.DoubleVector_begin(self)
+
+    def end(self):
+        return _SOLVER_PYTHON.DoubleVector_end(self)
+
+    def rbegin(self):
+        return _SOLVER_PYTHON.DoubleVector_rbegin(self)
+
+    def rend(self):
+        return _SOLVER_PYTHON.DoubleVector_rend(self)
+
+    def clear(self):
+        return _SOLVER_PYTHON.DoubleVector_clear(self)
+
+    def get_allocator(self):
+        return _SOLVER_PYTHON.DoubleVector_get_allocator(self)
+
+    def pop_back(self):
+        return _SOLVER_PYTHON.DoubleVector_pop_back(self)
+
+    def erase(self, *args):
+        return _SOLVER_PYTHON.DoubleVector_erase(self, *args)
+
+    def __init__(self, *args):
+        _SOLVER_PYTHON.DoubleVector_swiginit(self, _SOLVER_PYTHON.new_DoubleVector(*args))
+
+    def push_back(self, x):
+        return _SOLVER_PYTHON.DoubleVector_push_back(self, x)
+
+    def front(self):
+        return _SOLVER_PYTHON.DoubleVector_front(self)
+
+    def back(self):
+        return _SOLVER_PYTHON.DoubleVector_back(self)
+
+    def assign(self, n, x):
+        return _SOLVER_PYTHON.DoubleVector_assign(self, n, x)
+
+    def resize(self, *args):
+        return _SOLVER_PYTHON.DoubleVector_resize(self, *args)
+
+    def insert(self, *args):
+        return _SOLVER_PYTHON.DoubleVector_insert(self, *args)
+
+    def reserve(self, n):
+        return _SOLVER_PYTHON.DoubleVector_reserve(self, n)
+
+    def capacity(self):
+        return _SOLVER_PYTHON.DoubleVector_capacity(self)
+    __swig_destroy__ = _SOLVER_PYTHON.delete_DoubleVector
+
+# Register DoubleVector in _SOLVER_PYTHON:
+_SOLVER_PYTHON.DoubleVector_swigregister(DoubleVector)
 class Function(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr

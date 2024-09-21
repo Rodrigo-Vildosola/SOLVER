@@ -21,6 +21,42 @@ static PyObject* pSolverException;
 // Specialize std::vector<Token> for Python list conversion
 %template(TokenVector) std::vector<Token>;
 
+%template(DoubleVector) std::vector<double>;
+
+
+// Typemap to convert a Python list of floats to a std::vector<double>
+%typemap(in) std::vector<double> (PyObject* obj) {
+    if (!PyList_Check($input)) {
+        SWIG_exception_fail(SWIG_TypeError, "Expected a Python list of floats");
+    }
+
+    Py_ssize_t size = PyList_Size($input);
+    $1.reserve(size);
+
+    for (Py_ssize_t i = 0; i < size; ++i) {
+        PyObject* item = PyList_GetItem($input, i);
+        if (PyFloat_Check(item)) {
+            double val = PyFloat_AsDouble(item);
+            $1.push_back(val);
+        } else if (PyLong_Check(item)) {
+            double val = PyLong_AsDouble(item);
+            $1.push_back(val);
+        } else {
+            SWIG_exception_fail(SWIG_TypeError, "List elements must be float or int");
+        }
+    }
+}
+
+// Typemap to return a std::vector<double> from C++ to Python as a list of floats
+%typemap(out) std::vector<double> {
+    PyObject* list = PyList_New($1.size());
+    for (size_t i = 0; i < $1.size(); ++i) {
+        PyObject* item = PyFloat_FromDouble($1[i]);
+        PyList_SetItem(list, i, item);
+    }
+    $result = list;
+}
+
 // Typemap for converting a Python list of tuples (TokenType, string) to std::vector<Token>
 %typemap(in, numinputs=1) std::vector<Token> (PyObject* obj) {    
     if ($input == nullptr) {

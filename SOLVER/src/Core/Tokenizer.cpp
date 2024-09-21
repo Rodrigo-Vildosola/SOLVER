@@ -36,6 +36,9 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
                 tokens.push_back({OPERATOR, std::string(1, c)});
             } else if (c == '(' || c == ')') {
                 tokens.push_back({PAREN, std::string(1, c)});
+            } else if (c == ',') {
+                std::cout << equation << std::endl;
+                tokens.push_back({SEPARATOR, ","});
             } else {
                 // Handle invalid characters
                 std::cerr << "Error: Unknown character " << c << std::endl;
@@ -50,3 +53,4 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
 
     return tokens;
 }
+
