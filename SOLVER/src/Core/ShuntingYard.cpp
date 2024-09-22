@@ -6,7 +6,7 @@
 std::queue<Token> Solver::shuntingYard(const std::vector<Token>& tokens) {
     std::queue<Token> outputQueue;
     std::stack<Token> operatorStack;
-    std::stack<int> argumentCounts; // To track the number of arguments for multi-param functions
+    std::stack<int> argumentCounts;
 
     auto precedence = [](const std::string& op) {
         if (op == "+" || op == "-") return 1;
@@ -16,8 +16,8 @@ std::queue<Token> Solver::shuntingYard(const std::vector<Token>& tokens) {
     };
 
     auto isLeftAssociative = [](const std::string& op) {
-        if (op == "^") return false; // Right-associative
-        return true; // All other operators are left-associative
+        if (op == "^") return false; 
+        return true; 
     };
 
     for (size_t i = 0; i < tokens.size(); ++i) {
@@ -26,7 +26,7 @@ std::queue<Token> Solver::shuntingYard(const std::vector<Token>& tokens) {
             outputQueue.push(token);
         } else if (token.type == FUNCTION) {
             operatorStack.push(token);
-            argumentCounts.push(1); // Initialize argument count for the function (at least 1 argument expected)
+            argumentCounts.push(1); 
         } else if (token.type == OPERATOR) {
             // Handle unary minus
             if (token.value == "-" && (i == 0 || tokens[i-1].type == OPERATOR || tokens[i-1].value == "(")) {
