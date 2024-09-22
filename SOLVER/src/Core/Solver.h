@@ -9,12 +9,24 @@
 #include <memory>
 #include <functional>
 
-struct Function {
-    std::vector<std::string> args;
-    std::string expression;
-};
-
 using FunctionCallback = std::function<double(const std::vector<double>&)>;
+
+struct Function {
+    FunctionCallback callback;             // For predefined functions
+    std::vector<std::string> args;         // For user-defined functions
+    std::string expression;                // For user-defined functions
+    bool isPredefined;                     // Flag to differentiate between predefined and user-defined functions
+
+    Function() : isPredefined(false) {}
+
+    // Constructor for predefined functions
+    Function(FunctionCallback cb)
+        : callback(cb), isPredefined(true) {}
+
+    // Constructor for user-defined functions
+    Function(std::vector<std::string> a, std::string expr)
+        : args(std::move(a)), expression(std::move(expr)), isPredefined(false) {}
+};
 
 class Solver {
 public:
@@ -38,7 +50,6 @@ private:
 
     // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
-    std::unordered_map<std::string, FunctionCallback> predefinedFunctions;
 
     // SymbolTable for managing variables and constants
     SymbolTable symbolTable;

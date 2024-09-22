@@ -436,11 +436,13 @@ _SOLVER_PYTHON.DoubleVector_swigregister(DoubleVector)
 class Function(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
+    callback = property(_SOLVER_PYTHON.Function_callback_get, _SOLVER_PYTHON.Function_callback_set)
     args = property(_SOLVER_PYTHON.Function_args_get, _SOLVER_PYTHON.Function_args_set)
     expression = property(_SOLVER_PYTHON.Function_expression_get, _SOLVER_PYTHON.Function_expression_set)
+    isPredefined = property(_SOLVER_PYTHON.Function_isPredefined_get, _SOLVER_PYTHON.Function_isPredefined_set)
 
-    def __init__(self):
-        _SOLVER_PYTHON.Function_swiginit(self, _SOLVER_PYTHON.new_Function())
+    def __init__(self, *args):
+        _SOLVER_PYTHON.Function_swiginit(self, _SOLVER_PYTHON.new_Function(*args))
     __swig_destroy__ = _SOLVER_PYTHON.delete_Function
 
 # Register Function in _SOLVER_PYTHON:

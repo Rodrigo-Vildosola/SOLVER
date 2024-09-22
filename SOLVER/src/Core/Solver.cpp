@@ -11,7 +11,7 @@ Solver::Solver() {
 
 // Register a predefined function callback
 void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback) {
-    predefinedFunctions[name] = callback;
+    functions[name] = Function(callback);  // Store predefined function
 }
 
 // Register standard math functions
@@ -52,7 +52,7 @@ void Solver::declareVariable(const std::string& name, double value) {
 // Declare user-defined functions
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
     validateFunctionExpression(expression, args);
-    functions[name] = {args, expression};
+    functions[name] = Function(args, expression);  // Store user-defined function
 }
 
 // Validate a function expression (make sure all variables/constants are declared)
@@ -69,32 +69,34 @@ void Solver::validateFunctionExpression(const std::string& expression, const std
 
 // Evaluate a function or call a predefined function
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
-    // Check predefined functions
-    if (predefinedFunctions.find(func) != predefinedFunctions.end()) {
-        return predefinedFunctions[func](args);
+    auto it = functions.find(func);
+    if (it == functions.end()) {
+        throw SolverException("Unknown function: '" + func + "'.");
     }
 
-    // Check user-defined functions
-    if (functions.find(func) != functions.end()) {
-        auto funcDef = functions[func];
-        if (funcDef.args.size() != args.size()) {
-            throw SolverException("Function argument count mismatch for '" + func + "'. Expected " +
-                                  std::to_string(funcDef.args.size()) + " but got " + std::to_string(args.size()) + ".");
-        }
-
-        // Backup variables and set function arguments as variables
-        auto savedVariables = symbolTable.getVariables();
-        symbolTable.clearVariables();
-        for (size_t i = 0; i < funcDef.args.size(); ++i) {
-            symbolTable.declareVariable(funcDef.args[i], args[i]);
-        }
-
-        double result = evaluate(funcDef.expression);
-        symbolTable.restoreVariables(savedVariables);
-        return result;
+    const Function& function = it->second;
+    
+    // Handle predefined functions
+    if (function.isPredefined) {
+        return function.callback(args);
     }
 
-    throw SolverException("Unknown function: '" + func + "'.");
+    // Handle user-defined functions
+    if (function.args.size() != args.size()) {
+        throw SolverException("Function argument count mismatch for '" + func + "'. Expected " +
+                              std::to_string(function.args.size()) + " but got " + std::to_string(args.size()) + ".");
+    }
+
+    // Backup variables and set function arguments as variables
+    auto savedVariables = symbolTable.getVariables();
+    symbolTable.clearVariables();
+    for (size_t i = 0; i < function.args.size(); ++i) {
+        symbolTable.declareVariable(function.args[i], args[i]);
+    }
+
+    double result = evaluate(function.expression);
+    symbolTable.restoreVariables(savedVariables);
+    return result;
 }
 
 // Evaluate a mathematical expression
