@@ -11,32 +11,11 @@ Solver::Solver() {
 
 // Register a predefined function callback
 void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback) {
-    functions[name] = Function(callback);  // Store predefined function
-}
-
-// Register standard math functions
-void Solver::registerBuiltInFunctions() {
-    registerPredefinedFunction("sin", [](const std::vector<double>& args) -> double {
-        return std::sin(args[0]);
-    });
-    registerPredefinedFunction("cos", [](const std::vector<double>& args) -> double {
-        return std::cos(args[0]);
-    });
-    registerPredefinedFunction("tan", [](const std::vector<double>& args) -> double {
-        return std::tan(args[0]);
-    });
-    registerPredefinedFunction("exp", [](const std::vector<double>& args) -> double {
-        return std::exp(args[0]);
-    });
-    registerPredefinedFunction("log", [](const std::vector<double>& args) -> double {
-        if (args.size() == 2) {
-            return std::log(args[0]) / std::log(args[1]); // log base `args[1]` of `args[0]`
-        }
-        return std::log(args[0]); // natural log by default
-    });
-    registerPredefinedFunction("sqrt", [](const std::vector<double>& args) -> double {
-        return std::sqrt(args[0]);
-    });
+    auto result = functions.emplace(name, Function(callback));
+    if (!result.second) {
+        // The function already exists; you can choose to overwrite or raise an error
+        throw SolverException("Function '" + name + "' already exists.");
+    }
 }
 
 // Declare constants through the SymbolTable
@@ -52,7 +31,10 @@ void Solver::declareVariable(const std::string& name, double value) {
 // Declare user-defined functions
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
     validateFunctionExpression(expression, args);
-    functions[name] = Function(args, expression);  // Store user-defined function
+    auto result = functions.emplace(name, Function(args, expression));
+    if (!result.second) {
+        throw SolverException("Function '" + name + "' already exists.");
+    }
 }
 
 // Validate a function expression (make sure all variables/constants are declared)
@@ -75,9 +57,12 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     }
 
     const Function& function = it->second;
-    
+
     // Handle predefined functions
     if (function.isPredefined) {
+        if (!function.callback) {
+            throw SolverException("Invalid predefined function: '" + func + "'.");
+        }
         return function.callback(args);
     }
 

@@ -25,3 +25,28 @@ void Solver::printTree(const ExprNode* node, int depth, const std::string& prefi
         }
     }
 }
+
+// Register standard math functions
+void Solver::registerBuiltInFunctions() {
+    registerPredefinedFunction("sin", [](const std::vector<double>& args) -> double {
+        return std::sin(args[0]);
+    });
+    registerPredefinedFunction("cos", [](const std::vector<double>& args) -> double {
+        return std::cos(args[0]);
+    });
+    registerPredefinedFunction("tan", [](const std::vector<double>& args) -> double {
+        return std::tan(args[0]);
+    });
+    registerPredefinedFunction("exp", [](const std::vector<double>& args) -> double {
+        return std::exp(args[0]);
+    });
+    registerPredefinedFunction("log", [](const std::vector<double>& args) -> double {
+        if (args.size() == 2) {
+            return std::log(args[0]) / std::log(args[1]); // log base `args[1]` of `args[0]`
+        }
+        return std::log(args[0]); // natural log by default
+    });
+    registerPredefinedFunction("sqrt", [](const std::vector<double>& args) -> double {
+        return std::sqrt(args[0]);
+    });
+}

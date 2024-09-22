@@ -17,7 +17,7 @@ struct Function {
     std::string expression;                // For user-defined functions
     bool isPredefined;                     // Flag to differentiate between predefined and user-defined functions
 
-    Function() : isPredefined(false) {}
+    Function() : isPredefined(true) {}
 
     // Constructor for predefined functions
     Function(FunctionCallback cb)
