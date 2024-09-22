@@ -452,8 +452,11 @@ class Solver(object):
     def __init__(self):
         _SOLVER_PYTHON.Solver_swiginit(self, _SOLVER_PYTHON.new_Solver())
 
-    def declareVariable(self, name, value, isGlobal=False):
-        return _SOLVER_PYTHON.Solver_declareVariable(self, name, value, isGlobal)
+    def declareConstant(self, name, value):
+        return _SOLVER_PYTHON.Solver_declareConstant(self, name, value)
+
+    def declareVariable(self, name, value):
+        return _SOLVER_PYTHON.Solver_declareVariable(self, name, value)
 
     def declareFunction(self, name, args, expression):
         return _SOLVER_PYTHON.Solver_declareFunction(self, name, args, expression)

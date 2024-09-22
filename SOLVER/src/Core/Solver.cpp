@@ -41,12 +41,14 @@ void Solver::registerBuiltInFunctions() {
 }
 
 
-void Solver::declareVariable(const std::string& name, double value, bool isGlobal) {
-    if (isGlobal) {
-        globalSymbols[name] = value;
-    } else {
-        localSymbols[name] = value;
-    }
+// Declare constants
+void Solver::declareConstant(const std::string& name, double value) {
+    constants[name] = value;
+}
+
+// Declare variables (cleared between evaluations)
+void Solver::declareVariable(const std::string& name, double value) {
+    variables[name] = value;
 }
 
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
@@ -59,12 +61,13 @@ void Solver::validateFunctionExpression(const std::string& expression, const std
     for (const auto& token : tokens) {
         if (token.type == VARIABLE) {
             if (std::find(args.begin(), args.end(), token.value) == args.end() &&
-                globalSymbols.find(token.value) == globalSymbols.end()) {
-                throw SolverException("Variable '" + token.value + "' is not declared in the function scope or globally.");
+                constants.find(token.value) == constants.end()) {
+                throw SolverException("Variable '" + token.value + "' is not declared in the function scope or as a constant.");
             }
         }
     }
 }
+
 
 std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
     auto postfixQueue = shuntingYard(tokens);
@@ -105,7 +108,6 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
                     nodeStack.pop();
                 }
 
-                // Collect all the arguments (assumed to be already separated by commas)
                 if (arguments.empty()) {
                     throw SolverException("Error: No operands for function: '" + token.value + "'.");
                 }
@@ -121,8 +123,9 @@ std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
         throw SolverException("Error: The expression could not be parsed into an expression tree.");
     }
 
-    return std::move(nodeStack.top()); // Return the unique_ptr, ownership transferred
+    return std::move(nodeStack.top());
 }
+
 
 std::unique_ptr<ExprNode> Solver::simplify(std::unique_ptr<ExprNode> node) {
     if (!node) return nullptr;
@@ -178,30 +181,31 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
                                   std::to_string(funcDef.args.size()) + " but got " + std::to_string(args.size()) + ".");
         }
 
-        auto savedLocalSymbols = localSymbols;
-        localSymbols.clear();
+        auto savedLocalSymbols = variables;
+        variables.clear();
         for (size_t i = 0; i < funcDef.args.size(); ++i) {
-            localSymbols[funcDef.args[i]] = args[i];
+            variables[funcDef.args[i]] = args[i];
         }
 
         double result = evaluate(funcDef.expression);
-        localSymbols = savedLocalSymbols;
+        variables = savedLocalSymbols;
 
         return result;
     }
     throw SolverException("Unknown function: '" + func + "'.");
 }
 
+// Adjusted evaluateNode to check both constants and variables
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     if (!node) {
         throw SolverException("Error: Trying to evaluate a null node.");
     }
 
     if (!node->left && !node->right && node->arguments.empty()) {
-        if (localSymbols.find(node->value) != localSymbols.end()) {
-            return localSymbols.at(node->value);
-        } else if (globalSymbols.find(node->value) != globalSymbols.end()) {
-            return globalSymbols.at(node->value);
+        if (variables.find(node->value) != variables.end()) {
+            return variables.at(node->value);
+        } else if (constants.find(node->value) != constants.end()) {
+            return constants.at(node->value);
         }
         try {
             return std::stod(node->value);
@@ -262,12 +266,11 @@ double Solver::evaluate(const std::string& expression, bool debug) {
 
 
 
+// Evaluate a range for the expression
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     std::vector<double> results;
-
     for (double value : values) {
-        declareVariable(variable, value, false); // Dynamically update the variable
-
+        declareVariable(variable, value); // Dynamically update the variable
         try {
             double result = evaluate(expression, debug);
             results.push_back(result);
@@ -276,6 +279,5 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
             results.push_back(std::nan("")); // Insert NaN for errors
         }
     }
-
     return results;
 }

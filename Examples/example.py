@@ -17,16 +17,16 @@ def test_expression(expression):
 def main():
     try:
         # Declare global variables
-        solver.declareVariable("x", 0, True)   # Global x
-        solver.declareVariable("y", 0, True)   # Global y
+        solver.declareVariable("x", 0)   # Global x
+        solver.declareVariable("y", 0)   # Global y
 
         # Test with basic variables
         print("=== Testing Variables ===")
         test_expression("x + 0")  # Expected: 0
 
         # Update the values of x and y and test again
-        solver.declareVariable("x", 5, False)  # Local x
-        solver.declareVariable("y", 10, False) # Local y
+        solver.declareVariable("x", 5)  # Local x
+        solver.declareVariable("y", 10) # Local y
         test_expression("x + y")  # Expected: 15
 
         # Test more complex expressions
