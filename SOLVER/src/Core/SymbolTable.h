@@ -1,19 +1,26 @@
 #pragma once
+
 #include <unordered_map>
 #include <string>
 #include "Exception.h"
 
 class SymbolTable {
 public:
-    // Declare constants and variables
+    // Methods to declare constants and variables
     void declareConstant(const std::string& name, double value);
     void declareVariable(const std::string& name, double value);
-    
-    // Lookup symbol value (either constant or variable)
+
+    // Lookup for a symbol (constant or variable)
     double lookupSymbol(const std::string& name) const;
 
-    // Clear all variables (for function scoping)
+    // Variable management methods
     void clearVariables();
+    std::unordered_map<std::string, double> getVariables() const;
+    void restoreVariables(const std::unordered_map<std::string, double>& savedVariables);
+
+    // Utility methods for checks
+    bool isConstant(const std::string& name) const;
+    bool isVariable(const std::string& name) const;
 
 private:
     std::unordered_map<std::string, double> constants;

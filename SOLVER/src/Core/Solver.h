@@ -2,11 +2,10 @@
 
 #include "Token.h"
 #include "ExprNode.h"
+#include "ExprTree.h"
+#include "SymbolTable.h"
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
-#include <queue>
 #include <memory>
 #include <functional>
 #include <map>
@@ -34,28 +33,21 @@ public:
 
 private:
     std::vector<Token> tokenize(const std::string& equation);
-    std::unique_ptr<ExprNode> parseExpression(std::vector<Token> tokens);
     double evaluateNode(const std::unique_ptr<ExprNode>& node);
 
-    // Separate maps for constants and variables
-    std::unordered_map<std::string, double> constants;
-    std::unordered_map<std::string, double> variables;
-
+    // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
     std::map<std::string, FunctionCallback> predefinedFunctions;
 
+    // SymbolTable for managing variables and constants
+    SymbolTable symbolTable;
+
+    // Expression tree for parsing and simplifying expressions
+    ExpressionTree expressionTree;
+
     void registerBuiltInFunctions();
-    std::queue<Token> shuntingYard(const std::vector<Token>& tokens);
-    std::unique_ptr<ExprNode> simplify(std::unique_ptr<ExprNode> node);
     double evaluateFunction(const std::string& func, const std::vector<double>& args);
     void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
-
-    bool isZero(const std::unique_ptr<ExprNode>& node);
-    bool isOne(const std::unique_ptr<ExprNode>& node);
-    bool areEqual(const std::unique_ptr<ExprNode>& left, const std::unique_ptr<ExprNode>& right);
-    std::unique_ptr<ExprNode> makeMulNode(double coefficient, std::unique_ptr<ExprNode> node);
-    std::unique_ptr<ExprNode> makeConstNode(double value);
-
-    void printTokens(const std::vector<Token>& tokens) const;
+    
     void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = "", bool isLeft = true) const;
 };

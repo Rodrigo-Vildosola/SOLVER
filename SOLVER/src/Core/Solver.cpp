@@ -1,20 +1,20 @@
 #include "Solver.h"
 #include "Exception.h"
-#include <stdexcept>
 #include <cmath>
-#include <stack>
 #include <iostream>
-#include <unordered_set>
+#include <stdexcept>
 
+// Initialize the solver with built-in functions
 Solver::Solver() {
     registerBuiltInFunctions();
 }
 
+// Register a predefined function callback
 void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback) {
     predefinedFunctions[name] = callback;
 }
 
-
+// Register standard math functions
 void Solver::registerBuiltInFunctions() {
     registerPredefinedFunction("sin", [](const std::vector<double>& args) -> double {
         return std::sin(args[0]);
@@ -37,143 +37,44 @@ void Solver::registerBuiltInFunctions() {
     registerPredefinedFunction("sqrt", [](const std::vector<double>& args) -> double {
         return std::sqrt(args[0]);
     });
-    // Add more functions as needed
 }
 
-
-// Declare constants
+// Declare constants through the SymbolTable
 void Solver::declareConstant(const std::string& name, double value) {
-    constants[name] = value;
+    symbolTable.declareConstant(name, value);
 }
 
-// Declare variables (cleared between evaluations)
+// Declare variables through the SymbolTable
 void Solver::declareVariable(const std::string& name, double value) {
-    variables[name] = value;
+    symbolTable.declareVariable(name, value);
 }
 
+// Declare user-defined functions
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
     validateFunctionExpression(expression, args);
     functions[name] = {args, expression};
 }
 
+// Validate a function expression (make sure all variables/constants are declared)
 void Solver::validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args) {
     auto tokens = tokenize(expression);
     for (const auto& token : tokens) {
         if (token.type == VARIABLE) {
-            if (std::find(args.begin(), args.end(), token.value) == args.end() &&
-                constants.find(token.value) == constants.end()) {
+            if (std::find(args.begin(), args.end(), token.value) == args.end() && !symbolTable.isConstant(token.value)) {
                 throw SolverException("Variable '" + token.value + "' is not declared in the function scope or as a constant.");
             }
         }
     }
 }
 
-
-std::unique_ptr<ExprNode> Solver::parseExpression(std::vector<Token> tokens) {
-    auto postfixQueue = shuntingYard(tokens);
-    std::stack<std::unique_ptr<ExprNode>> nodeStack;
-
-    while (!postfixQueue.empty()) {
-        Token token = postfixQueue.front();
-        postfixQueue.pop();
-
-        if (token.type == NUMBER || token.type == VARIABLE) {
-            nodeStack.push(std::make_unique<ExprNode>(token.value));
-        } else if (token.type == OPERATOR) {
-            if (nodeStack.size() < 2) {
-                throw SolverException("Error: Not enough operands for operator '" + token.value + "'");
-            }
-            auto node = std::make_unique<ExprNode>(token.value);
-            node->right = std::move(nodeStack.top());
-            nodeStack.pop();
-            node->left = std::move(nodeStack.top());
-            nodeStack.pop();
-            nodeStack.push(std::move(node));
-        } else if (token.type == FUNCTION) {
-            // Handle the "neg" function (unary minus)
-            if (token.value == "neg") {
-                if (nodeStack.empty()) {
-                    throw SolverException("Error: Not enough operands for unary minus (neg).");
-                }
-                auto node = std::make_unique<ExprNode>("-");
-                node->left = std::make_unique<ExprNode>("0"); // neg(x) is 0 - x
-                node->right = std::move(nodeStack.top());
-                nodeStack.pop();
-                nodeStack.push(std::move(node));
-            } else {
-                // Handle regular functions (with possibly multiple arguments)
-                std::vector<std::unique_ptr<ExprNode>> arguments;
-                while (!nodeStack.empty() && nodeStack.top()) {
-                    arguments.insert(arguments.begin(), std::move(nodeStack.top()));
-                    nodeStack.pop();
-                }
-
-                if (arguments.empty()) {
-                    throw SolverException("Error: No operands for function: '" + token.value + "'.");
-                }
-
-                auto node = std::make_unique<ExprNode>(token.value);
-                node->arguments = std::move(arguments);
-                nodeStack.push(std::move(node));
-            }
-        }
-    }
-
-    if (nodeStack.empty()) {
-        throw SolverException("Error: The expression could not be parsed into an expression tree.");
-    }
-
-    return std::move(nodeStack.top());
-}
-
-
-std::unique_ptr<ExprNode> Solver::simplify(std::unique_ptr<ExprNode> node) {
-    if (!node) return nullptr;
-
-    // Simplify the left and right subtrees (if applicable)
-    node->left = simplify(std::move(node->left));
-    node->right = simplify(std::move(node->right));
-
-    // Simplify based on the operator
-    if (node->value == "+") {
-        // x + 0 = x
-        if (isZero(node->right)) return std::move(node->left);
-        if (isZero(node->left)) return std::move(node->right);
-        // x + x = 2 * x
-        if (areEqual(node->left, node->right)) {
-            return makeMulNode(2, std::move(node->left));
-        }
-    } else if (node->value == "*") {
-        // x * 1 = x
-        if (isOne(node->right)) return std::move(node->left);
-        if (isOne(node->left)) return std::move(node->right);
-        // x * 0 = 0
-        if (isZero(node->right) || isZero(node->left)) {
-            return makeConstNode(0);
-        }
-    } else if (node->value == "-") {
-        // x - 0 = x
-        if (isZero(node->right)) return std::move(node->left);
-    } else if (node->value == "/") {
-        // x / 1 = x
-        if (isOne(node->right)) return std::move(node->left);
-    } else if (node->value == "^") {
-        // x^1 = x
-        if (isOne(node->right)) return std::move(node->left);
-        // x^0 = 1
-        if (isZero(node->right)) return makeConstNode(1);
-    }
-
-    return node;  // Return the simplified (or original) node
-}
-
-
+// Evaluate a function or call a predefined function
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
+    // Check predefined functions
     if (predefinedFunctions.find(func) != predefinedFunctions.end()) {
-        return predefinedFunctions[func](args); // Call the function
+        return predefinedFunctions[func](args);
     }
 
-    // Check user-defined functions (already implemented)
+    // Check user-defined functions
     if (functions.find(func) != functions.end()) {
         auto funcDef = functions[func];
         if (funcDef.args.size() != args.size()) {
@@ -181,39 +82,67 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
                                   std::to_string(funcDef.args.size()) + " but got " + std::to_string(args.size()) + ".");
         }
 
-        auto savedLocalSymbols = variables;
-        variables.clear();
+        // Backup variables and set function arguments as variables
+        auto savedVariables = symbolTable.getVariables();
+        symbolTable.clearVariables();
         for (size_t i = 0; i < funcDef.args.size(); ++i) {
-            variables[funcDef.args[i]] = args[i];
+            symbolTable.declareVariable(funcDef.args[i], args[i]);
         }
 
         double result = evaluate(funcDef.expression);
-        variables = savedLocalSymbols;
-
+        symbolTable.restoreVariables(savedVariables);
         return result;
     }
+
     throw SolverException("Unknown function: '" + func + "'.");
 }
 
-// Adjusted evaluateNode to check both constants and variables
-double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
-    if (!node) {
-        throw SolverException("Error: Trying to evaluate a null node.");
+// Evaluate a mathematical expression
+double Solver::evaluate(const std::string& expression, bool debug) {
+    auto tokens = tokenize(expression);
+    auto exprTree = expressionTree.parseExpression(tokens);
+    exprTree = expressionTree.simplify(std::move(exprTree));
+
+    if (debug) {
+        std::cout << "Expression tree:\n";
+        printTree(exprTree.get());
     }
 
-    if (!node->left && !node->right && node->arguments.empty()) {
-        if (variables.find(node->value) != variables.end()) {
-            return variables.at(node->value);
-        } else if (constants.find(node->value) != constants.end()) {
-            return constants.at(node->value);
-        }
+    return evaluateNode(exprTree);
+}
+
+// Evaluate a range of values for an expression
+std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
+    std::vector<double> results;
+    for (double value : values) {
+        declareVariable(variable, value);
         try {
-            return std::stod(node->value);
-        } catch (const std::invalid_argument&) {
-            throw SolverException("Invalid argument: Unable to convert '" + node->value + "' to a number.");
+            double result = evaluate(expression, debug);
+            results.push_back(result);
+        } catch (const SolverException& e) {
+            std::cerr << "Error evaluating expression with '" << variable << "' = " << value << ": " << e.what() << std::endl;
+            results.push_back(std::nan(""));
         }
     }
+    return results;
+}
 
+// Helper to evaluate a node in the expression tree
+double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
+    if (!node->left && !node->right && node->arguments.empty()) {
+        try {
+            // Try looking up the symbol in the symbol table.
+            return symbolTable.lookupSymbol(node->value);
+        } catch (const SolverException&) {
+            // If not found in the symbol table, try converting the value to a number (using std::stod).
+            try {
+                return std::stod(node->value);
+            } catch (const std::invalid_argument&) {
+                throw SolverException("Invalid argument: Unable to convert '" + node->value + "' to a number or find it as a variable/constant.");
+            }
+        }
+    }
+    
     if (!node->arguments.empty()) {
         std::vector<double> args;
         for (const auto& argNode : node->arguments) {
@@ -225,59 +154,14 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     double leftValue = evaluateNode(node->left);
     double rightValue = evaluateNode(node->right);
 
-    if (node->value == "+") {
-        return leftValue + rightValue;
-    } else if (node->value == "-") {
-        return leftValue - rightValue;
-    } else if (node->value == "*") {
-        return leftValue * rightValue;
-    } else if (node->value == "/") {
-        if (rightValue == 0) {
-            throw SolverException("Division by zero error.");
-        }
+    if (node->value == "+") return leftValue + rightValue;
+    if (node->value == "-") return leftValue - rightValue;
+    if (node->value == "*") return leftValue * rightValue;
+    if (node->value == "/") {
+        if (rightValue == 0) throw SolverException("Division by zero error.");
         return leftValue / rightValue;
-    } else if (node->value == "^") {
-        return std::pow(leftValue, rightValue);
-    } else {
-        throw SolverException("Unknown operator: '" + node->value + "'.");
     }
-}
+    if (node->value == "^") return std::pow(leftValue, rightValue);
 
-double Solver::evaluate(const std::string& expression, bool debug) {
-    // Tokenize the expression
-    auto tokens = tokenize(expression);
-    // Parse the expression into an expression tree
-    auto exprTree = parseExpression(tokens);
-    if (!exprTree) {
-        throw SolverException("Error: Failed to parse the expression into a tree.");
-    }
-    // Simplify the expression tree
-    exprTree = simplify(std::move(exprTree));
-
-    if (debug) {
-        std::cout << "\nExpression tree:" << std::endl;
-        printTree(exprTree.get());
-    }
-
-    // Evaluate the simplified expression tree
-    double result = evaluateNode(exprTree);
-    return result;
-}
-
-
-
-// Evaluate a range for the expression
-std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
-    std::vector<double> results;
-    for (double value : values) {
-        declareVariable(variable, value); // Dynamically update the variable
-        try {
-            double result = evaluate(expression, debug);
-            results.push_back(result);
-        } catch (const SolverException& e) {
-            std::cerr << "Error evaluating expression with '" << variable << "' = " << value << ": " << e.what() << std::endl;
-            results.push_back(std::nan("")); // Insert NaN for errors
-        }
-    }
-    return results;
+    throw SolverException("Unknown operator: '" + node->value + "'.");
 }
