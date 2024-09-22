@@ -8,7 +8,6 @@
 #include <vector>
 #include <memory>
 #include <functional>
-#include <map>
 
 struct Function {
     std::vector<std::string> args;
@@ -32,20 +31,18 @@ public:
     void registerPredefinedFunction(const std::string& name, const FunctionCallback& callback);
 
 private:
-    std::vector<Token> tokenize(const std::string& equation);
+    void registerBuiltInFunctions();
+
     double evaluateNode(const std::unique_ptr<ExprNode>& node);
+    std::vector<Token> tokenize(const std::string& equation);
 
     // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
-    std::map<std::string, FunctionCallback> predefinedFunctions;
+    std::unordered_map<std::string, FunctionCallback> predefinedFunctions;
 
     // SymbolTable for managing variables and constants
     SymbolTable symbolTable;
 
-    // Expression tree for parsing and simplifying expressions
-    ExpressionTree expressionTree;
-
-    void registerBuiltInFunctions();
     double evaluateFunction(const std::string& func, const std::vector<double>& args);
     void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
     

@@ -100,8 +100,8 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
 // Evaluate a mathematical expression
 double Solver::evaluate(const std::string& expression, bool debug) {
     auto tokens = tokenize(expression);
-    auto exprTree = expressionTree.parseExpression(tokens);
-    exprTree = expressionTree.simplify(std::move(exprTree));
+    auto exprTree = ExpressionTree::parseExpression(tokens);
+    exprTree = ExpressionTree::simplify(std::move(exprTree));
 
     if (debug) {
         std::cout << "Expression tree:\n";
