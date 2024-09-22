@@ -20,9 +20,9 @@ public:
     
     void declareVariable(const std::string& name, double value, bool isGlobal = false);
     void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
-    std::vector<double> evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression);
-    double evaluate(const std::string& expression);
     
+    double evaluate(const std::string& expression, bool debug = false);
+    std::vector<double> evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug = false);
 private:
 
     std::vector<Token> tokenize(const std::string& equation);
@@ -47,4 +47,7 @@ private:
     bool areEqual(const std::unique_ptr<ExprNode>& left, const std::unique_ptr<ExprNode>& right);
     std::unique_ptr<ExprNode> makeMulNode(double coefficient, std::unique_ptr<ExprNode> node);
     std::unique_ptr<ExprNode> makeConstNode(double value);
+
+    void printTokens(const std::vector<Token>& tokens) const;
+    void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = "", bool isLeft = true) const;
 };

@@ -208,28 +208,37 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     }
 }
 
-double Solver::evaluate(const std::string& expression) {
+double Solver::evaluate(const std::string& expression, bool debug) {
+    // Tokenize the expression
     auto tokens = tokenize(expression);
+    // Parse the expression into an expression tree
     auto exprTree = parseExpression(tokens);
     if (!exprTree) {
         throw SolverException("Error: Failed to parse the expression into a tree.");
     }
-
+    // Simplify the expression tree
     exprTree = simplify(std::move(exprTree));
 
+    if (debug) {
+        std::cout << "Expression tree:" << std::endl;
+        printTree(exprTree.get());
+    }
+
+    // Evaluate the simplified expression tree
     double result = evaluateNode(exprTree);
     return result;
 }
 
 
-std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression) {
+
+std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     std::vector<double> results;
 
     for (double value : values) {
         declareVariable(variable, value, false); // Dynamically update the variable
 
         try {
-            double result = evaluate(expression);
+            double result = evaluate(expression, debug);
             results.push_back(result);
         } catch (const SolverException& e) {
             std::cerr << "Error evaluating expression with '" << variable << "' = " << value << ": " << e.what() << std::endl;
