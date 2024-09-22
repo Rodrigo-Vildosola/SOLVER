@@ -220,7 +220,7 @@ double Solver::evaluate(const std::string& expression, bool debug) {
     exprTree = simplify(std::move(exprTree));
 
     if (debug) {
-        std::cout << "Expression tree:" << std::endl;
+        std::cout << "\nExpression tree:" << std::endl;
         printTree(exprTree.get());
     }
 
