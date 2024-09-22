@@ -6,7 +6,40 @@
 #include <iostream>
 #include <unordered_set>
 
-Solver::Solver() {}
+Solver::Solver() {
+    registerBuiltInFunctions();
+}
+
+void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback) {
+    predefinedFunctions[name] = callback;
+}
+
+
+void Solver::registerBuiltInFunctions() {
+    registerPredefinedFunction("sin", [](const std::vector<double>& args) -> double {
+        return std::sin(args[0]);
+    });
+    registerPredefinedFunction("cos", [](const std::vector<double>& args) -> double {
+        return std::cos(args[0]);
+    });
+    registerPredefinedFunction("tan", [](const std::vector<double>& args) -> double {
+        return std::tan(args[0]);
+    });
+    registerPredefinedFunction("exp", [](const std::vector<double>& args) -> double {
+        return std::exp(args[0]);
+    });
+    registerPredefinedFunction("log", [](const std::vector<double>& args) -> double {
+        if (args.size() == 2) {
+            return std::log(args[0]) / std::log(args[1]); // log base `args[1]` of `args[0]`
+        }
+        return std::log(args[0]); // natural log by default
+    });
+    registerPredefinedFunction("sqrt", [](const std::vector<double>& args) -> double {
+        return std::sqrt(args[0]);
+    });
+    // Add more functions as needed
+}
+
 
 void Solver::declareVariable(const std::string& name, double value, bool isGlobal) {
     if (isGlobal) {
@@ -133,14 +166,12 @@ std::unique_ptr<ExprNode> Solver::simplify(std::unique_ptr<ExprNode> node) {
 
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
-    if (standardFunctions.find(func) != standardFunctions.end()) {
-        if (func == "sin") return std::sin(args[0]);
-        if (func == "cos") return std::cos(args[0]);
-        if (func == "tan") return std::tan(args[0]);
-        if (func == "exp") return std::exp(args[0]);
-        if (func == "log") return std::log(args[0]);
-        if (func == "sqrt") return std::sqrt(args[0]);
-    } else if (functions.find(func) != functions.end()) {
+    if (predefinedFunctions.find(func) != predefinedFunctions.end()) {
+        return predefinedFunctions[func](args); // Call the function
+    }
+
+    // Check user-defined functions (already implemented)
+    if (functions.find(func) != functions.end()) {
         auto funcDef = functions[func];
         if (funcDef.args.size() != args.size()) {
             throw SolverException("Function argument count mismatch for '" + func + "'. Expected " +

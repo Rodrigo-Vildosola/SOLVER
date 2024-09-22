@@ -8,11 +8,16 @@
 #include <vector>
 #include <queue>
 #include <memory>
+#include <functional>
+#include <map>
 
 struct Function {
     std::vector<std::string> args;
     std::string expression;
 };
+
+using FunctionCallback = std::function<double(const std::vector<double>&)>;
+
 
 class Solver {
 public:
@@ -23,6 +28,9 @@ public:
     
     double evaluate(const std::string& expression, bool debug = false);
     std::vector<double> evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug = false);
+
+    void registerPredefinedFunction(const std::string& name, const FunctionCallback& callback);
+
 private:
 
     std::vector<Token> tokenize(const std::string& equation);
@@ -33,6 +41,10 @@ private:
     std::unordered_map<std::string, double> globalSymbols;
     std::unordered_map<std::string, double> localSymbols;
     std::unordered_map<std::string, Function> functions;
+    std::map<std::string, FunctionCallback> predefinedFunctions;
+
+    void registerBuiltInFunctions();
+
 
     std::queue<Token> shuntingYard(const std::vector<Token>& tokens);
     std::unique_ptr<ExprNode> simplify(std::unique_ptr<ExprNode> node);
@@ -40,7 +52,6 @@ private:
     double evaluateFunction(const std::string& func, const std::vector<double>& args);
     void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
 
-    const std::unordered_set<std::string> standardFunctions = {"sin", "cos", "tan", "exp", "log", "sqrt"};
 
     bool isZero(const std::unique_ptr<ExprNode>& node);
     bool isOne(const std::unique_ptr<ExprNode>& node);

@@ -28,7 +28,7 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
                     name += equation[i++];
                 }
                 --i; // Adjust for extra increment
-                if (standardFunctions.find(name) != standardFunctions.end() || functions.find(name) != functions.end()) {
+                if (predefinedFunctions.find(name) != predefinedFunctions.end() || functions.find(name) != functions.end()) {
                     tokens.push_back({FUNCTION, name});
                 } else {
                     tokens.push_back({VARIABLE, name});

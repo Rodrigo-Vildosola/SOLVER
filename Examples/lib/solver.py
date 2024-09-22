@@ -463,6 +463,9 @@ class Solver(object):
 
     def evaluateForRange(self, variable, values, expression, debug=False):
         return _SOLVER_PYTHON.Solver_evaluateForRange(self, variable, values, expression, debug)
+
+    def registerPredefinedFunction(self, name, callback):
+        return _SOLVER_PYTHON.Solver_registerPredefinedFunction(self, name, callback)
     __swig_destroy__ = _SOLVER_PYTHON.delete_Solver
 
 # Register Solver in _SOLVER_PYTHON:
