@@ -6,6 +6,8 @@
 std::vector<Token> Solver::tokenize(const std::string& equation) {
     std::vector<Token> tokens;
     std::string number;
+    std::string name;
+    bool isFunction = false;
 
     for (size_t i = 0; i < equation.length(); ++i) {
         char c = equation[i];
@@ -14,39 +16,65 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
             continue;
         }
 
-        if (std::isdigit(c) || (c == '.' && !number.empty())) {
+        if (std::isdigit(c) || c == '.') {
             number += c;
-        } else {
+        }
+        else if (std::isalpha(c)) {
+            // Start of a variable or function name
+            name += c;
+            // Peek to see if the next character is '(' indicating a function call
+            size_t j = i + 1;
+            while (j < equation.length() && std::isspace(equation[j])) {
+                j++;
+            }
+            if (j < equation.length() && equation[j] == '(') {
+                isFunction = true;
+            }
+            else {
+                isFunction = false;
+            }
+        }
+        else {
             if (!number.empty()) {
-                tokens.push_back({NUMBER, number});
+                tokens.emplace_back(Token{NUMBER, number});
                 number.clear();
             }
-            
-            if (std::isalpha(c)) {
-                std::string name;
-                while (i < equation.length() && std::isalpha(equation[i])) {
-                    name += equation[i++];
+            if (!name.empty()) {
+                if (isFunction) {
+                    tokens.emplace_back(Token{FUNCTION, name});
+                    isFunction = false;
                 }
-                --i; // Adjust for extra increment
-                if (functions.find(name) != functions.end()) {
-                    tokens.push_back({FUNCTION, name});
-                } else {
-                    tokens.push_back({VARIABLE, name});
+                else {
+                    tokens.emplace_back(Token{VARIABLE, name});
                 }
-            } else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
-                tokens.push_back({OPERATOR, std::string(1, c)});
-            } else if (c == '(' || c == ')') {
-                tokens.push_back({PAREN, std::string(1, c)});
-            } else if (c == ',') {
-                tokens.push_back({SEPARATOR, ","});  // Ensure comma is properly tokenized
-            } else {
+                name.clear();
+            }
+
+            if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
+                tokens.emplace_back(Token{OPERATOR, std::string(1, c)});
+            }
+            else if (c == '(' || c == ')') {
+                tokens.emplace_back(Token{PAREN, std::string(1, c)});
+            }
+            else if (c == ',') {
+                tokens.emplace_back(Token{SEPARATOR, ","});
+            }
+            else {
                 throw SolverException("Error: Unknown character '" + std::string(1, c) + "'");
             }
         }
     }
 
     if (!number.empty()) {
-        tokens.push_back({NUMBER, number});
+        tokens.emplace_back(Token{NUMBER, number});
+    }
+    if (!name.empty()) {
+        if (isFunction) {
+            tokens.emplace_back(Token{FUNCTION, name});
+        }
+        else {
+            tokens.emplace_back(Token{VARIABLE, name});
+        }
     }
 
     return tokens;

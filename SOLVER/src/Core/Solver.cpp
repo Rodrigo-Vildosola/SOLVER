@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
 
 // Initialize the solver with built-in functions
 Solver::Solver() {
@@ -18,10 +19,21 @@ void Solver::registerPredefinedFunction(const std::string& name, const FunctionC
     }
 }
 
-
-// Declare user-defined functions
+// Declare user-defined functions with syntactic validation
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
-    validateFunctionExpression(expression, args);
+    // Perform syntactic validation
+    isValidSyntax(expression); // Now throws exception if invalid
+
+    // Attempt to parse the expression to ensure it's structurally valid
+    try {
+        auto tokens = tokenize(expression);
+        auto exprTree = ExpressionTree::parseExpression(tokens, functions);
+        // Note: Not performing semantic validation here
+    } catch (const std::exception& e) {
+        throw SolverException("Invalid expression for function '" + name + "': " + e.what());
+    }
+
+    // Register the function without checking dependencies
     auto result = functions.emplace(name, Function(args, expression));
     if (!result.second) {
         throw SolverException("Function '" + name + "' already exists.");
@@ -39,19 +51,7 @@ void Solver::declareVariable(const std::string& name, double value) {
 }
 
 
-// Validate a function expression (make sure all variables/constants are declared)
-void Solver::validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args) {
-    auto tokens = tokenize(expression);
-    for (const auto& token : tokens) {
-        if (token.type == VARIABLE) {
-            if (std::find(args.begin(), args.end(), token.value) == args.end() && !symbolTable.isConstant(token.value)) {
-                throw SolverException("Variable '" + token.value + "' is not declared in the function scope or as a constant.");
-            }
-        }
-    }
-}
-
-// Evaluate a function or call a predefined function
+// Evaluate a function or call a predefined function with semantic validation
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
     auto it = functions.find(func);
     if (it == functions.end()) {
@@ -80,6 +80,9 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     for (size_t i = 0; i < function.args.size(); ++i) {
         symbolTable.declareVariable(function.args[i], args[i]);
     }
+
+    // Perform semantic validation before evaluation
+    validateFunctionDependencies(function.expression, function.args);
 
     double result = evaluate(function.expression);
     symbolTable.restoreVariables(savedVariables);
