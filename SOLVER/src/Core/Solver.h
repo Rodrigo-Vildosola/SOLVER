@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 #include <functional>
-
+#include <unordered_map>
 
 class Solver {
 public:
@@ -38,6 +38,10 @@ private:
 
     double evaluateFunction(const std::string& func, const std::vector<double>& args);
     void validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args);
+    
+    // Helper methods for the hybrid approach
+    void isValidSyntax(const std::string& expression);
+    void validateFunctionDependencies(const std::string& expression, const std::vector<std::string>& args);
     
     void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = "", bool isLeft = true) const;
 };
