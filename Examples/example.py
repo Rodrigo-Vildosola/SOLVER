@@ -1,17 +1,52 @@
 from lib.solver import Solver, SolverException
 import matplotlib.pyplot as plt
 import numpy as np
+import logging
+import sys
+
+
 
 # Initialize solver
 solver = Solver()
 
 # Utility function for evaluating and printing results
-def test_expression(expression, debug = False):
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('test_results.log')
+    ]
+)
+
+# Create a logger for this module
+logger = logging.getLogger(__name__)
+
+def test_expression(expression, expected_result=None, margin=1e-6, debug=False):
     try:
         result = solver.evaluate(expression, debug)
-        print(f"Evaluating: {expression} -> Result: {result}")
+        if expected_result is not None:
+            if isinstance(expected_result, Exception):
+                # If an exception was expected, but none was raised
+                logger.error(f"Evaluating: {expression} -> Result: {result} | Expected Exception: {expected_result.__name__} | FAILED (No Exception Raised)")
+            else:
+                if np.isnan(expected_result) and np.isnan(result):
+                    test_passed = True
+                else:
+                    test_passed = np.isclose(result, expected_result, atol=margin)
+                status = "PASSED" if test_passed else "FAILED"
+                logger.info(f"Evaluating: {expression} -> Result: {result} | Expected: {expected_result} | {status}")
+        else:
+            logger.info(f"Evaluating: {expression} -> Result: {result}")
     except SolverException as e:
-        print(f"Error evaluating {expression}: {e}")
+        if expected_result is not None and isinstance(expected_result, type) and issubclass(expected_result, Exception):
+            if isinstance(e, expected_result):
+                status = "PASSED (Expected Exception)"
+            else:
+                status = f"FAILED (Unexpected Exception: {e})"
+        else:
+            status = f"FAILED (Exception: {e})"
+        logger.error(f"Error evaluating {expression}: {e} | {status}")
 
 # Test different expressions with variables, functions, and ranges
 def main():
@@ -26,101 +61,116 @@ def main():
 
         # Test with basic variables
         print("=== Testing Variables ===")
-        test_expression("x + 0")  # Expected: 0
+        test_expression("x + 0", expected_result=0.0)  # Expected: 0
 
         # Update the values of x and y and test again
         solver.declareVariable("x", 5)  # Local x
         solver.declareVariable("y", 10) # Local y
-        test_expression("x + y")  # Expected: 15
+        test_expression("x + y", expected_result=15.0)  # Expected: 15
 
         # Test more complex expressions
         print("\n=== Testing Complex Expressions ===")
-        test_expression("x * y + x^2")  # Expected: 5 * 10 + 5^2 = 75
-        test_expression("y / x")  # Expected: 10 / 5 = 2
+        test_expression("x * y + x^2", expected_result=75.0)  # Expected: 75
+        test_expression("y / x", expected_result=2.0)  # Expected: 2
 
         # Test division by zero (expecting an exception)
-        test_expression("x / (y - 10)")  # This will cause a division by zero
+        test_expression("x / (y - 10)", expected_result=SolverException)  # Should raise Division by zero
 
         # Declare a custom function f(x) = x^2 + 2*x + 1
         print("\n=== Declaring and Testing Custom Function f(x) ===")
         solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
-        test_expression("f(3)")  # Expected: 3^2 + 2*3 + 1 = 16
-        test_expression("f(-1)")  # Expected: (-1)^2 + 2*(-1) + 1 = 0
+        test_expression("f(3)", expected_result=16.0)  # Expected: 16
+        test_expression("f(-1)", expected_result=0.0)  # Expected: 0
 
         # Declare another function g(x, y) = x * y + x + y
         print("\n=== Declaring and Testing Custom Function g(x, y) ===")
         solver.declareFunction("g", ["x", "y"], "x * y + x + y")
-        test_expression("g(3, 4)")  # Expected: 3 * 4 + 3 + 4 = 19
-        test_expression("g(-2, 2) + 1")  # Expected: (-2 * 2 + (-2) + 2) + 1 = (-4 + (-2) + 2) + 1 = (-4) + 1 = -3
+        test_expression("g(3, 4)", expected_result=19.0)  # Expected: 19
+        test_expression("g(-2, 2) + 1", expected_result=-3.0)  # Expected: -3
 
         # Declare nested functions
         print("\n=== Declaring and Testing Nested Functions ===")
         solver.declareFunction("h", ["x"], "f(g(x, x))")
-        test_expression("h(2)")  # Compute g(2,2)=2*2+2+2=8; then f(8)=8^2+2*8+1=64+16+1=81
+        test_expression("h(2)", expected_result=81.0)  # Expected: 81
 
         # Test with built-in functions and constants
         print("\n=== Testing Built-in Functions and Constants ===")
-        test_expression("sin(pi / 2)")  # Expected: sin(π/2) = 1
-        test_expression("cos(0)")       # Expected: cos(0) = 1
-        test_expression("tan(pi / 4)")  # Expected: tan(π/4) ≈ 1
-        test_expression("exp(1)")       # Expected: e^1 = e
-        test_expression("ln(e)")       # Expected: ln(e) = 1
-        test_expression("sqrt(16)")     # Expected: 4
+        test_expression("sin(pi / 2)", expected_result=1.0)  # Expected: 1
+        test_expression("cos(0)", expected_result=1.0)       # Expected: 1
+        test_expression("tan(pi / 4)", expected_result=1.0)  # Expected: 1
+        test_expression("exp(1)", expected_result=np.e)       # Expected: e
+        test_expression("ln(e)", expected_result=1.0)         # Expected: 1
+        test_expression("sqrt(16)", expected_result=4.0)      # Expected: 4
 
         # Test complex expression combining constants and functions
         print("\n=== Testing Complex Expressions with Constants and Functions ===")
-        test_expression("sin(pi / 4) + cos(pi / 4)", True)  # Expected: √2
-        test_expression("ln(e^2)")  # Expected: ln(e^2) = 2
-        test_expression("exp(ln(5))")  # Expected: 5
+        test_expression("sin(pi / 4) + cos(pi / 4)", expected_result=np.sqrt(2), margin=1e-5, debug=True)  # Expected: ~1.4142
+        test_expression("ln(e^2)", expected_result=2.0)  # Expected: 2
+        test_expression("exp(ln(5))", expected_result=5.0)  # Expected: 5
 
         # Test function with constants
         solver.declareFunction("circlearea", ["r"], "pi * r^2")
-        test_expression("circlearea(3)")  # Expected: π * 3^2 ≈ 28.274
+        test_expression("circlearea(3)", expected_result=28.274333882308138)  # Expected: ~28.274
 
         # Test nested built-in functions
-        test_expression("sqrt(sin(pi / 2))")  # Expected: sqrt(1) = 1
-        test_expression("ln(exp(5))")        # Expected: 5
+        test_expression("sqrt(sin(pi / 2))", expected_result=1.0)  # Expected: 1
+        test_expression("ln(exp(5))", expected_result=5.0)        # Expected: 5
 
-        # Test plotting a range of values using the custom function f(x)
-        # print("\n=== Plotting Results for f(x) ===")
-        # x_values = np.linspace(-10, 10, 400)
-        # f_results = solver.evaluateForRange("x", x_values.tolist(), "f(x)")
+        # Additional Tests
 
-        # plt.plot(x_values, f_results, label="f(x) = x^2 + 2x + 1")
-        # plt.title("Plot of f(x) = x^2 + 2x + 1")
-        # plt.xlabel("x")
-        # plt.ylabel("f(x)")
-        # plt.grid(True)
-        # plt.legend()
-        # plt.show()
+        # a. Testing Undefined Functions
+        print("\n=== Testing Undefined Function ===")
+        test_expression("undefinedFunc(5)", expected_result=SolverException)  # Should raise an error
 
-        # # Testing a range for another custom expression with x and y
-        # print("\n=== Testing Range for g(x, y) ===")
-        # x_values = np.linspace(0, 10, 100)
-        # g_results = solver.evaluateForRange("x", x_values.tolist(), "g(x, 5)")  # y = 5
+        # b. Testing Incorrect Number of Function Arguments
+        print("\n=== Testing Incorrect Number of Function Arguments ===")
+        test_expression("f(1, 2)", expected_result=SolverException)  # Should raise an error
 
-        # plt.plot(x_values, g_results, label="g(x, 5) = x * 5 + x + 5")
-        # plt.title("Plot of g(x, 5) = x * 5 + x + 5")
-        # plt.xlabel("x")
-        # plt.ylabel("g(x, 5)")
-        # plt.grid(True)
-        # plt.legend()
-        # plt.show()
+        # c. Testing User-Defined Function with Complex Expressions
+        print("\n=== Declaring and Testing Custom Function k(x) ===")
+        solver.declareFunction("k", ["x"], "f(x) + g(x, x)")
+        test_expression("k(3)", expected_result=31.0)  # Expected: 31
 
-        # # Test plotting built-in functions
-        # print("\n=== Plotting Built-in Functions ===")
-        # x_values = np.linspace(-2 * np.pi, 2 * np.pi, 400)
-        # sin_results = solver.evaluateForRange("x", x_values.tolist(), "sin(x)")
-        # cos_results = solver.evaluateForRange("x", x_values.tolist(), "cos(x)")
+        # d. Testing Function with Nested Functions and Multiple Levels
+        print("\n=== Declaring and Testing Custom Function m(x, y) ===")
+        solver.declareFunction("m", ["x", "y"], "h(x) + f(g(x, y))")
+        test_expression("m(2, 10)", expected_result=1170.0)  # Expected: 1170.0
 
-        # plt.plot(x_values, sin_results, label="sin(x)")
-        # plt.plot(x_values, cos_results, label="cos(x)")
-        # plt.title("Plot of sin(x) and cos(x)")
-        # plt.xlabel("x")
-        # plt.ylabel("Function value")
-        # plt.grid(True)
-        # plt.legend()
-        # plt.show()
+        # e. Testing Function with Variable Scope
+        print("\n=== Testing Function with Undefined Variable Scope ===")
+        solver.declareFunction("n", ["x"], "x + z")
+        test_expression("n(5)", expected_result=SolverException)  # Should raise an error
+
+        # f. Testing Functions with Expressions as Arguments
+        print("\n=== Testing Function with Expressions as Arguments ===")
+        # Assuming g(2,3) = 2*3 +2 +3=11; h(1)=f(g(1,1))=f(1*1 +1 +1)=f(3)=16; f(11+16)=f(27)=27^2 +2*27 +1=729 +54 +1=784
+        test_expression("f(g(2, 3) + h(1))", expected_result=784.0)  # Expected: 784.0
+
+        # g. Testing Functions with Negative and Zero Arguments
+        print("\n=== Testing Functions with Negative and Zero Arguments ===")
+        test_expression("f(0)", expected_result=1.0)   # Expected: 1
+        test_expression("f(-5)", expected_result=16.0)  # Expected: 16
+
+        # h. Testing Multiple Nested Functions
+        print("\n=== Declaring and Testing Multiple Nested Functions ===")
+        # Declare p(x, y) = m(x, y) + k(x)
+        solver.declareFunction("p", ["x", "y"], "m(x, y) + k(x)")
+        test_expression("p(2, 10)", expected_result=1170.0 + 17.0)  # Expected: 1201.0
+
+        # i. Testing Functions with Floating-Point Precision
+        print("\n=== Testing Functions with Floating-Point Arguments ===")
+        test_expression("f(2.5)", expected_result=12.25)  # Expected: 12.25
+
+        # j. Testing Function Re-definition (Overwriting Existing Function)
+        print("\n=== Testing Function Re-definition ===")
+        test_expression("f(1)", expected_result=4.0)  # Existing function f(x)=x^2 +2x +1
+        try:
+            solver.declareFunction("f", ["x"], "x + 1")  # Should raise an error
+            # If no exception, mark as failed
+            logger.error("Declaring function 'f' again: FAILED (No Exception Raised)")
+        except SolverException as e:
+            logger.info(f"Declaring function 'f' again: PASSED (Expected Exception: {e})")
+
 
     except SolverException as e:
         print(f"Solver error: {e}")
