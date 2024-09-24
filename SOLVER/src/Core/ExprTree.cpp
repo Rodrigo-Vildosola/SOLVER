@@ -85,7 +85,7 @@ std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens)
 }
 
 // Parse tokens into an expression tree
-std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Token>& tokens) {
+std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Token>& tokens, const std::unordered_map<std::string, Function>& functions) {
     auto postfixQueue = shuntingYard(tokens);
     std::stack<std::unique_ptr<ExprNode>> nodeStack;
 
@@ -118,14 +118,17 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
                 nodeStack.push(std::move(node));
             } else {
                 // Handle regular functions (with possibly multiple arguments)
-                std::vector<std::unique_ptr<ExprNode>> arguments;
-                while (!nodeStack.empty() && nodeStack.top()) {
-                    arguments.insert(arguments.begin(), std::move(nodeStack.top()));
-                    nodeStack.pop();
+                size_t argCount = getFunctionArgCount(token.value, functions);
+
+                if (nodeStack.size() < argCount) {
+                    throw SolverException("Error: Not enough operands for function '" + token.value +
+                                        "'. Expected " + std::to_string(argCount) + ", but got " + std::to_string(nodeStack.size()) + ".");
                 }
 
-                if (arguments.empty()) {
-                    throw SolverException("Error: No operands for function: '" + token.value + "'.");
+                std::vector<std::unique_ptr<ExprNode>> arguments(argCount);
+                for (size_t i = 0; i < argCount; ++i) {
+                    arguments[argCount - i - 1] = std::move(nodeStack.top());
+                    nodeStack.pop();
                 }
 
                 auto node = std::make_unique<ExprNode>(token.value);
@@ -135,7 +138,7 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
         }
     }
 
-    if (nodeStack.empty()) {
+    if (nodeStack.size() != 1) {
         throw SolverException("Error: The expression could not be parsed into an expression tree.");
     }
 
@@ -205,4 +208,13 @@ std::unique_ptr<ExprNode> ExpressionTree::makeMulNode(double coefficient, std::u
     mulNode->left = makeConstNode(coefficient);
     mulNode->right = std::move(node);
     return mulNode;
+}
+
+
+size_t ExpressionTree::getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions) {
+    auto it = functions.find(functionName);
+    if (it != functions.end()) {
+        return it->second.argCount;
+    }
+    throw SolverException("Unknown function '" + functionName + "'");
 }

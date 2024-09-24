@@ -1,5 +1,6 @@
 #include "Solver.h"
 #include "Exception.h"
+#include "ExprTree.h"
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -10,10 +11,19 @@ Solver::Solver() {
 }
 
 // Register a predefined function callback
-void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback) {
-    auto result = functions.emplace(name, Function(callback));
+void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount) {
+    auto result = functions.emplace(name, Function(callback, argCount));
     if (!result.second) {
-        // The function already exists; you can choose to overwrite or raise an error
+        throw SolverException("Function '" + name + "' already exists.");
+    }
+}
+
+
+// Declare user-defined functions
+void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
+    validateFunctionExpression(expression, args);
+    auto result = functions.emplace(name, Function(args, expression));
+    if (!result.second) {
         throw SolverException("Function '" + name + "' already exists.");
     }
 }
@@ -28,14 +38,6 @@ void Solver::declareVariable(const std::string& name, double value) {
     symbolTable.declareVariable(name, value);
 }
 
-// Declare user-defined functions
-void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
-    validateFunctionExpression(expression, args);
-    auto result = functions.emplace(name, Function(args, expression));
-    if (!result.second) {
-        throw SolverException("Function '" + name + "' already exists.");
-    }
-}
 
 // Validate a function expression (make sure all variables/constants are declared)
 void Solver::validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args) {
@@ -87,7 +89,7 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
 // Evaluate a mathematical expression
 double Solver::evaluate(const std::string& expression, bool debug) {
     auto tokens = tokenize(expression);
-    auto exprTree = ExpressionTree::parseExpression(tokens);
+    auto exprTree = ExpressionTree::parseExpression(tokens, functions);
     exprTree = ExpressionTree::simplify(std::move(exprTree));
 
     if (debug) {

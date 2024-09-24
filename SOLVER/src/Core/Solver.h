@@ -2,31 +2,13 @@
 
 #include "Token.h"
 #include "ExprNode.h"
-#include "ExprTree.h"
 #include "SymbolTable.h"
+#include "Function.h"
 #include <string>
 #include <vector>
 #include <memory>
 #include <functional>
 
-using FunctionCallback = std::function<double(const std::vector<double>&)>;
-
-struct Function {
-    FunctionCallback callback;             // For predefined functions
-    std::vector<std::string> args;         // For user-defined functions
-    std::string expression;                // For user-defined functions
-    bool isPredefined;                     // Flag to differentiate between predefined and user-defined functions
-
-    Function() : isPredefined(true) {}
-
-    // Constructor for predefined functions
-    Function(FunctionCallback cb)
-        : callback(cb), isPredefined(true) {}
-
-    // Constructor for user-defined functions
-    Function(std::vector<std::string> a, std::string expr)
-        : args(std::move(a)), expression(std::move(expr)), isPredefined(false) {}
-};
 
 class Solver {
 public:
@@ -35,12 +17,12 @@ public:
     // Methods to declare constants and variables
     void declareConstant(const std::string& name, double value);
     void declareVariable(const std::string& name, double value);
-    void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
     
     double evaluate(const std::string& expression, bool debug = false);
     std::vector<double> evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug = false);
 
-    void registerPredefinedFunction(const std::string& name, const FunctionCallback& callback);
+    void registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount);
+    void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
 
 private:
     void registerBuiltInFunctions();
