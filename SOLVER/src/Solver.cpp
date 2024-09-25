@@ -22,12 +22,10 @@ void printTokens(const std::vector<Token>& tokens) {
     std::cout << "-------------------------\n";
 }
 
-// Initialize the solver with built-in functions
 Solver::Solver() {
     registerBuiltInFunctions();
 }
 
-// Register a predefined function callback
 void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount) {
     auto result = functions.emplace(name, Function(callback, argCount));
     if (!result.second) {
@@ -35,7 +33,6 @@ void Solver::registerPredefinedFunction(const std::string& name, const FunctionC
     }
 }
 
-// Declare user-defined functions with syntactic validation
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
     // Perform syntactic validation
     isValidSyntax(expression); // Now throws exception if invalid
@@ -44,7 +41,6 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
     try {
         auto tokens = tokenize(expression);
         auto exprTree = ExpressionTree::parseExpression(tokens, functions);
-        // Note: Not performing semantic validation here
     } catch (const std::exception& e) {
         throw SolverException("Invalid expression for function '" + name + "': " + e.what());
     }
@@ -56,18 +52,15 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
     }
 }
 
-// Declare constants through the SymbolTable
 void Solver::declareConstant(const std::string& name, double value) {
     symbolTable.declareConstant(name, value);
 }
 
-// Declare variables through the SymbolTable
 void Solver::declareVariable(const std::string& name, double value) {
     symbolTable.declareVariable(name, value);
 }
 
 
-// Evaluate a function or call a predefined function with semantic validation
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
     auto it = functions.find(func);
     if (it == functions.end()) {
@@ -105,17 +98,16 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     return result;
 }
 
-// Evaluate a mathematical expression
 double Solver::evaluate(const std::string& expression, bool debug) {
     auto tokens = tokenize(expression);
 
 
-    if (debug) {
-        printTokens(tokens);
-    }
+    // if (debug) {
+    //     printTokens(tokens);
+    // }
 
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
-    // exprTree = ExpressionTree::simplify(std::move(exprTree));
+    exprTree = ExpressionTree::simplify(std::move(exprTree));
 
     if (debug) {
         std::cout << "Expression tree:\n";
@@ -126,7 +118,6 @@ double Solver::evaluate(const std::string& expression, bool debug) {
     return evaluateNode(exprTree);
 }
 
-// Evaluate a range of values for an expression
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     std::vector<double> results;
     for (double value : values) {
@@ -142,14 +133,11 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
     return results;
 }
 
-// Helper to evaluate a node in the expression tree
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     if (!node->left && !node->right && node->arguments.empty()) {
         try {
-            // Try looking up the symbol in the symbol table.
             return symbolTable.lookupSymbol(node->value);
         } catch (const SolverException&) {
-            // If not found in the symbol table, try converting the value to a number (using std::stod).
             try {
                 return std::stod(node->value);
             } catch (const std::invalid_argument&) {

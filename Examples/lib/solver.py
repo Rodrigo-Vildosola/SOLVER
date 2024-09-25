@@ -434,45 +434,131 @@ class DoubleVector(object):
 # Register DoubleVector in _SOLVER_PYTHON:
 _SOLVER_PYTHON.DoubleVector_swigregister(DoubleVector)
 class Solver(object):
+    r"""
+    A class for evaluating mathematical expressions, managing variables, constants, and user-defined functions.
+
+    The Solver class provides methods for declaring constants, variables, user-defined functions, and evaluating
+    mathematical expressions. It supports both predefined and custom functions.
+    """
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
 
     def __init__(self):
+        r"""
+        Constructor for the Solver class.
+
+        Initializes the Solver instance and registers built-in functions.
+        """
         _SOLVER_PYTHON.Solver_swiginit(self, _SOLVER_PYTHON.new_Solver())
 
     def declareConstant(self, name, value):
+        r"""
+        Declare a constant in the solver's symbol table.
+
+        :type name: string
+        :param name: The name of the constant.
+        :type value: float
+        :param value: The value of the constant.
+        """
         return _SOLVER_PYTHON.Solver_declareConstant(self, name, value)
 
     def declareVariable(self, name, value):
+        r"""
+        Declare a variable in the solver's symbol table.
+
+        :type name: string
+        :param name: The name of the variable.
+        :type value: float
+        :param value: The initial value of the variable.
+        """
         return _SOLVER_PYTHON.Solver_declareVariable(self, name, value)
 
     def evaluate(self, expression, debug=False):
+        r"""
+        Evaluate a mathematical expression.
+
+        :type expression: string
+        :param expression: The mathematical expression to evaluate.
+        :type debug: boolean, optional
+        :param debug: If true, enables debug output during evaluation.
+        :rtype: float
+        :return: The result of evaluating the expression.
+        """
         return _SOLVER_PYTHON.Solver_evaluate(self, expression, debug)
 
     def evaluateForRange(self, variable, values, expression, debug=False):
+        r"""
+        Evaluate a mathematical expression over a range of values for a given variable.
+
+        :type variable: string
+        :param variable: The name of the variable to iterate over.
+        :type values: std::vector< double,std::allocator< double > >
+        :param values: A vector of values for the variable.
+        :type expression: string
+        :param expression: The mathematical expression to evaluate.
+        :type debug: boolean, optional
+        :param debug: If true, enables debug output during evaluation.
+        :rtype: std::vector< double,std::allocator< double > >
+        :return: A vector of results for each value in the range.
+        """
         return _SOLVER_PYTHON.Solver_evaluateForRange(self, variable, values, expression, debug)
 
     def registerPredefinedFunction(self, name, callback, argCount):
+        r"""
+        Register a predefined function with a callback.
+
+        :type name: string
+        :param name: The name of the function.
+        :type callback: FunctionCallback
+        :param callback: A function callback to execute when the function is called.
+        :type argCount: int
+        :param argCount: The number of arguments the function expects.
+        """
         return _SOLVER_PYTHON.Solver_registerPredefinedFunction(self, name, callback, argCount)
 
     def declareFunction(self, name, args, expression):
+        r"""
+        Declare a user-defined function.
+
+        :type name: string
+        :param name: The name of the function.
+        :type args: std::vector< std::string,std::allocator< std::string > >
+        :param args: A vector of argument names for the function.
+        :type expression: string
+        :param expression: The mathematical expression defining the function.
+        """
         return _SOLVER_PYTHON.Solver_declareFunction(self, name, args, expression)
     __swig_destroy__ = _SOLVER_PYTHON.delete_Solver
 
 # Register Solver in _SOLVER_PYTHON:
 _SOLVER_PYTHON.Solver_swigregister(Solver)
 NUMBER = _SOLVER_PYTHON.NUMBER
+r""" A numeric constant (e.g., 42, 3.14)"""
 VARIABLE = _SOLVER_PYTHON.VARIABLE
+r""" A variable (e.g., x, y)"""
 OPERATOR = _SOLVER_PYTHON.OPERATOR
+r""" An operator (e.g., +, -, *, /, ^)"""
 FUNCTION = _SOLVER_PYTHON.FUNCTION
+r""" A function (e.g., sin, cos, f)"""
 PAREN = _SOLVER_PYTHON.PAREN
+r""" A parenthesis (either '(' or ')')"""
 SEPARATOR = _SOLVER_PYTHON.SEPARATOR
+r""" A separator (typically a comma in function arguments)"""
 UNARY_OPERATOR = _SOLVER_PYTHON.UNARY_OPERATOR
+r""" A unary operator (e.g., negation)"""
 class Token(object):
+    r"""
+    Represents a token in a mathematical expression.
+
+    A Token consists of a type (from the TokenType enum) and a string value.
+    It is used to break down mathematical expressions into manageable components.
+    """
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
-    type = property(_SOLVER_PYTHON.Token_type_get, _SOLVER_PYTHON.Token_type_set)
-    value = property(_SOLVER_PYTHON.Token_value_get, _SOLVER_PYTHON.Token_value_set)
+    type = property(_SOLVER_PYTHON.Token_type_get, _SOLVER_PYTHON.Token_type_set, doc=r""" The type of the token (e.g., NUMBER, OPERATOR)""")
+    value = property(_SOLVER_PYTHON.Token_value_get, _SOLVER_PYTHON.Token_value_set, doc=r""" The string value of the token (e.g., "42", "+", "x")""")
 
     def __init__(self):
         _SOLVER_PYTHON.Token_swiginit(self, _SOLVER_PYTHON.new_Token())
@@ -482,9 +568,27 @@ class Token(object):
 _SOLVER_PYTHON.Token_swigregister(Token)
 
 class SolverException(Exception):
+    """
+    Custom exception class for handling errors in the Solver class.
+
+    The SolverException class is derived from the standard Exception class
+    and is thrown when the Solver encounters an error during expression evaluation
+    or function declaration.
+
+    Attributes:
+        message (str): The error message that explains the reason for the exception.
+    """
     def __init__(self, message):
+        """
+        Constructor for the SolverException class.
+
+        Args:
+            message (str): The error message to display when the exception is raised.
+        """
         super().__init__(message)
 
+
+# Reference to the C++ generated exception class from SWIG
 SolverException = _SOLVER_PYTHON.SolverException
 
 

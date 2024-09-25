@@ -133,8 +133,26 @@ static PyObject* pSolverException;
 
 %pythoncode %{
 class SolverException(Exception):
+    """
+    Custom exception class for handling errors in the Solver class.
+
+    The SolverException class is derived from the standard Exception class
+    and is thrown when the Solver encounters an error during expression evaluation
+    or function declaration.
+
+    Attributes:
+        message (str): The error message that explains the reason for the exception.
+    """
     def __init__(self, message):
+        """
+        Constructor for the SolverException class.
+
+        Args:
+            message (str): The error message to display when the exception is raised.
+        """
         super().__init__(message)
 
+
+# Reference to the C++ generated exception class from SWIG
 SolverException = _SOLVER_PYTHON.SolverException
 %}
