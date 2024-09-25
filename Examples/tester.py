@@ -1,53 +1,30 @@
 from lib.solver import Solver, SolverException
-import matplotlib.pyplot as plt
 import numpy as np
 import logging
+import json
 import sys
+import os
 import colorama
 from colorama import Fore, Style
-import json
-import os
+from typing import List
 
-# Initialize colorama
+from data import TestCase, TestSuite
+
 colorama.init(autoreset=True)
 
-# Initialize solver
 solver = Solver()
 
-# Configure logging
-# Set FileHandler to 'w' mode to reset the log file on initialization
 logging.basicConfig(
     level=logging.INFO,
-    format='%(levelname)s - %(message)s',
+    format='%(levelname)s - %(message)s',  
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('test_results.log', mode='w')  # Overwrite the log file each run
+        logging.FileHandler('test_results.log', mode='w')  
     ]
 )
 
-# Create a logger for this module
 logger = logging.getLogger(__name__)
 
-# Define a TestCase dataclass for better structure
-from dataclasses import dataclass, field
-from typing import Callable, Any, List
-
-@dataclass
-class TestCase:
-    description: str
-    expression: str
-    expected_result: Any = None
-    margin: float = 1e-6
-    expect_exception: Any = None
-    debug: bool = False
-    setup_variables: dict = field(default_factory=dict)  # New field
-    passed: bool = False
-    error_message: str = ""
-
-@dataclass
-class TestSuite:
-    name: str
-    test_cases: List[TestCase] = field(default_factory=list)
 
 # Function to load test suites from a JSON file
 def load_test_suites(json_file: str) -> List[TestSuite]:
@@ -88,7 +65,7 @@ def load_test_suites(json_file: str) -> List[TestSuite]:
     return suites
 
 # Utility function for evaluating and printing results
-def test_expression(test_case: TestCase):
+def run_test_case(test_case: TestCase):
     try:
         for var, value in test_case.setup_variables.items():
             # Set new variable value
@@ -96,29 +73,27 @@ def test_expression(test_case: TestCase):
                 solver.declareVariable(var, value)
             else:
                 solver.declareConstant(var, value)
-        
+
+        # Evaluate the expression
         result = solver.evaluate(test_case.expression, test_case.debug)
+
         if test_case.expect_exception:
             # If an exception was expected but none was raised
             test_case.passed = False
             test_case.error_message = f"Expected exception {test_case.expect_exception.__name__} but got result {result}."
             logger.error(f"{Fore.RED}FAILED{Style.RESET_ALL} - {test_case.description}: {test_case.error_message}")
         else:
-            if isinstance(test_case.expected_result, Exception):
-                # If an exception was expected, but none was raised
-                test_case.passed = False
-                test_case.error_message = f"Expected exception {test_case.expected_result.__name__} but got result {result}."
-                logger.error(f"{Fore.RED}FAILED{Style.RESET_ALL} - {test_case.description}: {test_case.error_message}")
+            if isinstance(test_case.expected_result, float) and np.isnan(test_case.expected_result):
+                test_case.passed = np.isnan(result)
             else:
-                if isinstance(test_case.expected_result, float) and np.isnan(test_case.expected_result):
-                    test_case.passed = np.isnan(result)
-                else:
-                    test_case.passed = np.isclose(result, test_case.expected_result, atol=test_case.margin)
-                if test_case.passed:
-                    logger.info(f"{Fore.GREEN}PASSED{Style.RESET_ALL} - {test_case.description}: {test_case.expression} = {result}")
-                else:
-                    test_case.error_message = f"Expected {test_case.expected_result}, got {result}."
-                    logger.error(f"{Fore.RED}FAILED{Style.RESET_ALL} - {test_case.description}: {test_case.error_message}")
+                test_case.passed = np.isclose(result, test_case.expected_result, atol=test_case.margin)
+
+            if test_case.passed:
+                logger.info(f"{Fore.GREEN}PASSED{Style.RESET_ALL} - {test_case.description}: {test_case.expression} = {result}")
+            else:
+                test_case.error_message = f"Expected {test_case.expected_result}, got {result}."
+                logger.error(f"{Fore.RED}FAILED{Style.RESET_ALL} - {test_case.description}: {test_case.error_message}")
+
     except SolverException as e:
         if test_case.expect_exception and isinstance(e, test_case.expect_exception):
             test_case.passed = True
@@ -129,11 +104,12 @@ def test_expression(test_case: TestCase):
             test_case.error_message = f"Expected {expected}, got exception '{e}'."
             logger.error(f"{Fore.RED}FAILED{Style.RESET_ALL} - {test_case.description}: {test_case.error_message}")
 
+
 # Function to run a test suite
 def run_test_suite(suite: TestSuite):
     logger.info(f"\n=== Running Test Suite: {suite.name} ===")
     for test_case in suite.test_cases:
-        test_expression(test_case)
+        run_test_case(test_case)
     # Summary for the suite
     passed = sum(tc.passed for tc in suite.test_cases)
     total = len(suite.test_cases)

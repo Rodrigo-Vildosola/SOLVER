@@ -4,8 +4,10 @@ import logging
 import sys
 import colorama
 from colorama import Fore, Style
-from dataclasses import dataclass, field
-from typing import Any, List
+from typing import List
+
+from data import TestCase, TestSuite
+
 
 colorama.init(autoreset=True)
 
@@ -16,29 +18,11 @@ logging.basicConfig(
     format='%(levelname)s - %(message)s',  
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('test_results.log', mode='w')  
+        logging.FileHandler('example_results.log', mode='w')  
     ]
 )
 
 logger = logging.getLogger(__name__)
-
-# Define the TestCase dataclass
-@dataclass
-class TestCase:
-    description: str
-    expression: str
-    expected_result: Any = None
-    margin: float = 1e-6
-    expect_exception: Any = None
-    debug: bool = False
-    setup_variables: dict = field(default_factory=dict)
-    passed: bool = False
-    error_message: str = ""
-
-@dataclass
-class TestSuite:
-    name: str
-    test_cases: List[TestCase] = field(default_factory=list)
 
 # Define test suites and test cases directly in code
 def define_test_suites() -> List[TestSuite]:
