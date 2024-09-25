@@ -101,10 +101,7 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
             nodeStack.pop();
             nodeStack.push(std::move(node));
         } else if (token.type == FUNCTION) {
-            // Handle regular functions (with possibly multiple arguments)
             size_t argCount = getFunctionArgCount(token.value, functions);
-
-            std::cout << argCount << "The arg count!!" << std::endl;
 
             if (nodeStack.size() < argCount) {
                 throw SolverException("Error: Not enough operands for function '" + token.value +

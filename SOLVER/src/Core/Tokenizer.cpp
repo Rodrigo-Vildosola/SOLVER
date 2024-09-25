@@ -1,4 +1,3 @@
-// Solver.cpp
 #include "Solver.h"
 #include "Exception.h"
 #include "Validator.h"
@@ -26,9 +25,7 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
             number += c;
         }
         else if (std::isalpha(c)) {
-            // Start of a variable or function name
             name += c;
-            // Peek to see if the next character is '(' indicating a function call
             size_t j = i + 1;
             while (j < equation.length() && std::isspace(equation[j])) {
                 j++;
@@ -46,14 +43,13 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
                 tokens.emplace_back(Token{NUMBER, number});
                 number.clear();
 
-                // If there's a pending closing parenthesis, insert it after the operand
                 if (closingParensToInsert > 0) {
                     tokens.emplace_back(Token{PAREN, ")"});
                     closingParensToInsert--;
                 }
             }
 
-            // Emit accumulated name
+            // Emit accumulated name (function or variable)
             if (!name.empty()) {
                 if (isFunction) {
                     tokens.emplace_back(Token{FUNCTION, name});
@@ -64,15 +60,14 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
                 }
                 name.clear();
 
-                // If there's a pending closing parenthesis, insert it after the operand
                 if (closingParensToInsert > 0) {
                     tokens.emplace_back(Token{PAREN, ")"});
                     closingParensToInsert--;
                 }
             }
 
+            // Handle operators, parentheses, and separators
             if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
-                // Determine if '-' is unary or binary
                 if (c == '-') {
                     if (tokens.empty() || 
                         tokens.back().type == OPERATOR || 
@@ -80,8 +75,12 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
                         tokens.back().type == SEPARATOR) {
                         // It's a unary minus
                         tokens.emplace_back(Token{FUNCTION, "neg"});
-                        tokens.emplace_back(Token{PAREN, "("});
-                        closingParensToInsert++;
+                        
+                        // If next character is not '(', we wrap the following expression in parentheses
+                        if (i + 1 < equation.size() && equation[i + 1] != '(') {
+                            tokens.emplace_back(Token{PAREN, "("});
+                            closingParensToInsert++;
+                        }
                         continue;
                     }
                 }
@@ -99,29 +98,17 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
         }
     }
 
-    // Emit any remaining number
+    // Emit remaining number or variable
     if (!number.empty()) {
         tokens.emplace_back(Token{NUMBER, number});
-        number.clear();
-
-        // Insert closing parenthesis if needed
         if (closingParensToInsert > 0) {
             tokens.emplace_back(Token{PAREN, ")"});
             closingParensToInsert--;
         }
     }
 
-    // Emit any remaining name
     if (!name.empty()) {
-        if (isFunction) {
-            tokens.emplace_back(Token{FUNCTION, name});
-            isFunction = false;
-        }
-        else {
-            tokens.emplace_back(Token{VARIABLE, name});
-        }
-
-        // Insert closing parenthesis if needed
+        tokens.emplace_back(isFunction ? Token{FUNCTION, name} : Token{VARIABLE, name});
         if (closingParensToInsert > 0) {
             tokens.emplace_back(Token{PAREN, ")"});
             closingParensToInsert--;

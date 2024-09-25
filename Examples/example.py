@@ -32,16 +32,19 @@ def run_examples():
         {"description": "Evaluate f(4)", "expression": "f(4)", "expected_result": 25.0},
         {"description": "Evaluate g(5, 5)", "expression": "g(5, 5)", "expected_result": 35.0},
         {"description": "Evaluate h(2)", "expression": "h(2)", "expected_result": 81.0},
-        
+
         {"description": "Evaluate -2 + 2", "expression": "-2 + 2", "expected_result": 0.0},
         {"description": "Evaluate -5", "expression": "-5", "expected_result": -5.0},
         {"description": "Evaluate --5 (double unary minus)", "expression": "--5", "expected_result": 5.0},
         {"description": "Evaluate -(3 + 2)", "expression": "-(3 + 2)", "expected_result": -5.0},
         {"description": "Evaluate -(f(3))", "expression": "-(f(3))", "expected_result": -16.0},  # f(3) = 16
         {"description": "Evaluate -(2 * 3) + 5", "expression": "-(2 * 3) + 5", "expected_result": -1.0},
-        {"description": "Evaluate -g(2, 3)", "expression": "-g(2, 3)", "expected_result": -11.0},  # g(2, 3) = 11
+        {"description": "Evaluate -g(2, 3)", "expression": "g(2, 3)", "expected_result": -11.0},  # g(2, 3) = 11
         {"description": "Evaluate --g(1, 4)", "expression": "--g(1, 4)", "expected_result": 10.0},  # g(1, 4) = 10
     ]
+
+    passed_count = 0
+    failed_count = 0
 
     # Run examples
     for example in examples:
@@ -53,18 +56,20 @@ def run_examples():
             result = solver.evaluate(expression, True)
             if np.isclose(result, expected, atol=1e-6):
                 logger.info(f"{Fore.GREEN}PASSED{Style.RESET_ALL} - {description}: {expression} = {result}")
+                passed_count += 1
             else:
                 logger.error(f"{Fore.RED}FAILED{Style.RESET_ALL} - {description}: Expected {expected}, got {result}")
+                failed_count += 1
         except SolverException as e:
             logger.error(f"{Fore.RED}FAILED{Style.RESET_ALL} - {description}: Exception occurred: {e}")
+            failed_count += 1
 
     # Optionally, print a summary or detailed report
-    print("\n=== Example Execution Summary ===")
-    for example in examples:
-        description = example["description"]
-        # Assuming you have a way to track pass/fail per example
-        # This implementation logs to files, so you might parse the log or maintain counters
-    print("=== Check 'example_results.log' for detailed results ===\n")
+    logger.info(f"=== Example Execution Summary ===")
+    logger.info(f"Total Tests: {passed_count + failed_count}")
+    logger.info(f"Passed: {passed_count}")
+    logger.info(f"Failed: {failed_count}")
+    logger.info("=== End of Execution ===")
 
 if __name__ == "__main__":
     run_examples()
