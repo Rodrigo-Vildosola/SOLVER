@@ -28,14 +28,19 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
 
         // Check if it's a number
         if (std::regex_match(match, numberRegex)) {
-            // Handle case where the last token is `neg` (unary minus) followed by a number
             if (!tokens.empty() && tokens.back().type == FUNCTION && tokens.back().value == "neg") {
-                // Replace the last `neg` with the negative number token
-                tokens.back() = Token{NUMBER, "-" + match};
+                // Handle exponentiation case: do not merge negation with the number if followed by "^"
+                auto next_it = std::next(it);
+                if (next_it != end && (*next_it)[1].str() == "^") {
+                    tokens.emplace_back(Token{NUMBER, match});  // Just add the number separately
+                } else {
+                    tokens.back() = Token{NUMBER, "-" + match};  // Unary minus is merged with the number
+                }
             } else {
                 tokens.emplace_back(Token{NUMBER, match});
             }
         }
+
         // Check if it's a variable or function name
         else if (std::regex_match(match, variableRegex)) {
             // Lookahead to see if it's a function (followed by '(')
@@ -46,27 +51,36 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
                 tokens.emplace_back(Token{VARIABLE, match});
             }
         }
+
         // Check if it's an operator
         else if (std::regex_match(match, operatorRegex)) {
             if (match == "-" && (tokens.empty() || 
                 tokens.back().type == OPERATOR || 
-                (tokens.back().type == PAREN && tokens.back().value == "(") ||
-                tokens.back().type == SEPARATOR || tokens.back().value == "neg")) {
+                tokens.back().type == PAREN || 
+                tokens.back().type == SEPARATOR || 
+                tokens.back().value == "neg")) {
                 // It's a unary minus (negation)
                 tokens.emplace_back(Token{FUNCTION, "neg"});
-
+                // Insert a parenthesis to wrap the negation when followed by exponentiation
+                auto next_it = std::next(it);
+                if (next_it != end && (*next_it)[1].str() == "^") {
+                    tokens.emplace_back(Token{PAREN, "("});  // Wrap the negation before exponentiation
+                }
             } else {
                 tokens.emplace_back(Token{OPERATOR, match});
             }
         }
+
         // Check if it's a parenthesis
         else if (std::regex_match(match, parenRegex)) {
             tokens.emplace_back(Token{PAREN, match});
         }
+
         // Check if it's a separator (comma)
         else if (std::regex_match(match, separatorRegex)) {
             tokens.emplace_back(Token{SEPARATOR, match});
         }
+
         else {
             throw SolverException("Error: Unknown token '" + match + "'");
         }

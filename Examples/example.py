@@ -44,6 +44,26 @@ def run_examples():
         {"description": "Evaluate -(2 * 3) + 5", "expression": "-(2 * 3) + 5", "expected_result": -1.0},
         {"description": "Evaluate -g(2, 3)", "expression": "-g(2, 3)", "expected_result": -11.0},  # g(2, 3) = 11
         {"description": "Evaluate --g(1, 4)", "expression": "--g(1, 4)", "expected_result": 9.0},  # g(1, 4) = 10
+
+        # Additional stress tests for unary minus
+        {"description": "Evaluate ---5 (triple unary minus)", "expression": "---5", "expected_result": -5.0},
+        {"description": "Evaluate ----5 (quadruple unary minus)", "expression": "----5", "expected_result": 5.0},
+        {"description": "Evaluate -(-(-(-5)))", "expression": "-(-(-(-5)))", "expected_result": 5.0},
+        {"description": "Evaluate -(-(x + 5))", "expression": "-(-(x + 5))", "expected_result": 15.0},
+        {"description": "Evaluate -(-(f(3)))", "expression": "-(-(f(3)))", "expected_result": 16.0},  # f(3) = 16
+        {"description": "Evaluate -(-g(1, 4))", "expression": "-(-g(1, 4))", "expected_result": 9.0},  # g(1, 4) = 10
+        {"description": "Evaluate -(2 + -(3))", "expression": "-(2 + -(3))", "expected_result": 1.0},
+        {"description": "Evaluate -(f(-g(1, 2)))", "expression": "-(f(-g(1, 2)))", "expected_result": -16.0},  # g(1,2) = 5, f(-5) = 1
+        {"description": "Evaluate -(f(--g(1, 2)))", "expression": "-(f(--g(1, 2)))", "expected_result": -36.0},  # g(1,2) = 5, f(5) = 36
+        {"description": "Evaluate --(2 * -3)", "expression": "--(2 * -3)", "expected_result": -6.0},
+        {"description": "Evaluate --(x + -5)", "expression": "--(x + -5)", "expected_result": 5.0},  # x = 10
+        {"description": "Evaluate -(-2 * 3 + -5)", "expression": "-(-2 * 3 + -5)", "expected_result": 11.0},
+        {"description": "Evaluate --(--(--5))", "expression": "--(--(--5))", "expected_result": 5.0},
+        {"description": "Evaluate ----(--5)", "expression": "----(--5)", "expected_result": 5.0},
+        {"description": "Evaluate --f(-g(2, 3))", "expression": "--f(-g(2, 3))", "expected_result": 100.0},  # g(2,3) = 11, f(-11) = 1
+        {"description": "Evaluate -(f(2) + -g(3, 4))", "expression": "-(f(2) + -g(3, 4))", "expected_result": 10.0},  # f(2)=9, g(3,4)=19, -(9 + -19) = 10
+        {"description": "Evaluate -2^2", "expression": "-2^2", "expected_result": -4.0},  # Testing negation with power
+
     ]
 
     passed_count = 0
