@@ -76,7 +76,7 @@ def run_examples():
         expected = example["expected_result"]
 
         try:
-            result = solver.evaluate(expression, True)
+            result = solver.evaluate(expression)
             if np.isclose(result, expected, atol=1e-6):
                 logger.info(f"{Fore.GREEN}PASSED{Style.RESET_ALL} - {description}: {expression} = {result}")
                 passed_count += 1
@@ -86,6 +86,8 @@ def run_examples():
         except SolverException as e:
             logger.error(f"{Fore.RED}FAILED{Style.RESET_ALL} - {description}: Exception occurred: {e}")
             failed_count += 1
+
+    print()
 
     # Optionally, print a summary or detailed report
     logger.info(f"=== Example Execution Summary ===")
