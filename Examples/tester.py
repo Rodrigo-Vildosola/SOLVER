@@ -1,6 +1,5 @@
 from lib.solver import Solver, SolverException
 import numpy as np
-import logging
 import json
 import sys
 import os
@@ -9,21 +8,14 @@ from colorama import Fore, Style
 from typing import List
 
 from data import TestCase, TestSuite
+from logger import Logger
 
 colorama.init(autoreset=True)
 
 solver = Solver()
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s - %(message)s',  
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('test_results.log', mode='w')  
-    ]
-)
+logger = Logger("Tests", "test_results.log").get_logger()
 
-logger = logging.getLogger(__name__)
 
 
 # Function to load test suites from a JSON file

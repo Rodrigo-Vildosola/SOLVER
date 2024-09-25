@@ -6,6 +6,7 @@ import colorama
 from colorama import Fore, Style
 from typing import List
 
+from logger import Logger
 from data import TestCase, TestSuite
 
 
@@ -13,16 +14,7 @@ colorama.init(autoreset=True)
 
 solver = Solver()
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s - %(message)s',  
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('example_results.log', mode='w')  
-    ]
-)
-
-logger = logging.getLogger(__name__)
+logger = Logger("Example", "example_results.log").get_logger()
 
 # Define test suites and test cases directly in code
 def define_test_suites() -> List[TestSuite]:
