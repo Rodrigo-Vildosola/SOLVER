@@ -32,7 +32,15 @@ def run_examples():
         {"description": "Evaluate f(4)", "expression": "f(4)", "expected_result": 25.0},
         {"description": "Evaluate g(5, 5)", "expression": "g(5, 5)", "expected_result": 35.0},
         {"description": "Evaluate h(2)", "expression": "h(2)", "expected_result": 81.0},
+        
         {"description": "Evaluate -2 + 2", "expression": "-2 + 2", "expected_result": 0.0},
+        {"description": "Evaluate -5", "expression": "-5", "expected_result": -5.0},
+        {"description": "Evaluate --5 (double unary minus)", "expression": "--5", "expected_result": 5.0},
+        {"description": "Evaluate -(3 + 2)", "expression": "-(3 + 2)", "expected_result": -5.0},
+        {"description": "Evaluate -(f(3))", "expression": "-(f(3))", "expected_result": -16.0},  # f(3) = 16
+        {"description": "Evaluate -(2 * 3) + 5", "expression": "-(2 * 3) + 5", "expected_result": -1.0},
+        {"description": "Evaluate -g(2, 3)", "expression": "-g(2, 3)", "expected_result": -11.0},  # g(2, 3) = 11
+        {"description": "Evaluate --g(1, 4)", "expression": "--g(1, 4)", "expected_result": 10.0},  # g(1, 4) = 10
     ]
 
     # Run examples

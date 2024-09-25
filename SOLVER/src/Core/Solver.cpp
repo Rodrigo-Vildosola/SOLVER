@@ -5,6 +5,28 @@
 #include <iostream>
 #include <stdexcept>
 #include <algorithm>
+#include <iomanip>
+
+
+void printTokens(const std::vector<Token>& tokens) {
+    std::cout << "Tokens:\n";
+    std::cout << std::left << std::setw(15) << "Type" << "Value\n";
+    std::cout << "-------------------------\n";
+    for (const auto& token : tokens) {
+        std::string typeStr;
+        switch (token.type) {
+            case NUMBER: typeStr = "NUMBER"; break;
+            case VARIABLE: typeStr = "VARIABLE"; break;
+            case FUNCTION: typeStr = "FUNCTION"; break;
+            case OPERATOR: typeStr = "OPERATOR"; break;
+            case PAREN: typeStr = "PAREN"; break;
+            case SEPARATOR: typeStr = "SEPARATOR"; break;
+            default: typeStr = "UNKNOWN"; break;
+        }
+        std::cout << std::left << std::setw(15) << typeStr << token.value << "\n";
+    }
+    std::cout << "-------------------------\n";
+}
 
 // Initialize the solver with built-in functions
 Solver::Solver() {
@@ -92,12 +114,19 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
 // Evaluate a mathematical expression
 double Solver::evaluate(const std::string& expression, bool debug) {
     auto tokens = tokenize(expression);
+
+
+    if (debug) {
+        printTokens(tokens);
+    }
+
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
     // exprTree = ExpressionTree::simplify(std::move(exprTree));
 
     if (debug) {
         std::cout << "Expression tree:\n";
         printTree(exprTree.get());
+        std::cout << "-------------------------\n";
     }
 
     return evaluateNode(exprTree);

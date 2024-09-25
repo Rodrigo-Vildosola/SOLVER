@@ -28,10 +28,10 @@ std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens)
             argumentCounts.push(1); 
         } else if (token.type == OPERATOR) {
             // Handle unary minus
-            if (token.value == "-" && (i == 0 || tokens[i-1].type == OPERATOR || tokens[i-1].value == "(")) {
-                // This is a unary minus, treat it as a function
-                operatorStack.push(Token{FUNCTION, "neg"});
-            } else {
+            // if (token.value == "-" && (i == 0 || tokens[i-1].type == OPERATOR || tokens[i-1].value == "(")) {
+            //     // This is a unary minus, treat it as a function
+            //     operatorStack.push(Token{FUNCTION, "neg"});
+            // } else {
                 while (!operatorStack.empty() &&
                        ((isLeftAssociative(token.value) && precedence(token.value) <= precedence(operatorStack.top().value)) ||
                        (!isLeftAssociative(token.value) && precedence(token.value) < precedence(operatorStack.top().value)))) {
@@ -39,7 +39,7 @@ std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens)
                     operatorStack.pop();
                 }
                 operatorStack.push(token);
-            }
+            // }
         } else if (token.value == "(") {
             operatorStack.push(token);
         } else if (token.value == ")") {
@@ -108,18 +108,20 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
             nodeStack.push(std::move(node));
         } else if (token.type == FUNCTION) {
             // Handle the "neg" function (unary minus)
-            if (token.value == "neg") {
-                if (nodeStack.empty()) {
-                    throw SolverException("Error: Not enough operands for unary minus (neg).");
-                }
-                auto node = std::make_unique<ExprNode>("-");
-                node->left = std::make_unique<ExprNode>("0"); // neg(x) is 0 - x
-                node->right = std::move(nodeStack.top());
-                nodeStack.pop();
-                nodeStack.push(std::move(node));
-            } else {
+            // if (token.value == "neg") {
+            //     if (nodeStack.empty()) {
+            //         throw SolverException("Error: Not enough operands for unary minus (neg).");
+            //     }
+            //     auto node = std::make_unique<ExprNode>("-");
+            //     node->left = std::make_unique<ExprNode>("0"); // neg(x) is 0 - x
+            //     node->right = std::move(nodeStack.top());
+            //     nodeStack.pop();
+            //     nodeStack.push(std::move(node));
+            // } else {
                 // Handle regular functions (with possibly multiple arguments)
                 size_t argCount = getFunctionArgCount(token.value, functions);
+
+                std::cout << argCount << "The arg count!!" << std::endl;
 
                 if (nodeStack.size() < argCount) {
                     throw SolverException("Error: Not enough operands for function '" + token.value +
@@ -135,7 +137,7 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
                 auto node = std::make_unique<ExprNode>(token.value);
                 node->arguments = std::move(arguments);
                 nodeStack.push(std::move(node));
-            }
+            // }
         }
     }
 

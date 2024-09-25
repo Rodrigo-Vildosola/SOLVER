@@ -4,11 +4,11 @@
 #include <iomanip> // For setting precision
 
 
-void printTokens(const std::vector<Token>& tokens) {
-    for (const auto& token : tokens) {
-        std::cout << "Token: " << token.value << " Type: " << token.type << std::endl;
-    }
-}
+// void printTokens(const std::vector<Token>& tokens) {
+//     for (const auto& token : tokens) {
+//         std::cout << "Token: " << token.value << " Type: " << token.type << std::endl;
+//     }
+// }
 
 void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = "", bool isLeft = true) {
     if (node) {
