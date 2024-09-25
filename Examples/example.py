@@ -18,6 +18,8 @@ def run_examples():
         solver.declareConstant("pi", np.pi)
         solver.declareConstant("e", np.e)
 
+        solver.declareVariable("x", 10)
+
         # Declare user-defined functions
         solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
         solver.declareFunction("g", ["x", "y"], "x * y + x + y")
@@ -36,10 +38,11 @@ def run_examples():
         {"description": "Evaluate -2 + 2", "expression": "-2 + 2", "expected_result": 0.0},
         {"description": "Evaluate -5", "expression": "-5", "expected_result": -5.0},
         {"description": "Evaluate --5 (double unary minus)", "expression": "--5", "expected_result": 5.0},
+        {"description": "Evaluate -(x + 5)", "expression": "-(x + 5)", "expected_result": -15},  
         {"description": "Evaluate -(3 + 2)", "expression": "-(3 + 2)", "expected_result": -5.0},
         {"description": "Evaluate -(f(3))", "expression": "-(f(3))", "expected_result": -16.0},  # f(3) = 16
         {"description": "Evaluate -(2 * 3) + 5", "expression": "-(2 * 3) + 5", "expected_result": -1.0},
-        {"description": "Evaluate -g(2, 3)", "expression": "g(2, 3)", "expected_result": -11.0},  # g(2, 3) = 11
+        {"description": "Evaluate -g(2, 3)", "expression": "-g(2, 3)", "expected_result": -11.0},  # g(2, 3) = 11
         {"description": "Evaluate --g(1, 4)", "expression": "--g(1, 4)", "expected_result": 10.0},  # g(1, 4) = 10
     ]
 
