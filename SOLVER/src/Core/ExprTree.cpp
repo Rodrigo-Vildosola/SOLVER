@@ -1,4 +1,5 @@
 #include "ExprTree.h"
+#include <iostream>
 
 // Shunting yard algorithm for parsing infix to postfix
 std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens) {

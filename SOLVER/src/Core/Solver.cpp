@@ -93,7 +93,7 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
 double Solver::evaluate(const std::string& expression, bool debug) {
     auto tokens = tokenize(expression);
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
-    exprTree = ExpressionTree::simplify(std::move(exprTree));
+    // exprTree = ExpressionTree::simplify(std::move(exprTree));
 
     if (debug) {
         std::cout << "Expression tree:\n";

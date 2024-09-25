@@ -1,18 +1,33 @@
 #include "SymbolTable.h"
+#include "Validator.h"
 
-// Declare a constant, ensuring no variable with the same name exists
+// Declare a constant, ensuring no variable with the same name exists and the name is valid
 void SymbolTable::declareConstant(const std::string& name, double value) {
+    // Validate the name
+    if (!Validator::isValidName(name)) {
+        throw SolverException("Invalid constant name '" + name + "'. Names must start with a letter or underscore and contain only letters, digits, or underscores, and must not be reserved keywords.");
+    }
+
+    // Check for name collision with variables
     if (variables.find(name) != variables.end()) {
         throw SolverException("Cannot declare constant '" + name + "' because a variable with the same name already exists.");
     }
+
     constants[name] = value;
 }
 
-// Declare a variable, ensuring no constant with the same name exists
+// Declare a variable, ensuring no constant with the same name exists and the name is valid
 void SymbolTable::declareVariable(const std::string& name, double value) {
+    // Validate the name
+    if (!Validator::isValidName(name)) {
+        throw SolverException("Invalid variable name '" + name + "'. Names must start with a letter or underscore and contain only letters, digits, or underscores, and must not be reserved keywords.");
+    }
+
+    // Check for name collision with constants
     if (constants.find(name) != constants.end()) {
         throw SolverException("Cannot declare variable '" + name + "' because a constant with the same name already exists.");
     }
+
     variables[name] = value;
 }
 

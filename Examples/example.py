@@ -32,6 +32,7 @@ def run_examples():
         {"description": "Evaluate f(4)", "expression": "f(4)", "expected_result": 25.0},
         {"description": "Evaluate g(5, 5)", "expression": "g(5, 5)", "expected_result": 35.0},
         {"description": "Evaluate h(2)", "expression": "h(2)", "expected_result": 81.0},
+        {"description": "Evaluate -2 + 2", "expression": "-2 + 2", "expected_result": 0.0},
     ]
 
     # Run examples
@@ -41,7 +42,7 @@ def run_examples():
         expected = example["expected_result"]
 
         try:
-            result = solver.evaluate(expression)
+            result = solver.evaluate(expression, True)
             if np.isclose(result, expected, atol=1e-6):
                 logger.info(f"{Fore.GREEN}PASSED{Style.RESET_ALL} - {description}: {expression} = {result}")
             else:
