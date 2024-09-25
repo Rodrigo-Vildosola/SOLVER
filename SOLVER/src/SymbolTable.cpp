@@ -8,13 +8,17 @@ void SymbolTable::declareConstant(const std::string& name, double value) {
         throw SolverException("Invalid constant name '" + name + "'. Names must start with a letter or underscore and contain only letters, digits, or underscores, and must not be reserved keywords.");
     }
 
-    // Check for name collision with variables
+    if (constants.find(name) != constants.end()) {
+        throw SolverException("Cannot redeclare constant '" + name + "'. Constants cannot be redeclared.");
+    }
+
     if (variables.find(name) != variables.end()) {
         throw SolverException("Cannot declare constant '" + name + "' because a variable with the same name already exists.");
     }
 
     constants[name] = value;
 }
+
 
 // Declare a variable, ensuring no constant with the same name exists and the name is valid
 void SymbolTable::declareVariable(const std::string& name, double value) {

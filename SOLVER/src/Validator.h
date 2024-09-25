@@ -16,4 +16,11 @@ namespace Validator {
      * @return false If the name is invalid.
      */
     bool isValidName(const std::string& name);
+
+    /**
+     * @brief Validate the syntax of the given expression.
+     * 
+     * @param expression The expression to validate.
+     */
+    void isValidSyntax(const std::string& expression);
 }

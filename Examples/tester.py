@@ -26,8 +26,8 @@ def main():
         solver.declareFunction("k", ["x"], "f(x) + g(x, x)")
         solver.declareFunction("m", ["x", "y"], "h(x) + f(g(x, y))")
         solver.declareFunction("p", ["x", "y"], "m(x, y) + k(x)")
-        solver.declareFunction("n", ["x"], "x + z")  # Uses undefined variable 'z'
-        solver.declareFunction("circlearea", ["r"], "pi * r^2")
+        solver.declareFunction("n", ["x"], "x + z") 
+        solver.declareFunction("circle_area", ["r"], "pi * r^2")
     except SolverException as e:
         logger.error(f"Initialization Error: {e}")
         sys.exit(1)

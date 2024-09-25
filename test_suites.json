@@ -180,8 +180,8 @@
                     "expected_result": 5.0
                 },
                 {
-                    "description": "circlearea(3)",
-                    "expression": "circlearea(3)",
+                    "description": "circle_area(3)",
+                    "expression": "circle_area(3)",
                     "expected_result": 28.274333882308138
                 },
                 {
@@ -201,6 +201,102 @@
                     "setup_variables": {
                         "x": 2.5
                     }
+                }
+            ]
+        },
+        {
+            "name": "Unary Minus Operator",
+            "test_cases": [
+                {
+                    "description": "Evaluate ---5 (triple unary minus)",
+                    "expression": "---5",
+                    "expected_result": -5.0
+                },
+                {
+                    "description": "Evaluate ----5 (quadruple unary minus)",
+                    "expression": "----5",
+                    "expected_result": 5.0
+                },
+                {
+                    "description": "Evaluate -(-(-(-5)))",
+                    "expression": "-(-(-(-5)))",
+                    "expected_result": 5.0
+                },
+                {
+                    "description": "Evaluate -(-(x + 5))",
+                    "expression": "-(-(x + 5))",
+                    "expected_result": 15.0,
+                    "setup_variables": {
+                        "x": 10
+                    }
+                },
+                {
+                    "description": "Evaluate -(-(f(3)))",
+                    "expression": "-(-(f(3)))",
+                    "expected_result": 16.0
+                },
+                {
+                    "description": "Evaluate -(-g(1, 4))",
+                    "expression": "-(-g(1, 4))",
+                    "expected_result": 9.0
+                },
+                {
+                    "description": "Evaluate -(2 + -(3))",
+                    "expression": "-(2 + -(3))",
+                    "expected_result": 1.0
+                },
+                {
+                    "description": "Evaluate -(f(-g(1, 2)))",
+                    "expression": "-(f(-g(1, 2)))",
+                    "expected_result": -16.0
+                },
+                {
+                    "description": "Evaluate -(f(--g(1, 2)))",
+                    "expression": "-(f(--g(1, 2)))",
+                    "expected_result": -36.0
+                },
+                {
+                    "description": "Evaluate --(2 * -3)",
+                    "expression": "--(2 * -3)",
+                    "expected_result": -6.0
+                },
+                {
+                    "description": "Evaluate --(x + -5)",
+                    "expression": "--(x + -5)",
+                    "expected_result": 5.0,
+                    "setup_variables": {
+                        "x": 10
+                    }
+                },
+                {
+                    "description": "Evaluate -(-2 * 3 + -5)",
+                    "expression": "-(-2 * 3 + -5)",
+                    "expected_result": 11.0
+                },
+                {
+                    "description": "Evaluate --(--(--5))",
+                    "expression": "--(--(--5))",
+                    "expected_result": 5.0
+                },
+                {
+                    "description": "Evaluate ----(--5)",
+                    "expression": "----(--5)",
+                    "expected_result": 5.0
+                },
+                {
+                    "description": "Evaluate --f(-g(2, 3))",
+                    "expression": "--f(-g(2, 3))",
+                    "expected_result": 100.0
+                },
+                {
+                    "description": "Evaluate -(f(2) + -g(3, 4))",
+                    "expression": "-(f(2) + -g(3, 4))",
+                    "expected_result": 10.0
+                },
+                {
+                    "description": "Evaluate -2^2",
+                    "expression": "-2^2",
+                    "expected_result": -4.0
                 }
             ]
         }

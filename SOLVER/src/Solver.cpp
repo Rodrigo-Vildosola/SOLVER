@@ -20,7 +20,7 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
         throw SolverException("Invalid function name: '" + name + "'.");
     }
 
-    isValidSyntax(expression);
+    Validator::isValidSyntax(expression);
 
     try {
         auto tokens = tokenize(expression);
@@ -86,12 +86,12 @@ double Solver::evaluate(const std::string& expression, bool debug) {
     auto tokens = tokenize(expression);
 
 
-    // if (debug) {
-    //     printTokens(tokens);
-    // }
+    if (debug) {
+        printTokens(tokens);
+    }
 
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
-    exprTree = ExpressionTree::simplify(std::move(exprTree));
+    // exprTree = ExpressionTree::simplify(std::move(exprTree));
 
     if (debug) {
         std::cout << "Expression tree:\n";

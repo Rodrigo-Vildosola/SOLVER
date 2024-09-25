@@ -106,13 +106,6 @@ private:
      * @return The result of the function evaluation.
      */
     double evaluateFunction(const std::string& func, const std::vector<double>& args);
-
-    /**
-     * @brief Validate the syntax of the given expression.
-     * 
-     * @param expression The expression to validate.
-     */
-    void isValidSyntax(const std::string& expression);
     
     /**
      * @brief Validate that a function's dependencies (arguments) are valid.

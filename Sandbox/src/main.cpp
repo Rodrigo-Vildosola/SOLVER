@@ -1,39 +1,8 @@
 #include <iostream>
 #include "Solver.h"
-#include <cmath> // For NaN
-#include <iomanip> // For setting precision
+#include <cmath>
+#include <iomanip>
 
-
-// void printTokens(const std::vector<Token>& tokens) {
-//     for (const auto& token : tokens) {
-//         std::cout << "Token: " << token.value << " Type: " << token.type << std::endl;
-//     }
-// }
-
-void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = "", bool isLeft = true) {
-    if (node) {
-        // Print the current node
-        std::cout << prefix;
-
-        // Add an appropriate connector (either a corner or a line)
-        std::cout << (depth == 0 ? "" : (isLeft ? "├── " : "└── "));
-
-        std::cout << node->value << std::endl;
-
-        // Prepare the prefix for the children
-        std::string childPrefix = prefix + (depth == 0 ? "" : (isLeft ? "│   " : "    "));
-
-        // Print the left subtree first
-        if (node->left) {
-            printTree(node->left.get(), depth + 1, childPrefix, true);
-        }
-
-        // Print the right subtree
-        if (node->right) {
-            printTree(node->right.get(), depth + 1, childPrefix, false);
-        }
-    }
-}
 
 void testEquation(Solver& solver, const std::string& equation) {
     std::cout << "Testing equation: " << equation << std::endl;

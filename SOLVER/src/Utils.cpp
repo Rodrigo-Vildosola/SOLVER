@@ -54,64 +54,6 @@ void Solver::registerBuiltInFunctions() {
 }
 
 
-
-// Syntactic validation: Check for basic syntax correctness and provide detailed error messages
-void Solver::isValidSyntax(const std::string& expression) {
-    int balance = 0;
-    bool lastWasOperator = true; // To handle cases like "-3"
-
-    for (size_t i = 0; i < expression.length(); ++i) {
-        char c = expression[i];
-
-        if (std::isspace(c)) {
-            continue;
-        }
-
-        if (c == '(') {
-            balance++;
-            lastWasOperator = true;
-        }
-        else if (c == ')') {
-            balance--;
-            if (balance < 0) {
-                throw SolverException("Syntax Error: Unmatched closing parenthesis ')' at position " + std::to_string(i));
-            }
-            lastWasOperator = false;
-        }
-        else if (c == ',') {
-            if (lastWasOperator) {
-                throw SolverException("Syntax Error: Unexpected comma ',' at position " + std::to_string(i));
-            }
-            lastWasOperator = true; // Comma acts similarly to an operator in terms of preceding elements
-        }
-        else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
-            if (lastWasOperator) {
-                throw SolverException("Syntax Error: Unexpected operator '" + std::string(1, c) + "' at position " + std::to_string(i));
-            }
-            lastWasOperator = true;
-        }
-        else if (std::isdigit(c) || std::isalpha(c) || c == '.') {
-            lastWasOperator = false;
-        }
-        else {
-            // Unknown character
-            throw SolverException("Syntax Error: Unknown character '" + std::string(1, c) + "' at position " + std::to_string(i));
-        }
-    }
-
-    if (balance != 0) {
-        std::stringstream ss;
-        ss << "Syntax Error: Mismatched parentheses. ";
-        ss << (balance > 0 ? "Missing closing parenthesis ')'." 
-                            : "Extra closing parenthesis ')' found.");
-        throw SolverException(ss.str());
-    }
-
-    if (lastWasOperator) {
-        throw SolverException("Syntax Error: Expression cannot end with an operator.");
-    }
-}
-
 // Semantic validation: Ensure all dependencies are defined
 void Solver::validateFunctionDependencies(const std::string& expression, const std::vector<std::string>& args) {
     auto tokens = tokenize(expression);
