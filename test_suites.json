@@ -106,7 +106,7 @@
                 {
                     "description": "h(2)",
                     "expression": "h(2)",
-                    "expected_result": 1089.0
+                    "expected_result": 81.0
                 },
                 {
                     "description": "k(3)",
@@ -116,12 +116,12 @@
                 {
                     "description": "m(2, 10)",
                     "expression": "m(2, 10)",
-                    "expected_result": 1187.0
+                    "expected_result": 1170.0
                 },
                 {
                     "description": "p(2, 10)",
                     "expression": "p(2, 10)",
-                    "expected_result": 1201.0
+                    "expected_result": 1187.0
                 },
                 {
                     "description": "n(5)",

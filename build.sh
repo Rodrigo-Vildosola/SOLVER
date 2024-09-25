@@ -2,7 +2,7 @@
 
 BUILD_DIR=".build"
 EXECUTABLE="Sandbox/Sandbox"
-EXAMPLES="Examples/example.py"
+EXAMPLES="Examples/tester.py"
 
 function build() {
     mkdir -p $BUILD_DIR
