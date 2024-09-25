@@ -20,15 +20,13 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
     for (auto it = begin; it != end; ++it) {
         std::string match = (*it)[1].str();
 
-        // Check if it's a number
         if (std::regex_match(match, numberRegex)) {
             if (!tokens.empty() && tokens.back().type == FUNCTION && tokens.back().value == "neg") {
-                // Handle exponentiation case: do not merge negation with the number if followed by "^"
                 auto next_it = std::next(it);
                 if (next_it != end && (*next_it)[1].str() == "^") {
-                    tokens.emplace_back(Token{NUMBER, match});  // Just add the number separately
+                    tokens.emplace_back(Token{NUMBER, match}); 
                 } else {
-                    tokens.back() = Token{NUMBER, "-" + match};  // Unary minus is merged with the number
+                    tokens.back() = Token{NUMBER, "-" + match};
                 }
             } else {
                 tokens.emplace_back(Token{NUMBER, match});

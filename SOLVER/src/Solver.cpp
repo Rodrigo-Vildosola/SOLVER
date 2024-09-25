@@ -16,15 +16,12 @@ void Solver::registerPredefinedFunction(const std::string& name, const FunctionC
 }
 
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
-    // Validate the function name
     if (!Validator::isValidName(name)) {
         throw SolverException("Invalid function name: '" + name + "'.");
     }
 
-    // Perform syntactic validation on the expression
-    isValidSyntax(expression); // Now throws exception if invalid
+    isValidSyntax(expression);
 
-    // Attempt to parse the expression to ensure it's structurally valid
     try {
         auto tokens = tokenize(expression);
         auto exprTree = ExpressionTree::parseExpression(tokens, functions);
