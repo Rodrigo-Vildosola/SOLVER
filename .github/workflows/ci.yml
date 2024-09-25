@@ -1,0 +1,96 @@
+name: Build, Test, and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on version tag pushes
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.8, 3.9, 3.10]  # Test with different Python versions
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies (Linux/MacOS)
+        if: runner.os != 'Windows'
+        run: |
+          sudo apt-get install ninja-build cmake  # Ensure necessary build tools are installed
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install numpy matplotlib colorama
+
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          python -m venv .venv
+          .venv\Scripts\activate
+          pip install numpy matplotlib colorama
+
+      - name: Make build script executable (Linux/MacOS)
+        if: runner.os != 'Windows'
+        run: chmod +x build.sh
+
+      - name: Build and run tests
+        run: |
+          ./build.sh tests  # Uses the existing build.sh script to build and run tests
+        shell: bash
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install numpy matplotlib colorama
+
+      - name: Make build script executable
+        run: chmod +x build.sh
+
+      - name: Build the project
+        run: |
+          ./build.sh build
+
+      - name: Package release artifacts
+        run: |
+          mkdir release
+          cp .build/Sandbox/Sandbox release/
+          tar -czvf solver-release.tar.gz release/
+
+      - name: Upload Release to GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: solver-release
+          path: solver-release.tar.gz
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: solver-release.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
