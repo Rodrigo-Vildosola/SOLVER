@@ -28,7 +28,13 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
 
         // Check if it's a number
         if (std::regex_match(match, numberRegex)) {
-            tokens.emplace_back(Token{NUMBER, match});
+            // Handle case where the last token is `neg` (unary minus) followed by a number
+            if (!tokens.empty() && tokens.back().type == FUNCTION && tokens.back().value == "neg") {
+                // Replace the last `neg` with the negative number token
+                tokens.back() = Token{NUMBER, "-" + match};
+            } else {
+                tokens.emplace_back(Token{NUMBER, match});
+            }
         }
         // Check if it's a variable or function name
         else if (std::regex_match(match, variableRegex)) {
