@@ -2,7 +2,8 @@
 
 BUILD_DIR=".build"
 EXECUTABLE="Sandbox/Sandbox"
-EXAMPLES="Examples/tester.py"
+EXAMPLES="Examples/example.py"
+TESTING="Examples/tester.py"
 
 function build() {
     mkdir -p $BUILD_DIR
@@ -20,6 +21,10 @@ function examples() {
     python3 $EXAMPLES
 }
 
+function tests() {
+    python3 $TESTING
+}
+
 function clean() {
     rm -rf $BUILD_DIR
 }
@@ -32,6 +37,9 @@ elif [ "$1" == "run" ]; then
 elif [ "$1" == "examples" ]; then
     build
     examples
+elif [ "$1" == "tests" ]; then
+    build
+    tests
 elif [ "$1" == "clean" ]; then
     clean
 else

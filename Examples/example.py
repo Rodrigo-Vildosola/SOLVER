@@ -30,6 +30,7 @@ class TestCase:
     expected_result: Any = None
     margin: float = 1e-6
     expect_exception: Any = None
+    debug: bool = False
     setup_variables: dict = field(default_factory=dict)
     passed: bool = False
     error_message: str = ""
