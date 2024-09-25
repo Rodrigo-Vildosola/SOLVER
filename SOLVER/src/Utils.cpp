@@ -84,11 +84,9 @@ void Solver::registerBuiltInFunctions() {
 void Solver::isValidSyntax(const std::string& expression) {
     int balance = 0;
     bool lastWasOperator = true; // To handle cases like "-3"
-    size_t position = 0;
 
     for (size_t i = 0; i < expression.length(); ++i) {
         char c = expression[i];
-        position = i; // Track current position for error reporting
 
         if (std::isspace(c)) {
             continue;
@@ -158,8 +156,3 @@ void Solver::validateFunctionDependencies(const std::string& expression, const s
     }
 }
 
-
-// Validate a function expression (syntactic validation)
-void Solver::validateFunctionExpression(const std::string& expression, const std::vector<std::string>& args) {
-    // Since validation is moved to evaluation time, this method can be empty or removed
-}

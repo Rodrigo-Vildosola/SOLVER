@@ -28,8 +28,8 @@ endif()
 include_directories(${Python3_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # List of C++ source files for the SOLVER library
-# Include all .cpp files in the src/ and src/Core/ directories
-file(GLOB SOLVER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/Core/*.cpp")
+# Include all .cpp files in the src/ and src/ directories
+file(GLOB SOLVER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 # Verify if source files were found (debugging output)
 message(STATUS "SOLVER_SRC: ${SOLVER_SRC}")

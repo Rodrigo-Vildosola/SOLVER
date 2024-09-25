@@ -2,10 +2,10 @@
 
 %{
 #define SWIG_FILE_WITH_INIT
-#include "Core/Solver.h"
-#include "Core/ExprNode.h"
-#include "Core/Token.h"
-#include "Core/Exception.h"
+#include "Solver.h"
+#include "ExprNode.h"
+#include "Token.h"
+#include "Exception.h"
 
 // Declare the Python exception object for SolverException
 static PyObject* pSolverException;
@@ -128,8 +128,8 @@ static PyObject* pSolverException;
 }
 
 // Include the Solver class definition
-%include "Core/Solver.h"
-%include "Core/Token.h"
+%include "Solver.h"
+%include "Token.h"
 
 %pythoncode %{
 class SolverException(Exception):

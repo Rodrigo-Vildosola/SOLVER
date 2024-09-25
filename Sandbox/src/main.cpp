@@ -1,5 +1,5 @@
 #include <iostream>
-#include "SOLVER.h"
+#include "Solver.h"
 #include <cmath> // For NaN
 #include <iomanip> // For setting precision
 
