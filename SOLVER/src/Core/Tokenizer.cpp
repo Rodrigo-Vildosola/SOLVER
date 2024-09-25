@@ -23,8 +23,6 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
     auto begin = std::sregex_iterator(equation.begin(), equation.end(), tokenRegex);
     auto end = std::sregex_iterator();
 
-    int closingParensToInsert = 0;
-
     for (auto it = begin; it != end; ++it) {
         std::string match = (*it)[1].str();
 
@@ -47,16 +45,10 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
             if (match == "-" && (tokens.empty() || 
                 tokens.back().type == OPERATOR || 
                 (tokens.back().type == PAREN && tokens.back().value == "(") ||
-                tokens.back().type == SEPARATOR)) {
-                // It's a unary minus
+                tokens.back().type == SEPARATOR || tokens.back().value == "neg")) {
+                // It's a unary minus (negation)
                 tokens.emplace_back(Token{FUNCTION, "neg"});
 
-                // Insert '(' if next token is not '('
-                auto next_it = std::next(it);  // Get the next iterator position
-                if (next_it != end && (*next_it)[1].str() != "(") {
-                    tokens.emplace_back(Token{PAREN, "("});
-                    closingParensToInsert++;
-                }
             } else {
                 tokens.emplace_back(Token{OPERATOR, match});
             }
@@ -73,17 +65,6 @@ std::vector<Token> Solver::tokenize(const std::string& equation) {
             throw SolverException("Error: Unknown token '" + match + "'");
         }
 
-        // Insert closing parentheses if needed
-        while (closingParensToInsert > 0 && tokens.back().type != PAREN) {
-            tokens.emplace_back(Token{PAREN, ")"});
-            closingParensToInsert--;
-        }
-    }
-
-    // Insert any remaining closing parentheses
-    while (closingParensToInsert > 0) {
-        tokens.emplace_back(Token{PAREN, ")"});
-        closingParensToInsert--;
     }
 
     return tokens;

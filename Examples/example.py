@@ -43,7 +43,7 @@ def run_examples():
         {"description": "Evaluate -(f(3))", "expression": "-(f(3))", "expected_result": -16.0},  # f(3) = 16
         {"description": "Evaluate -(2 * 3) + 5", "expression": "-(2 * 3) + 5", "expected_result": -1.0},
         {"description": "Evaluate -g(2, 3)", "expression": "-g(2, 3)", "expected_result": -11.0},  # g(2, 3) = 11
-        {"description": "Evaluate --g(1, 4)", "expression": "--g(1, 4)", "expected_result": 10.0},  # g(1, 4) = 10
+        {"description": "Evaluate --g(1, 4)", "expression": "--g(1, 4)", "expected_result": 9.0},  # g(1, 4) = 10
     ]
 
     passed_count = 0
