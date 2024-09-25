@@ -3,7 +3,7 @@ name: Build, Test, and Release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*.*.*'  # Trigger on version tag pushes
   pull_request:
     branches:
       - main
@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.10, 3.11, 3.12]  
+        python-version: [3.10, 3.11, 3.12]  # Use correct Python versions
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,14 +26,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies (Linux/MacOS)
-        if: runner.os != 'Windows'
+      # Install dependencies for Linux (Ubuntu)
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
-          sudo apt-get install ninja-build cmake  # Ensure necessary build tools are installed
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake  # Ensure necessary build tools are installed
           python3 -m venv .venv
           source .venv/bin/activate
           pip install numpy matplotlib colorama
 
+      # Install dependencies for macOS
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install ninja cmake  # Install build tools using Homebrew
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install numpy matplotlib colorama
+
+      # Install dependencies for Windows
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -41,10 +53,12 @@ jobs:
           .venv\Scripts\activate
           pip install numpy matplotlib colorama
 
+      # Make build script executable for Linux and macOS
       - name: Make build script executable (Linux/MacOS)
         if: runner.os != 'Windows'
         run: chmod +x build.sh
 
+      # Build and run tests
       - name: Build and run tests
         run: |
           ./build.sh tests  # Uses the existing build.sh script to build and run tests
