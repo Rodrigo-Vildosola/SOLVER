@@ -1,8 +1,7 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
-#include <stdexcept>
-#include <string>
+#include "pch.h"
 
 class SolverException : public std::runtime_error {
 public:

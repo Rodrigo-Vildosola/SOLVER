@@ -1,8 +1,7 @@
 // SymbolTable.h
 #pragma once
 
-#include <unordered_map>
-#include <string>
+#include "pch.h"
 #include "Exception.h"
 
 class SymbolTable {

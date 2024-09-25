@@ -1,7 +1,6 @@
 #pragma once
-#include <queue>
-#include <stack>
-#include <memory>
+
+#include "pch.h"
 #include "Token.h"
 #include "Function.h"
 #include "ExprNode.h"

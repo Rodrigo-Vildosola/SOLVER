@@ -1,6 +1,5 @@
 #include "Solver.h"
-#include <iostream>
-#include <sstream>
+
 
 void Solver::printTree(const ExprNode* node, int depth, const std::string& prefix, bool isLeft) const {
     if (node) {

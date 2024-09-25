@@ -29,16 +29,22 @@ include_directories(${Python3_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # List of C++ source files for the SOLVER library
 # Include all .cpp files in the src/ and src/ directories
-file(GLOB SOLVER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB SOLVER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 # Verify if source files were found (debugging output)
 message(STATUS "SOLVER_SRC: ${SOLVER_SRC}")
+
+# Add precompiled header support
+set(PCH_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.h")
 
 # Build the SOLVER static C++ library
 add_library(SOLVER_STATIC STATIC ${SOLVER_SRC})
 
 # Add include directories for the static library
 target_include_directories(SOLVER_STATIC PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+# Precompiled header setup for SOLVER_STATIC
+target_precompile_headers(SOLVER_STATIC PUBLIC ${PCH_HEADER})
 
 # Set properties for the SWIG interface file
 set_source_files_properties(solver.i PROPERTIES CPLUSPLUS ON)
@@ -56,16 +62,24 @@ target_link_libraries(SOLVER_PYTHON ${Python3_LIBRARIES})
 # Add include directories for the SWIG module
 target_include_directories(SOLVER_PYTHON PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# Add the necessary compile options to SWIG
+# Precompiled header setup for SWIG module
+target_precompile_headers(SOLVER_PYTHON PUBLIC ${PCH_HEADER})
+
+# Add the Doxygen flag for SWIG
+set(SWIG_FLAGS "-Wall" "-doxygen")  # Add more SWIG flags as necessary
+
+# Add SWIG flags and compilation options for the SWIG module
 target_compile_options(SOLVER_PYTHON PRIVATE 
     -Wall -Wundef -Wpedantic -Wextra 
     -Wuninitialized -Winit-self
     -Wno-error=unused-command-line-argument
 )
 
+# Add SWIG specific compile options
+set_property(TARGET SOLVER_PYTHON PROPERTY SWIG_COMPILE_OPTIONS ${SWIG_FLAGS})
+
 # Ensure the static library is built before the SWIG Python module
 add_dependencies(SOLVER_PYTHON SOLVER_STATIC)
-
 
 set(PYTHON_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Examples/lib")
 

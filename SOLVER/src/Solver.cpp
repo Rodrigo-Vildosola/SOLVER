@@ -1,12 +1,6 @@
 #include "Solver.h"
 #include "Exception.h"
 #include "ExprTree.h"
-#include <cmath>
-#include <iostream>
-#include <stdexcept>
-#include <algorithm>
-#include <iomanip>
-
 
 void printTokens(const std::vector<Token>& tokens) {
     std::cout << "Tokens:\n";

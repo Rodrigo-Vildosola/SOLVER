@@ -1,9 +1,7 @@
 // Function.h
 #pragma once
 
-#include <string>
-#include <vector>
-#include <functional>
+#include "pch.h"
 
 using FunctionCallback = std::function<double(const std::vector<double>&)>;
 

@@ -1,9 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <memory> 
-#include <cctype> // For isdigit
+#include "pch.h"
 
 class ExprNode {
 public:

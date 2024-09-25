@@ -1,14 +1,11 @@
 #pragma once
 
+#include "pch.h"
+
 #include "Token.h"
 #include "ExprNode.h"
 #include "SymbolTable.h"
 #include "Function.h"
-#include <string>
-#include <vector>
-#include <memory>
-#include <functional>
-#include <unordered_map>
 
 class Solver {
 public:

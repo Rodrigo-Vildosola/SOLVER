@@ -1,12 +1,6 @@
 #include "Solver.h"
 #include "Exception.h"
 #include "Validator.h"
-#include <regex>
-#include <iostream>
-#include <iomanip>
-
-#include <regex>
-#include <iterator>  // For std::next
 
 std::vector<Token> Solver::tokenize(const std::string& equation) {
     std::vector<Token> tokens;
