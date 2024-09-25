@@ -7,7 +7,7 @@ import colorama
 from colorama import Fore, Style
 from typing import List
 
-from data import TestCase, TestSuite
+from data import TestCase, TestSuite, initialize_tests
 from logger import Logger
 
 colorama.init(autoreset=True)
@@ -148,29 +148,9 @@ def display_overall_summary(suites: List[TestSuite]):
         total_tests += len(suite.test_cases)
     logger.info(f"\n=== Overall Test Summary: {total_passed}/{total_tests} PASSED ===\n")
 
-# Function to initialize and prepare the testing environment
-def initialize_tests():
-    try:
-        # Declare constants
-        solver.declareConstant("pi", np.pi)
-        solver.declareConstant("e", np.e)
-
-        # Declare user-defined functions
-        solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
-        solver.declareFunction("g", ["x", "y"], "x * y + x + y")
-        solver.declareFunction("h", ["x"], "f(g(x, x))")
-        solver.declareFunction("k", ["x"], "f(x) + g(x, x)")
-        solver.declareFunction("m", ["x", "y"], "h(x) + f(g(x, y))")
-        solver.declareFunction("p", ["x", "y"], "m(x, y) + k(x)")
-        solver.declareFunction("n", ["x"], "x + z")  # This function uses undefined variable 'z'
-        solver.declareFunction("circlearea", ["r"], "pi * r^2")
-    except SolverException as e:
-        logger.error(f"Initialization Error: {e}")
-        sys.exit(1)
-
 # Main function
 def main():
-    initialize_tests()
+    initialize_tests(solver, logger)
     suites = load_test_suites("test_suites.json")  # Ensure the JSON file is in the same directory
     display_menu(suites)
 

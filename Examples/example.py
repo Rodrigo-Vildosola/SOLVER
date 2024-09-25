@@ -7,7 +7,7 @@ from colorama import Fore, Style
 from typing import List
 
 from logger import Logger
-from data import TestCase, TestSuite
+from data import TestCase, TestSuite, initialize_tests
 
 
 colorama.init(autoreset=True)
@@ -109,25 +109,6 @@ def run_all_tests(suites: List[TestSuite]):
     # Overall summary
     logger.info(f"=== Overall Test Summary: {total_passed}/{total_tests} PASSED ===\n")
 
-# Function to initialize and prepare the testing environment
-def initialize_tests():
-    try:
-        # Declare constants
-        solver.declareConstant("pi", np.pi)
-        solver.declareConstant("e", np.e)
-
-        # Declare user-defined functions
-        solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
-        solver.declareFunction("g", ["x", "y"], "x * y + x + y")
-        solver.declareFunction("h", ["x"], "f(g(x, x))")
-        solver.declareFunction("k", ["x"], "f(x) + g(x, x)")
-        solver.declareFunction("m", ["x", "y"], "h(x) + f(g(x, y))")
-        solver.declareFunction("p", ["x", "y"], "m(x, y) + k(x)")
-        solver.declareFunction("n", ["x"], "x + z")  # This function uses undefined variable 'z'
-        solver.declareFunction("circlearea", ["r"], "pi * r^2")
-    except SolverException as e:
-        logger.error(f"Initialization Error: {e}")
-        sys.exit(1)
 
 # Function to print a detailed report of the test results
 def print_report(suites: List[TestSuite]):
@@ -147,7 +128,7 @@ def print_report(suites: List[TestSuite]):
 
 # Main function to execute the testing script
 def main():
-    initialize_tests()
+    initialize_tests(solver, logger)
     suites = define_test_suites()
     run_all_tests(suites)
     print_report(suites)
