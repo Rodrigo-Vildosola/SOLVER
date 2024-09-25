@@ -2,7 +2,6 @@
 
 import logging
 import sys
-from colorama import Fore, Style
 
 class Logger:
     def __init__(self, logger_name: str, log_file: str):
