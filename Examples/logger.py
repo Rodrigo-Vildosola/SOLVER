@@ -27,17 +27,3 @@ class Logger:
 
     def get_logger(self) -> logging.Logger:
         return self.logger
-
-class ConsoleFormatter(logging.Formatter):
-    def format(self, record):
-        levelno = record.levelno
-        if levelno >= logging.ERROR:
-            record.levelname = f"{Fore.RED}{record.levelname}{Style.RESET_ALL}"
-            record.msg = f"{Fore.RED}{record.msg}{Style.RESET_ALL}"
-        elif levelno >= logging.WARNING:
-            record.levelname = f"{Fore.YELLOW}{record.levelname}{Style.RESET_ALL}"
-            record.msg = f"{Fore.YELLOW}{record.msg}{Style.RESET_ALL}"
-        elif levelno >= logging.INFO:
-            record.levelname = f"{Fore.GREEN}{record.levelname}{Style.RESET_ALL}"
-            record.msg = f"{Fore.GREEN}{record.msg}{Style.RESET_ALL}"
-        return super().format(record)
