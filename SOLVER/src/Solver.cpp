@@ -1,26 +1,8 @@
 #include "Solver.h"
 #include "Exception.h"
 #include "ExprTree.h"
-
-void printTokens(const std::vector<Token>& tokens) {
-    std::cout << "Tokens:\n";
-    std::cout << std::left << std::setw(15) << "Type" << "Value\n";
-    std::cout << "-------------------------\n";
-    for (const auto& token : tokens) {
-        std::string typeStr;
-        switch (token.type) {
-            case NUMBER: typeStr = "NUMBER"; break;
-            case VARIABLE: typeStr = "VARIABLE"; break;
-            case FUNCTION: typeStr = "FUNCTION"; break;
-            case OPERATOR: typeStr = "OPERATOR"; break;
-            case PAREN: typeStr = "PAREN"; break;
-            case SEPARATOR: typeStr = "SEPARATOR"; break;
-            default: typeStr = "UNKNOWN"; break;
-        }
-        std::cout << std::left << std::setw(15) << typeStr << token.value << "\n";
-    }
-    std::cout << "-------------------------\n";
-}
+#include "Validator.h"
+#include "Debug.h"
 
 Solver::Solver() {
     registerBuiltInFunctions();
@@ -34,7 +16,12 @@ void Solver::registerPredefinedFunction(const std::string& name, const FunctionC
 }
 
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
-    // Perform syntactic validation
+    // Validate the function name
+    if (!Validator::isValidName(name)) {
+        throw SolverException("Invalid function name: '" + name + "'.");
+    }
+
+    // Perform syntactic validation on the expression
     isValidSyntax(expression); // Now throws exception if invalid
 
     // Attempt to parse the expression to ensure it's structurally valid
