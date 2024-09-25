@@ -1,0 +1,208 @@
+{
+    "suites": [
+        {
+            "name": "Variables",
+            "test_cases": [
+                {
+                    "description": "x + 0",
+                    "expression": "x + 0",
+                    "expected_result": 0.0,
+                    "setup_variables": {
+                        "x": 0
+                    }
+                },
+                {
+                    "description": "x + y",
+                    "expression": "x + y",
+                    "expected_result": 15.0,
+                    "setup_variables": {
+                        "x": 5,
+                        "y": 10
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Complex Expressions",
+            "test_cases": [
+                {
+                    "description": "x * y + x^2",
+                    "expression": "x * y + x^2",
+                    "expected_result": 75.0,
+                    "setup_variables": {
+                        "x": 5,
+                        "y": 10
+                    }
+                },
+                {
+                    "description": "y / x",
+                    "expression": "y / x",
+                    "expected_result": 2.0,
+                    "setup_variables": {
+                        "x": 5,
+                        "y": 10
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Error Handling",
+            "test_cases": [
+                {
+                    "description": "Division by zero",
+                    "expression": "x / (y - 10)",
+                    "expect_exception": "SolverException",
+                    "setup_variables": {
+                        "x": 5,
+                        "y": 10
+                    }
+                },
+                {
+                    "description": "Undefined function call",
+                    "expression": "undefinedFunc(5)",
+                    "expect_exception": "SolverException"
+                },
+                {
+                    "description": "Incorrect number of function arguments",
+                    "expression": "f(1, 2)",
+                    "expect_exception": "SolverException"
+                },
+                {
+                    "description": "Function with undefined variable 'z'",
+                    "expression": "n(5)",
+                    "expect_exception": "SolverException"
+                }
+            ]
+        },
+        {
+            "name": "Custom Functions",
+            "test_cases": [
+                {
+                    "description": "f(3)",
+                    "expression": "f(3)",
+                    "expected_result": 16.0,
+                    "setup_variables": {
+                        "x": 3
+                    }
+                },
+                {
+                    "description": "f(-1)",
+                    "expression": "f(-1)",
+                    "expected_result": 0.0,
+                    "setup_variables": {
+                        "x": -1
+                    }
+                },
+                {
+                    "description": "g(3, 4)",
+                    "expression": "g(3, 4)",
+                    "expected_result": 19.0
+                },
+                {
+                    "description": "g(-2, 2) + 1",
+                    "expression": "g(-2, 2) + 1",
+                    "expected_result": -3.0
+                },
+                {
+                    "description": "h(2)",
+                    "expression": "h(2)",
+                    "expected_result": 1089.0
+                },
+                {
+                    "description": "k(3)",
+                    "expression": "k(3)",
+                    "expected_result": 31.0
+                },
+                {
+                    "description": "m(2, 10)",
+                    "expression": "m(2, 10)",
+                    "expected_result": 1187.0
+                },
+                {
+                    "description": "p(2, 10)",
+                    "expression": "p(2, 10)",
+                    "expected_result": 1201.0
+                },
+                {
+                    "description": "n(5)",
+                    "expression": "n(5)",
+                    "expect_exception": "SolverException"
+                }
+            ]
+        },
+        {
+            "name": "Built-in Functions and Constants",
+            "test_cases": [
+                {
+                    "description": "sin(pi / 2)",
+                    "expression": "sin(pi / 2)",
+                    "expected_result": 1.0
+                },
+                {
+                    "description": "cos(0)",
+                    "expression": "cos(0)",
+                    "expected_result": 1.0
+                },
+                {
+                    "description": "tan(pi / 4)",
+                    "expression": "tan(pi / 4)",
+                    "expected_result": 1.0
+                },
+                {
+                    "description": "exp(1)",
+                    "expression": "exp(1)",
+                    "expected_result": 2.718281828459045
+                },
+                {
+                    "description": "ln(e)",
+                    "expression": "ln(e)",
+                    "expected_result": 1.0
+                },
+                {
+                    "description": "sqrt(16)",
+                    "expression": "sqrt(16)",
+                    "expected_result": 4.0
+                },
+                {
+                    "description": "sin(pi / 4) + cos(pi / 4)",
+                    "expression": "sin(pi / 4) + cos(pi / 4)",
+                    "expected_result": 1.4142135623730951,
+                    "margin": 1e-5
+                },
+                {
+                    "description": "ln(e^2)",
+                    "expression": "ln(e^2)",
+                    "expected_result": 2.0
+                },
+                {
+                    "description": "exp(ln(5))",
+                    "expression": "exp(ln(5))",
+                    "expected_result": 5.0
+                },
+                {
+                    "description": "circlearea(3)",
+                    "expression": "circlearea(3)",
+                    "expected_result": 28.274333882308138
+                },
+                {
+                    "description": "sqrt(sin(pi / 2))",
+                    "expression": "sqrt(sin(pi / 2))",
+                    "expected_result": 1.0
+                },
+                {
+                    "description": "ln(exp(5))",
+                    "expression": "ln(exp(5))",
+                    "expected_result": 5.0
+                },
+                {
+                    "description": "f(2.5)",
+                    "expression": "f(2.5)",
+                    "expected_result": 12.25,
+                    "setup_variables": {
+                        "x": 2.5
+                    }
+                }
+            ]
+        }
+    ]
+}

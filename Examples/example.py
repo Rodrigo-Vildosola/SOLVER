@@ -5,6 +5,8 @@ import logging
 import sys
 import colorama
 from colorama import Fore, Style
+import json
+import os
 
 # Initialize colorama
 colorama.init(autoreset=True)
@@ -13,12 +15,13 @@ colorama.init(autoreset=True)
 solver = Solver()
 
 # Configure logging
+# Set FileHandler to 'w' mode to reset the log file on initialization
 logging.basicConfig(
     level=logging.INFO,
     format='%(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('test_results.log')
+        logging.FileHandler('test_results.log', mode='w')  # Overwrite the log file each run
     ]
 )
 
@@ -37,6 +40,7 @@ class TestCase:
     margin: float = 1e-6
     expect_exception: Any = None
     debug: bool = False
+    setup_variables: dict = field(default_factory=dict)  # New field
     passed: bool = False
     error_message: str = ""
 
@@ -45,75 +49,56 @@ class TestSuite:
     name: str
     test_cases: List[TestCase] = field(default_factory=list)
 
-# Define test suites
-def create_test_suites():
+# Function to load test suites from a JSON file
+def load_test_suites(json_file: str) -> List[TestSuite]:
+    if not os.path.exists(json_file):
+        logger.error(f"Test suite configuration file '{json_file}' not found.")
+        sys.exit(1)
+    
+    with open(json_file, 'r') as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.error(f"Error parsing JSON file '{json_file}': {e}")
+            sys.exit(1)
+    
     suites = []
-
-    # Test Suite 1: Variables
-    variables_suite = TestSuite(name="Variables")
-    variables_suite.test_cases.extend([
-        TestCase(description="x + 0", expression="x + 0", expected_result=5.0),
-        TestCase(description="x + y", expression="x + y", expected_result=15.0),
-    ])
-    suites.append(variables_suite)
-
-    # Test Suite 2: Complex Expressions
-    complex_suite = TestSuite(name="Complex Expressions")
-    complex_suite.test_cases.extend([
-        TestCase(description="x * y + x^2", expression="x * y + x^2", expected_result=75.0),
-        TestCase(description="y / x", expression="y / x", expected_result=2.0),
-    ])
-    suites.append(complex_suite)
-
-    # Test Suite 3: Error Handling
-    error_suite = TestSuite(name="Error Handling")
-    error_suite.test_cases.extend([
-        TestCase(description="Division by zero", expression="x / (y - 10)", expect_exception=SolverException),
-        TestCase(description="Undefined function call", expression="undefinedFunc(5)", expect_exception=SolverException),
-        TestCase(description="Incorrect number of function arguments", expression="f(1, 2)", expect_exception=SolverException),
-        TestCase(description="Function with undefined variable 'z'", expression="n(5)", expect_exception=SolverException),
-    ])
-    suites.append(error_suite)
-
-    # Test Suite 4: Custom Functions
-    custom_functions_suite = TestSuite(name="Custom Functions")
-    custom_functions_suite.test_cases.extend([
-        TestCase(description="f(3)", expression="f(3)", expected_result=16.0),
-        TestCase(description="f(-1)", expression="f(-1)", expected_result=0.0),
-        TestCase(description="g(3, 4)", expression="g(3, 4)", expected_result=19.0),
-        TestCase(description="g(-2, 2) + 1", expression="g(-2, 2) + 1", expected_result=-3.0),
-        TestCase(description="h(2)", expression="h(2)", expected_result=1089.0),
-        TestCase(description="k(3)", expression="k(3)", expected_result=31.0),
-        TestCase(description="m(2, 10)", expression="m(2, 10)", expected_result=1187.0),
-        TestCase(description="p(2, 10)", expression="p(2, 10)", expected_result=1201.0),
-        TestCase(description="n(5)", expression="n(5)", expect_exception=SolverException),
-    ])
-    suites.append(custom_functions_suite)
-
-    # Test Suite 5: Built-in Functions and Constants
-    built_in_suite = TestSuite(name="Built-in Functions and Constants")
-    built_in_suite.test_cases.extend([
-        TestCase(description="sin(pi / 2)", expression="sin(pi / 2)", expected_result=1.0),
-        TestCase(description="cos(0)", expression="cos(0)", expected_result=1.0),
-        TestCase(description="tan(pi / 4)", expression="tan(pi / 4)", expected_result=1.0),
-        TestCase(description="exp(1)", expression="exp(1)", expected_result=np.e),
-        TestCase(description="ln(e)", expression="ln(e)", expected_result=1.0),
-        TestCase(description="sqrt(16)", expression="sqrt(16)", expected_result=4.0),
-        TestCase(description="sin(pi / 4) + cos(pi / 4)", expression="sin(pi / 4) + cos(pi / 4)", expected_result=np.sqrt(2), margin=1e-5),
-        TestCase(description="ln(e^2)", expression="ln(e^2)", expected_result=2.0),
-        TestCase(description="exp(ln(5))", expression="exp(ln(5))", expected_result=5.0),
-        TestCase(description="circlearea(3)", expression="circlearea(3)", expected_result=28.274333882308138),
-        TestCase(description="sqrt(sin(pi / 2))", expression="sqrt(sin(pi / 2))", expected_result=1.0),
-        TestCase(description="ln(exp(5))", expression="ln(exp(5))", expected_result=5.0),
-        TestCase(description="f(2.5)", expression="f(2.5)", expected_result=12.25),
-    ])
-    suites.append(built_in_suite)
-
+    for suite_data in data.get("suites", []):
+        suite = TestSuite(name=suite_data.get("name", "Unnamed Suite"))
+        for tc_data in suite_data.get("test_cases", []):
+            # Convert 'expect_exception' from string to actual exception class
+            expect_exc = tc_data.get("expect_exception")
+            if expect_exc:
+                if expect_exc == "SolverException":
+                    expect_exc = SolverException
+                else:
+                    logger.warning(f"Unknown exception '{expect_exc}' in test case '{tc_data.get('description', '')}'. Skipping exception mapping.")
+                    expect_exc = None
+            test_case = TestCase(
+                description=tc_data.get("description", "No Description"),
+                expression=tc_data.get("expression", ""),
+                expected_result=tc_data.get("expected_result"),
+                margin=tc_data.get("margin", 1e-6),
+                expect_exception=expect_exc,
+                debug=tc_data.get("debug", False),
+                setup_variables=tc_data.get("setup_variables", {})
+            )
+            suite.test_cases.append(test_case)
+        suites.append(suite)
     return suites
 
 # Utility function for evaluating and printing results
 def test_expression(test_case: TestCase):
     try:
+        # Apply variable setups
+        previous_variables = {}
+        for var, value in test_case.setup_variables.items():
+            # Set new variable value
+            if var in ['x', 'y']:  # Assuming 'x' and 'y' are global variables
+                solver.declareVariable(var, value)
+            else:
+                solver.declareConstant(var, value)
+        
         result = solver.evaluate(test_case.expression, test_case.debug)
         if test_case.expect_exception:
             # If an exception was expected but none was raised
@@ -139,7 +124,7 @@ def test_expression(test_case: TestCase):
     except SolverException as e:
         if test_case.expect_exception and isinstance(e, test_case.expect_exception):
             test_case.passed = True
-            logger.info(f"{Fore.GREEN}PASSED{Style.RESET_ALL} - {test_case.description}: Expected exception {e}")
+            logger.info(f"{Fore.GREEN}PASSED{Style.RESET_ALL} - {test_case.description}: Expected exception '{e}'")
         else:
             test_case.passed = False
             expected = test_case.expect_exception.__name__ if test_case.expect_exception else "No exception"
@@ -204,10 +189,6 @@ def initialize_tests():
         solver.declareConstant("pi", np.pi)
         solver.declareConstant("e", np.e)
 
-        # Declare global variables
-        solver.declareVariable("x", 5)   # x
-        solver.declareVariable("y", 10)   # y
-
         # Declare user-defined functions
         solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
         solver.declareFunction("g", ["x", "y"], "x * y + x + y")
@@ -219,21 +200,12 @@ def initialize_tests():
         solver.declareFunction("circlearea", ["r"], "pi * r^2")
     except SolverException as e:
         logger.error(f"Initialization Error: {e}")
-
-# Function to run all tests without menu (optional)
-def run_all_tests(suites: List[TestSuite]):
-    for suite in suites:
-        run_test_suite(suite)
-    display_overall_summary(suites)
-
-# Function to create colored logs in the console
-def setup_colored_logging():
-    pass  # Already handled by colorama in test_expression
+        sys.exit(1)
 
 # Main function
 def main():
     initialize_tests()
-    suites = create_test_suites()
+    suites = load_test_suites("test_suites.json")  # Ensure the JSON file is in the same directory
     display_menu(suites)
 
 # Entry point
