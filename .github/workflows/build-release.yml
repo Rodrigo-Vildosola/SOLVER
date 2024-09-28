@@ -14,7 +14,7 @@ jobs:
     name: Build and Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: [3.12]
@@ -43,13 +43,6 @@ jobs:
           echo "Running build and tests..."
           chmod +x build.sh
           ./build.sh tests
-          
-          echo "Listing directory contents:"
-          ls -la
-          echo "Listing build directory contents:"
-          ls -la .build
-          echo "Listing solver directory contents:"
-          ls -la Examples/solver
 
 
       - name: Install and test on macOS
@@ -67,12 +60,6 @@ jobs:
           chmod +x build.sh
           ./build.sh tests
           
-          echo "Listing directory contents:"
-          ls -la
-          echo "Listing build directory contents:"
-          ls -la .build/SOLVER
-          echo "Listing solver directory contents:"
-          ls -la Examples/solver
 
       - name: Install and test on Windows
         if: runner.os == 'Windows'
@@ -85,21 +72,3 @@ jobs:
           echo "Running build and tests..."
           cmd /c build.bat tests
           
-          echo "Listing directory contents:"
-          dir
-          echo "Listing build directory contents:"
-          dir .build\SOLVER
-
-      - name: Upload build artifacts
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: .build
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: logs
-          path: logs/*.log

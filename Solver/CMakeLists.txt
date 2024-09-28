@@ -65,7 +65,7 @@ target_include_directories(SOLVER_PYTHON PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_precompile_headers(SOLVER_PYTHON PUBLIC ${PCH_HEADER})
 
 # Add the Doxygen flag for SWIG
-set(SWIG_FLAGS "-Wall" "-doxygen")  
+set(SWIG_FLAGS "-Wall" "-doxygen")
 
 if (MSVC)
     target_compile_options(SOLVER_PYTHON PRIVATE 
@@ -76,7 +76,8 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Use compatible flags for GCC and Clang
     target_compile_options(SOLVER_PYTHON PRIVATE 
         -Wall -Wundef -Wpedantic -Wextra 
-        -Wuninitialized -Winit-self
+        -Wuninitialized -Winit-self 
+        -Wno-missing-field-initializers
     )
 endif()
 
@@ -97,4 +98,3 @@ elseif(APPLE)
 else()
     set(SHARED_LIB_EXT "so")
 endif()
-
