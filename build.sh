@@ -88,8 +88,6 @@ function main() {
             run_examples
             ;;
         tests)
-            build
-            copy_python_lib
             run_tests
             ;;
         clean)

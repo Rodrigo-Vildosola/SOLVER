@@ -56,19 +56,6 @@ goto :eof
 
 :: Function to run the tests
 :tests
-call :build
-call :copy_python_lib
-echo Running tests...
-
-echo Checking Python version...
-python --version
-
-echo Verifying installed Python packages...
-pip list
-
-echo Activating virtual environment...
-call .venv\Scripts\activate
-
 echo Executing Python tests from %TESTING%
 python %TESTING%
 

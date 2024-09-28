@@ -28,47 +28,75 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install and test on Linux
+      # Installation step for Linux
+      - name: Install dependencies on Linux
         if: runner.os == 'Linux'
         run: |
           echo "Installing dependencies on Linux..."
           sudo apt-get update
-          sudo apt-get install -y ninja-build cmake swig
+          sudo apt-get install -y cmake swig
           
           echo "Setting up virtual environment..."
           python3 -m venv .venv
           source .venv/bin/activate
           pip install numpy matplotlib colorama
-          
-          echo "Running build and tests..."
-          chmod +x build.sh
-          ./build.sh tests
 
-
-      - name: Install and test on macOS
+      # Installation step for macOS
+      - name: Install dependencies on macOS
         if: runner.os == 'macOS'
         run: |
           echo "Installing dependencies on macOS..."
-          brew install ninja swig
+          brew install swig
 
           echo "Setting up virtual environment..."
           python3 -m venv .venv
           source .venv/bin/activate
           pip install numpy matplotlib colorama
 
-          echo "Running build and tests..."
-          chmod +x build.sh
-          ./build.sh tests
-          
-
-      - name: Install and test on Windows
+      # Installation step for Windows
+      - name: Install dependencies on Windows
         if: runner.os == 'Windows'
         run: |
           echo "Installing dependencies on Windows..."
           python -m venv .venv
           .venv\Scripts\activate
           pip install numpy matplotlib colorama
+
+      # Build and test step for Linux
+      - name: Build and Test on Linux
+        if: runner.os == 'Linux'
+        run: |
+          echo "Running build on Linux..."
+          chmod +x build.sh
+          ./build.sh build
           
-          echo "Running build and tests..."
+          echo "Running tests on Linux..."
+          ./build.sh tests
+
+      # Build and test step for macOS
+      - name: Build and Test on macOS
+        if: runner.os == 'macOS'
+        run: |
+          echo "Running build on macOS..."
+          chmod +x build.sh
+          ./build.sh build
+
+          echo "Running tests on macOS..."
+          ./build.sh tests
+
+      # Build and test step for Windows
+      - name: Build and Test on Windows
+        if: runner.os == 'Windows'
+        run: |
+          echo "Running build on Windows..."
+          cmd /c build.bat build
+
+          echo "Running tests on Windows..."
           cmd /c build.bat tests
-          
+
+      # Ensure test failure stops the job
+      - name: Fail on test failure
+        if: failure()
+        run: |
+          echo "A test has failed. Stopping the pipeline."
+          exit 1

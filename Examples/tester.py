@@ -40,9 +40,14 @@ def main():
         sys.exit(1)
 
     # Run all tests
-    run_all_tests(solver, suites, logger)
+    test_result = run_all_tests(solver, suites, logger)
 
-    # Print detailed report
+    # If test_result indicates a failure, exit with non-zero code
+    if not test_result:
+        logger.error("Tests failed.")
+        sys.exit(1)
+
+    # Optionally, print detailed report
     # print_report(suites)
 
 if __name__ == "__main__":
