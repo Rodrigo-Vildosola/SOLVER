@@ -70,7 +70,6 @@ set(SWIG_FLAGS "-Wall" "-doxygen")
 if (MSVC)
     target_compile_options(SOLVER_PYTHON PRIVATE 
         /W3 /EHsc /WX- 
-        -Wno-error=unused-command-line-argument
     )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Use compatible flags for GCC and Clang

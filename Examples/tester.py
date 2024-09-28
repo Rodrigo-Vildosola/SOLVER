@@ -1,6 +1,4 @@
 # test_script.py
-print("Hi")
-
 from data import run_all_tests, load_test_suites
 from report import print_report
 from logger import Logger
@@ -45,7 +43,7 @@ def main():
     run_all_tests(solver, suites, logger)
 
     # Print detailed report
-    print_report(suites)
+    # print_report(suites)
 
 if __name__ == "__main__":
     main()
