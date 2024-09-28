@@ -110,10 +110,11 @@ def run_test_case(solver: Solver, test_case: TestCase, logger: logging.Logger):
             logger.error(f"FAILED - {test_case.description}: {test_case.error_message}")
 
 
-def run_all_tests(solver: Solver, suites: List[TestSuite], logger: logging.Logger):
+def run_all_tests(solver: Solver, suites: List[TestSuite], logger: logging.Logger) -> bool:
     total_passed = 0
     total_tests = 0
     logger.info("\n=== Starting All Test Suites ===")
+    
     for suite in suites:
         logger.info(f"\n=== Running Test Suite: {suite.name} ===")
         for test_case in suite.test_cases:
@@ -121,6 +122,11 @@ def run_all_tests(solver: Solver, suites: List[TestSuite], logger: logging.Logge
             if test_case.passed:
                 total_passed += 1
             total_tests += 1
+        
         passed_in_suite = sum(tc.passed for tc in suite.test_cases)
         logger.info(f"=== Test Suite '{suite.name}' Summary: {passed_in_suite}/{len(suite.test_cases)} PASSED ===\n")
+    
     logger.info(f"=== Overall Test Summary: {total_passed}/{total_tests} PASSED ===\n")
+    
+    # Return True if all tests passed, False if any test failed
+    return total_passed == total_tests
