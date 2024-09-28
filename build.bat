@@ -19,7 +19,7 @@ if not exist %BUILD_DIR% (
 :build
 echo Building the project using Visual Studio generator...
 cd %BUILD_DIR%
-cmake .. -G "Visual Studio 16 2019" -A x64
+cmake .. 
 cmake --build . --config Release
 cd ..
 goto :eof
@@ -31,9 +31,7 @@ if not exist %PYTHON_OUTPUT_DIR% (
     mkdir %PYTHON_OUTPUT_DIR%
 )
 
-:: Determine the shared library extension (on Windows, it's pyd)
 
-:: Copy the shared library and Python script
 copy %BUILD_DIR%\Solver\Release\%SOLVER_PYTHON_LIB% %PYTHON_OUTPUT_DIR%\%SOLVER_PYTHON_LIB%
 copy %BUILD_DIR%\Solver\%SOLVER_PYTHON_SCRIPT% %PYTHON_OUTPUT_DIR%\%SOLVER_PYTHON_SCRIPT%
 
