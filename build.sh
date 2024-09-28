@@ -6,7 +6,7 @@ EXECUTABLE="Sandbox/Sandbox"
 EXAMPLES_SCRIPT="Examples/example.py"
 TEST_SCRIPT="Examples/tester.py"
 PYTHON_OUTPUT_DIR="Examples/solver"
-SOLVER_PYTHON_LIB="_SOLVER_PYTHON"
+SOLVER_PYTHON_LIB="_SOLVER_PYTHON.so"
 SOLVER_PYTHON_SCRIPT="solver.py"
 
 # Detect platform (only macOS or Linux are supported here)
@@ -35,11 +35,7 @@ function copy_python_lib() {
     echo "Copying Python libraries..."
     mkdir -p $PYTHON_OUTPUT_DIR
     
-    # Determine platform-specific shared library extension
-    shared_lib_ext="so"  # macOS and Linux both use .so extension
-
-    # Copy shared library (.so) and Python script
-    cp $BUILD_DIR/Solver/${SOLVER_PYTHON_LIB}.${shared_lib_ext} $PYTHON_OUTPUT_DIR/${SOLVER_PYTHON_LIB}.${shared_lib_ext}
+    cp $BUILD_DIR/Solver/${SOLVER_PYTHON_LIB} $PYTHON_OUTPUT_DIR/${SOLVER_PYTHON_LIB}
     cp $BUILD_DIR/Solver/${SOLVER_PYTHON_SCRIPT} $PYTHON_OUTPUT_DIR/${SOLVER_PYTHON_SCRIPT}
 
     echo "Python libraries copied to $PYTHON_OUTPUT_DIR."
