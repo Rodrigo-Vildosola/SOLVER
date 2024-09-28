@@ -87,7 +87,7 @@ set_property(TARGET SOLVER_PYTHON PROPERTY SWIG_COMPILE_OPTIONS ${SWIG_FLAGS})
 add_dependencies(SOLVER_PYTHON SOLVER_STATIC)
 
 # Set output directory for the Python module
-set(PYTHON_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Examples/lib")
+set(PYTHON_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Examples/solver")
 
 # Determine platform-specific shared library extension
 if(WIN32)
@@ -98,15 +98,3 @@ else()
     set(SHARED_LIB_EXT "so")
 endif()
 
-# Use correct paths for copying the generated files
-add_custom_command(TARGET SOLVER_PYTHON POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    "${CMAKE_BINARY_DIR}/Solver/_SOLVER_PYTHON.${SHARED_LIB_EXT}"
-    "${PYTHON_OUTPUT_DIR}/_SOLVER_PYTHON.${SHARED_LIB_EXT}"
-)
-
-add_custom_command(TARGET SOLVER_PYTHON POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    "${CMAKE_BINARY_DIR}/Solver/solver.py"
-    "${PYTHON_OUTPUT_DIR}/solver.py"
-)

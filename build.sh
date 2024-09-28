@@ -1,92 +1,109 @@
 #!/bin/bash
 
+# Directories and file paths
 BUILD_DIR=".build"
 EXECUTABLE="Sandbox/Sandbox"
-EXAMPLES="Examples/example.py"
-TESTING="Examples/tester.py"
+EXAMPLES_SCRIPT="Examples/example.py"
+TEST_SCRIPT="Examples/tester.py"
+PYTHON_OUTPUT_DIR="Examples/solver"
+SOLVER_PYTHON_LIB="_SOLVER_PYTHON"
+SOLVER_PYTHON_SCRIPT="solver.py"
 
+# Detect platform (only macOS or Linux are supported here)
 function detect_platform() {
     case "$OSTYPE" in
         linux*)   platform="linux" ;;
         darwin*)  platform="macos" ;;
-        msys* | cygwin* | win32*) platform="windows" ;;
         *)        platform="unknown" ;;
     esac
     echo "Detected platform: $platform"
 }
 
-function activate_venv() {
-    if [ "$platform" == "windows" ]; then
-        # Activate virtual environment on Windows
-        .venv/Scripts/activate
-    else
-        # Activate virtual environment on Linux/macOS
-        source .venv/bin/activate
-    fi
-}
-
+# Create and build the project using CMake and Ninja
 function build() {
+    echo "Starting build process..."
     mkdir -p $BUILD_DIR
     cd $BUILD_DIR
-    if [ "$platform" == "windows" ]; then
-        cmake -G "Ninja" ..
-    else
-        cmake -G Ninja ..
-    fi
+    cmake -G Ninja ..
     ninja
     cd ..
+    echo "Build completed."
 }
 
-function run() {
-    if [ "$platform" == "windows" ]; then
-        ./$BUILD_DIR/$EXECUTABLE.exe
-    else
-        ./$BUILD_DIR/$EXECUTABLE
-    fi
-    echo "Running on platform: $platform"
-}
-
-function examples() {
-    python3 $EXAMPLES
-}
-
-function tests() {
-    echo "Running tests..."
-    echo "Platform: $platform"
-    echo "Checking Python version..."
-    python3 --version
+# Copy the generated Python shared library and script to the output directory
+function copy_python_lib() {
+    echo "Copying Python libraries..."
+    mkdir -p $PYTHON_OUTPUT_DIR
     
-    echo "Verifying installed Python packages..."
-    python3 -m pip list
+    # Determine platform-specific shared library extension
+    shared_lib_ext="so"  # macOS and Linux both use .so extension
 
-    activate_venv
+    # Copy shared library (.so) and Python script
+    cp $BUILD_DIR/Solver/${SOLVER_PYTHON_LIB}.${shared_lib_ext} $PYTHON_OUTPUT_DIR/${SOLVER_PYTHON_LIB}.${shared_lib_ext}
+    cp $BUILD_DIR/Solver/${SOLVER_PYTHON_SCRIPT} $PYTHON_OUTPUT_DIR/${SOLVER_PYTHON_SCRIPT}
 
-    echo "Executing Python tests from $TESTING"
-    python3 $TESTING
+    echo "Python libraries copied to $PYTHON_OUTPUT_DIR."
+}
 
+# Run the built C++ executable
+function run_executable() {
+    echo "Running the executable..."
+    ./$BUILD_DIR/$EXECUTABLE
+    echo "Execution finished."
+}
+
+# Run the Python examples script
+function run_examples() {
+    echo "Running Python examples..."
+    python3 $EXAMPLES_SCRIPT
+}
+
+# Run the Python test script
+function run_tests() {
+    echo "Running Python tests..."
+    python3 $TEST_SCRIPT
     echo "Tests finished."
 }
 
+# Clean the build directory
 function clean() {
+    echo "Cleaning build directory..."
     rm -rf $BUILD_DIR
+    echo "Clean completed."
 }
 
-# Detect the platform first
-detect_platform
+# Main command handler
+function main() {
+    detect_platform
 
-if [ "$1" == "build" ]; then
-    build
-elif [ "$1" == "run" ]; then
-    build
-    run
-elif [ "$1" == "examples" ]; then
-    build
-    examples
-elif [ "$1" == "tests" ]; then
-    build
-    tests
-elif [ "$1" == "clean" ]; then
-    clean
-else
-    echo "Usage: $0 {build|run|examples|tests|clean}"
-fi
+    case "$1" in
+        build)
+            build
+            copy_python_lib
+            ;;
+        run)
+            build
+            copy_python_lib
+            run_executable
+            ;;
+        examples)
+            build
+            copy_python_lib
+            run_examples
+            ;;
+        tests)
+            build
+            copy_python_lib
+            run_tests
+            ;;
+        clean)
+            clean
+            ;;
+        *)
+            echo "Usage: $0 {build|run|examples|tests|clean}"
+            ;;
+    esac
+}
+
+# Run the main function with the provided arguments
+main "$@"
