@@ -52,7 +52,7 @@ double Solver::evaluate(const std::string& expression, bool debug) {
 
     if (debug) {
         std::cout << "Expression tree:\n";
-        printTree(exprTree.get(), std::cout);
+        printTree(exprTree.get(), std::cout, functions);
         std::cout << "-------------------------\n";
     }
 

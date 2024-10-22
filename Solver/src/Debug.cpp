@@ -21,7 +21,7 @@ void printTokens(const std::vector<Token>& tokens) {
 }
 
 
-void printTree(const ExprNode* node, std::ostream& out, int depth, const std::string& prefix, bool isLeft) {
+void printTree(const ExprNode* node, std::ostream& out, const std::unordered_map<std::string, Function>& functions, int depth, const std::string& prefix, bool isLeft) {
     if (node) {
         // Print the current node
         out << prefix;
@@ -58,14 +58,23 @@ void printTree(const ExprNode* node, std::ostream& out, int depth, const std::st
         // Prepare the prefix for the children
         std::string childPrefix = prefix + (depth == 0 ? "" : (isLeft ? "│   " : "    "));
 
-        // Print the left subtree (if applicable)
-        if (node->left) {
-            printTree(node->left.get(), out, depth + 1, childPrefix, true);
+        // If the node is a function and has an associated expression tree, print it
+        if (node->type == FUNCTION) {
+            auto functionIt = functions.find(node->value);
+            if (functionIt != functions.end() && functionIt->second.exprTree) {
+                out << childPrefix << (isLeft ? "│   " : "    ") << "└── Expression Tree for function '" << node->value << "':\n";
+                printTree(functionIt->second.exprTree.get(), out, functions, depth + 1, childPrefix, true);
+            }
         }
 
-        // Print the right subtree (if applicable)
+        // Print the left subtree (if it's an operator or other node with children)
+        if (node->left) {
+            printTree(node->left.get(), out, functions, depth + 1, childPrefix, true);
+        }
+
+        // Print the right subtree (if it's an operator or other node with children)
         if (node->right) {
-            printTree(node->right.get(), out, depth + 1, childPrefix, false);
+            printTree(node->right.get(), out, functions, depth + 1, childPrefix, false);
         }
     }
 }

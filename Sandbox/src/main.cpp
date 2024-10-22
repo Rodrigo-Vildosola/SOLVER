@@ -31,6 +31,9 @@ int main() {
     solver.declareVariable("x", 5.0);
     solver.declareFunction("f", {"x"}, "x^2 + 2*x + pi");
 
+    std::cout << solver.evaluate("x + 0", true) << std::endl;
+    std::cout << "Result: " << solver.evaluate("f(2) + pi", true) << std::endl;  // Should replace 'pi' with 3.14159
+
 
     // List constants
     // auto constants = solver.listConstants();
@@ -59,9 +62,6 @@ int main() {
     //     }
     //     std::cout << std::endl;
     // }
-
-    std::cout << solver.evaluate("x + 0", true) << std::endl;
-    std::cout << "Result: " << solver.evaluate("f(2) + pi", true) << std::endl;  // Should replace 'pi' with 3.14159
 
 
 }

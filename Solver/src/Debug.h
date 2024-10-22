@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Token.h"
 #include "ExprNode.h"
+#include "Function.h"
 
 
 void printTokens(const std::vector<Token>& tokens);
@@ -16,4 +17,4 @@ void printTokens(const std::vector<Token>& tokens);
  * @param prefix The string prefix for the node (used for tree formatting).
  * @param isLeft Whether the current node is a left child.
  */
-void printTree(const ExprNode* node, std::ostream& out, int depth = 0, const std::string& prefix = "", bool isLeft = true);
+void printTree(const ExprNode* node, std::ostream& out, const std::unordered_map<std::string, Function>& functions, int depth = 0, const std::string& prefix = "", bool isLeft = true);
