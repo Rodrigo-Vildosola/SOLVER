@@ -116,40 +116,40 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
 }
 
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
-    std::cout << node->stringify() << std::endl;
-    if (!node->left && !node->right && node->arguments.empty()) {
-        try {
-            return symbolTable.lookupSymbol(node->value);
-        } catch (const SolverException&) {
-            try {
-                return std::stod(node->value);
-            } catch (const std::invalid_argument&) {
-                throw SolverException("Invalid argument: Unable to convert '" + node->value + "' to a number or find it as a variable/constant.");
-            }
-        }
+    // Handle constants and variables
+    if (node->type == NUMBER) {
+        return std::stod(node->value);  // Directly convert string to double
+    } else if (node->type == VARIABLE) {
+        return symbolTable.lookupSymbol(node->value);  // Lookup variable value
     }
-    
-    if (!node->arguments.empty()) {
+
+    // Handle function calls
+    if (node->type == FUNCTION) {
         std::vector<double> args;
         for (const auto& argNode : node->arguments) {
-            args.push_back(evaluateNode(argNode));
+            args.push_back(evaluateNode(argNode));  // Evaluate all arguments
         }
-        return evaluateFunction(node->value, args);
+        return evaluateFunction(node->value, args);  // Evaluate the function
     }
 
-    double leftValue = evaluateNode(node->left);
-    double rightValue = evaluateNode(node->right);
+    // Handle binary operators
+    if (node->type == OPERATOR) {
+        double leftValue = evaluateNode(node->left);   // Evaluate left child
+        double rightValue = evaluateNode(node->right); // Evaluate right child
 
-    if (node->value == "+") return leftValue + rightValue;
-    if (node->value == "-") return leftValue - rightValue;
-    if (node->value == "*") return leftValue * rightValue;
-    if (node->value == "/") {
-        if (rightValue == 0) throw SolverException("Division by zero error.");
-        return leftValue / rightValue;
+        if (node->value == "+") return leftValue + rightValue;
+        if (node->value == "-") return leftValue - rightValue;
+        if (node->value == "*") return leftValue * rightValue;
+        if (node->value == "/") {
+            if (rightValue == 0) throw SolverException("Division by zero error.");
+            return leftValue / rightValue;
+        }
+        if (node->value == "^") return std::pow(leftValue, rightValue);
+
+        throw SolverException("Unknown operator: '" + node->value + "'.");
     }
-    if (node->value == "^") return std::pow(leftValue, rightValue);
 
-    throw SolverException("Unknown operator: '" + node->value + "'.");
+    throw SolverException("Unsupported node type.");
 }
 
 
