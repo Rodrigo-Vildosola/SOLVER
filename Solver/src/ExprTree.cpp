@@ -1,5 +1,8 @@
 #include "ExprTree.h"
 
+
+#pragma region Helpers
+
 size_t ExpressionTree::getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions) {
     auto it = functions.find(functionName);
     if (it != functions.end()) {
@@ -8,7 +11,74 @@ size_t ExpressionTree::getFunctionArgCount(const std::string& functionName, cons
     throw SolverException("Unknown function '" + functionName + "'");
 }
 
-// Shunting yard algorithm for parsing infix to postfix
+double ExpressionTree::foldConstants(const std::string& op, double leftValue, double rightValue) {
+    if (op == "+") {
+        return leftValue + rightValue;
+    } else if (op == "-") {
+        return leftValue - rightValue;
+    } else if (op == "*") {
+        return leftValue * rightValue;
+    } else if (op == "/") {
+        if (rightValue == 0) {
+            throw SolverException("Division by zero error.");
+        }
+        return leftValue / rightValue;
+    } else if (op == "^") {
+        return std::pow(leftValue, rightValue);
+    }
+    throw SolverException("Unknown operator: '" + op + "'");
+}
+
+std::unique_ptr<ExprNode> ExpressionTree::processFunction(const Token& token, std::stack<std::unique_ptr<ExprNode>>& nodeStack, const std::unordered_map<std::string, Function>& functions) {
+    size_t argCount = getFunctionArgCount(token.value, functions);
+
+    if (nodeStack.size() < argCount) {
+        throw SolverException("Error: Not enough operands for function '" + token.value + "'.");
+    }
+
+    std::vector<std::unique_ptr<ExprNode>> arguments(argCount);
+    for (size_t i = 0; i < argCount; ++i) {
+        arguments[argCount - i - 1] = std::move(nodeStack.top());
+        nodeStack.pop();
+    }
+
+    auto node = std::make_unique<ExprNode>(token.type, token.value);
+    node->arguments = std::move(arguments);
+    return node;
+}
+
+std::unique_ptr<ExprNode> ExpressionTree::processOperator(const Token& token, std::stack<std::unique_ptr<ExprNode>>& nodeStack) {
+    if (nodeStack.size() < 2) {
+        throw SolverException("Error: Not enough operands for operator '" + token.value + "'");
+    }
+
+    auto rightNode = std::move(nodeStack.top());
+    nodeStack.pop();
+    auto leftNode = std::move(nodeStack.top());
+    nodeStack.pop();
+
+    // If both left and right nodes are constants, we can fold them into a single constant
+    if (leftNode->type == NUMBER && rightNode->type == NUMBER) {
+        double leftValue = std::stod(leftNode->value);
+        double rightValue = std::stod(rightNode->value);
+        double result = foldConstants(token.value, leftValue, rightValue);
+
+        // Return a new constant node with the computed result
+        return std::make_unique<ExprNode>(NUMBER, std::to_string(result));
+    }
+
+    // Create a new operator node if constant folding isn't possible
+    auto node = std::make_unique<ExprNode>(token.type, token.value);
+    node->left = std::move(leftNode);
+    node->right = std::move(rightNode);
+    return node;
+}
+
+#pragma endregion
+
+
+#pragma region Tree Parsers
+
 std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens) {
     std::queue<Token> outputQueue;
     std::stack<Token> operatorStack;
@@ -99,65 +169,12 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
             nodeStack.push(std::make_unique<ExprNode>(token.type, token.value));
 
         } else if (token.type == OPERATOR) {
-            // For operators, pop the operands
-            if (nodeStack.size() < 2) {
-                throw SolverException("Error: Not enough operands for operator '" + token.value + "'");
-            }
-            auto rightNode = std::move(nodeStack.top());
-            nodeStack.pop();
-            auto leftNode = std::move(nodeStack.top());
-            nodeStack.pop();
-
-            // If both left and right nodes are constants, we can fold them into a single constant
-            if (leftNode->type == NUMBER && rightNode->type == NUMBER) {
-                double leftValue = std::stod(leftNode->value);
-                double rightValue = std::stod(rightNode->value);
-                double result;
-
-                // Perform the operation based on the operator
-                if (token.value == "+") {
-                    result = leftValue + rightValue;
-                } else if (token.value == "-") {
-                    result = leftValue - rightValue;
-                } else if (token.value == "*") {
-                    result = leftValue * rightValue;
-                } else if (token.value == "/") {
-                    if (rightValue == 0) {
-                        throw SolverException("Division by zero error.");
-                    }
-                    result = leftValue / rightValue;
-                } else if (token.value == "^") {
-                    result = std::pow(leftValue, rightValue);
-                } else {
-                    throw SolverException("Unknown operator: '" + token.value + "'");
-                }
-
-                // Push the computed constant as a new node
-                nodeStack.push(std::make_unique<ExprNode>(NUMBER, std::to_string(result)));
-            } else {
-                // If not both are constants, create an operator node
-                auto node = std::make_unique<ExprNode>(token.type, token.value);
-                node->left = std::move(leftNode);
-                node->right = std::move(rightNode);
-                nodeStack.push(std::move(node));
-            }
+            // Process operators with possible constant folding
+            nodeStack.push(processOperator(token, nodeStack));
 
         } else if (token.type == FUNCTION) {
-            // Handle functions
-            size_t argCount = getFunctionArgCount(token.value, functions);
-            if (nodeStack.size() < argCount) {
-                throw SolverException("Error: Not enough operands for function '" + token.value + "'.");
-            }
-
-            std::vector<std::unique_ptr<ExprNode>> arguments(argCount);
-            for (size_t i = 0; i < argCount; ++i) {
-                arguments[argCount - i - 1] = std::move(nodeStack.top());
-                nodeStack.pop();
-            }
-
-            auto node = std::make_unique<ExprNode>(token.type, token.value);
-            node->arguments = std::move(arguments);
-            nodeStack.push(std::move(node));
+            // Process function tokens
+            nodeStack.push(processFunction(token, nodeStack, functions));
         }
     }
 
@@ -168,4 +185,4 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
     return std::move(nodeStack.top());
 }
 
-
+#pragma endregion

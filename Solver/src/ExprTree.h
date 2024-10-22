@@ -15,6 +15,12 @@ public:
 private:
     static std::queue<Token> shuntingYard(const std::vector<Token>& tokens);
 
+
+    static std::unique_ptr<ExprNode> processFunction(const Token &token, std::stack<std::unique_ptr<ExprNode>> &nodeStack, const std::unordered_map<std::string, Function> &functions);
+    static std::unique_ptr<ExprNode> processOperator(const Token &token, std::stack<std::unique_ptr<ExprNode>> &nodeStack);
+
+    // Helpers
     static size_t getFunctionArgCount(const std::string &functionName, const std::unordered_map<std::string, Function> &functions);
+    static double foldConstants(const std::string &op, double leftValue, double rightValue);
 
 };
