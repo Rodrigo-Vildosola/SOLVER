@@ -38,14 +38,43 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
 
 void Solver::declareConstant(const std::string& name, double value) {
     symbolTable.declareConstant(name, value);
+    invalidateCaches();  // Invalidate the cache since constants have changed
 }
 
 void Solver::declareVariable(const std::string& name, double value) {
     symbolTable.declareVariable(name, value);
+    invalidateCaches();  // Invalidate the cache since variables have changed
+}
+
+void Solver::invalidateCaches() {
+    expressionCache.clear();  // Clear cached expressions
+    functionCache.clear();    // Clear cached function results
+}
+
+void Solver::clearCache() {
+    expressionCache.clear();
+    functionCache.clear();
 }
 
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
+    // Create a unique key for the function and its arguments
+    std::string cacheKey = func + "(";
+    for (size_t i = 0; i < args.size(); ++i) {
+        cacheKey += std::to_string(args[i]);
+        if (i < args.size() - 1) {
+            cacheKey += ", ";
+        }
+    }
+    cacheKey += ")";
+
+    // Check if the result is already cached
+    auto cachedResult = functionCache.find(cacheKey);
+    if (cachedResult != functionCache.end()) {
+        return cachedResult->second;  // Return cached result
+    }
+
+    // Evaluate the function if not cached
     auto it = functions.find(func);
     if (it == functions.end()) {
         throw SolverException("Unknown function: '" + func + "'.");
@@ -58,7 +87,9 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
         if (!function.callback) {
             throw SolverException("Invalid predefined function: '" + func + "'.");
         }
-        return function.callback(args);  // Call the predefined function
+        double result = function.callback(args);  // Call the predefined function
+        functionCache[cacheKey] = result;  // Cache the result
+        return result;
     }
 
     // Handle user-defined functions
@@ -67,7 +98,7 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
                               std::to_string(function.args.size()) + " but got " + std::to_string(args.size()) + ".");
     }
 
-    // Backup and set the new variables (arguments)
+    // Backup and set new variables (arguments)
     auto savedVariables = symbolTable.getVariables();
     symbolTable.clearVariables();
     for (size_t i = 0; i < function.args.size(); ++i) {
@@ -77,19 +108,23 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     // Evaluate the function expression
     double result = evaluate(function.expression);
     symbolTable.restoreVariables(savedVariables);
+
+    // Cache the result
+    functionCache[cacheKey] = result;
+
     return result;
 }
 
 double Solver::evaluate(const std::string& expression, bool debug) {
-    auto tokens = tokenize(expression);
-
-
-    if (debug) {
-        printTokens(tokens);
+    // Check if the expression result is cached
+    auto cachedResult = expressionCache.find(expression);
+    if (cachedResult != expressionCache.end()) {
+        return cachedResult->second;  // Return cached result
     }
 
+    // Tokenize and parse the expression
+    auto tokens = tokenize(expression);
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
-    // exprTree = ExpressionTree::simplify(std::move(exprTree));
 
     if (debug) {
         std::cout << "Expression tree:\n";
@@ -97,8 +132,15 @@ double Solver::evaluate(const std::string& expression, bool debug) {
         std::cout << "-------------------------\n";
     }
 
-    return evaluateNode(exprTree);
+    // Evaluate the expression tree
+    double result = evaluateNode(exprTree);
+
+    // Cache the result of the expression
+    expressionCache[expression] = result;
+
+    return result;
 }
+
 
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     std::vector<double> results;

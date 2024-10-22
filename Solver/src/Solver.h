@@ -76,6 +76,9 @@ public:
      */
     void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
 
+    // Memoization support
+    void clearCache();  // Clears the cache when variables/constants change
+
 
     // New methods to list symbols and functions
     std::unordered_map<std::string, double> listConstants() const;
@@ -122,8 +125,17 @@ private:
     void validateFunctionDependencies(const std::string& expression, const std::vector<std::string>& args);
     
 
+    // Clear function and expression caches when necessary
+    void invalidateCaches();
+
+
     // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
+
+    // Memoization for general expressions and function calls
+    std::unordered_map<std::string, double> expressionCache;  // Cache for evaluated expressions
+    std::unordered_map<std::string, double> functionCache;    // Cache for function results
+
 
     // SymbolTable for managing variables and constants
     SymbolTable symbolTable;
