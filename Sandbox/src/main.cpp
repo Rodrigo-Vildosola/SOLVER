@@ -29,8 +29,7 @@ int main() {
     // Add some constants, variables, and functions
     solver.declareConstant("pi", 3.14159);
     solver.declareVariable("x", 5.0);
-    solver.declareFunction("f", {"x"}, "x^2");
-    solver.declareFunction("w", {}, "2^2");
+    solver.declareFunction("f", {"x"}, "x^2 + 2*x + pi");
 
 
     // List constants
@@ -62,5 +61,7 @@ int main() {
     // }
 
     std::cout << solver.evaluate("x + 0", true) << std::endl;
+    std::cout << "Result: " << solver.evaluate("f(2) + pi", true) << std::endl;  // Should replace 'pi' with 3.14159
+
 
 }

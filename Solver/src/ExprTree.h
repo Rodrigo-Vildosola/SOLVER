@@ -5,11 +5,13 @@
 #include "Function.h"
 #include "ExprNode.h"
 #include "Exception.h"
+#include "SymbolTable.h"
 
 class ExpressionTree {
 public:
     // Static methods for parsing, simplifying, and managing expressions
     static std::unique_ptr<ExprNode> parseExpression(const std::vector<Token> &tokens, const std::unordered_map<std::string, Function> &functions);
+    static std::unique_ptr<ExprNode> simplify(std::unique_ptr<ExprNode> node, const SymbolTable &symbolTable);
     static std::unique_ptr<ExprNode> simplify(std::unique_ptr<ExprNode> node);
 
 private:

@@ -21,27 +21,51 @@ void printTokens(const std::vector<Token>& tokens) {
 }
 
 
-void printTree(const ExprNode* node, int depth, const std::string& prefix, bool isLeft) {
+void printTree(const ExprNode* node, std::ostream& out, int depth, const std::string& prefix, bool isLeft) {
     if (node) {
         // Print the current node
-        std::cout << prefix;
+        out << prefix;
 
         // Add an appropriate connector (either a corner or a line)
-        std::cout << (depth == 0 ? "" : (isLeft ? "├── " : "└── "));
+        out << (depth == 0 ? "" : (isLeft ? "├── " : "└── "));
 
-        std::cout << node->value << std::endl;
+        // Print the node value, with special handling for functions
+        out << node->value;
+
+        // If the node is a function, show its arguments inline
+        if (node->type == FUNCTION) {
+            out << "(";
+            for (size_t i = 0; i < node->arguments.size(); ++i) {
+                out << node->arguments[i]->value;  // Print each argument value
+                if (i < node->arguments.size() - 1) {
+                    out << ", ";
+                }
+            }
+            out << ")";
+        }
+
+        // Print node type (optional for clarity)
+        if (node->type == FUNCTION) {
+            out << " [FUNCTION]";
+        } else if (node->type == NUMBER) {
+            out << " [NUMBER]";
+        } else if (node->type == VARIABLE) {
+            out << " [VARIABLE]";
+        }
+
+        out << std::endl;
 
         // Prepare the prefix for the children
         std::string childPrefix = prefix + (depth == 0 ? "" : (isLeft ? "│   " : "    "));
 
-        // Print the left subtree first
+        // Print the left subtree (if applicable)
         if (node->left) {
-            printTree(node->left.get(), depth + 1, childPrefix, true);
+            printTree(node->left.get(), out, depth + 1, childPrefix, true);
         }
 
-        // Print the right subtree
+        // Print the right subtree (if applicable)
         if (node->right) {
-            printTree(node->right.get(), depth + 1, childPrefix, false);
+            printTree(node->right.get(), out, depth + 1, childPrefix, false);
         }
     }
 }

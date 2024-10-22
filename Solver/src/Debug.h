@@ -16,4 +16,4 @@ void printTokens(const std::vector<Token>& tokens);
  * @param prefix The string prefix for the node (used for tree formatting).
  * @param isLeft Whether the current node is a left child.
  */
-void printTree(const ExprNode* node, int depth = 0, const std::string& prefix = "", bool isLeft = true);
+void printTree(const ExprNode* node, std::ostream& out, int depth = 0, const std::string& prefix = "", bool isLeft = true);

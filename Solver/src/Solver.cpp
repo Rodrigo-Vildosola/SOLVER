@@ -47,9 +47,12 @@ double Solver::evaluate(const std::string& expression, bool debug) {
     auto tokens = tokenize(expression);
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
 
+    exprTree = ExpressionTree::simplify(std::move(exprTree), symbolTable);
+
+
     if (debug) {
         std::cout << "Expression tree:\n";
-        printTree(exprTree.get());
+        printTree(exprTree.get(), std::cout);
         std::cout << "-------------------------\n";
     }
 
