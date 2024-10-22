@@ -23,4 +23,5 @@ private:
     static size_t getFunctionArgCount(const std::string &functionName, const std::unordered_map<std::string, Function> &functions);
     static double foldConstants(const std::string &op, double leftValue, double rightValue);
 
+    static std::unique_ptr<ExprNode> applyBasicSimplifications(const std::string &op, const std::unique_ptr<ExprNode> &leftNode, const std::unique_ptr<ExprNode> &rightNode);
 };

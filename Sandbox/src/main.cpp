@@ -34,33 +34,33 @@ int main() {
 
 
     // List constants
-    auto constants = solver.listConstants();
-    for (const auto& [name, value] : constants) {
-        std::cout << "Constant: " << name << " = " << value << std::endl;
-    }
+    // auto constants = solver.listConstants();
+    // for (const auto& [name, value] : constants) {
+    //     std::cout << "Constant: " << name << " = " << value << std::endl;
+    // }
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
-    // List variables
-    auto variables = solver.listVariables();
-    for (const auto& [name, value] : variables) {
-        std::cout << "Variable: " << name << " = " << value << std::endl;
-    }
+    // // List variables
+    // auto variables = solver.listVariables();
+    // for (const auto& [name, value] : variables) {
+    //     std::cout << "Variable: " << name << " = " << value << std::endl;
+    // }
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
-    // List functions
-    auto functions = solver.listFunctions();
-    for (const auto& [name, func] : functions) {
-        const auto& [args, isPredefined] = func;
-        std::cout << "Function: " << name << " (Predefined: " << (isPredefined ? "Yes" : "No") << ")";
-        std::cout << " Args: ";
-        for (const auto& arg : args) {
-            std::cout << arg << " ";
-        }
-        std::cout << std::endl;
-    }
+    // // List functions
+    // auto functions = solver.listFunctions();
+    // for (const auto& [name, func] : functions) {
+    //     const auto& [args, isPredefined] = func;
+    //     std::cout << "Function: " << name << " (Predefined: " << (isPredefined ? "Yes" : "No") << ")";
+    //     std::cout << " Args: ";
+    //     for (const auto& arg : args) {
+    //         std::cout << arg << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
 
-    solver.evaluate("w() + 2");
+    std::cout << solver.evaluate("x + 0", true) << std::endl;
 
 }

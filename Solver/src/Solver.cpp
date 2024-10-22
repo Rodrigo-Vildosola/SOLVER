@@ -80,7 +80,8 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
 
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     if (node->type == NUMBER) {
-        return std::stod(node->value);
+        double val = std::stod(node->value);
+        return val;
     } else if (node->type == VARIABLE) {
         return symbolTable.lookupSymbol(node->value);
     }

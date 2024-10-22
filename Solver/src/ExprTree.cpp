@@ -29,6 +29,19 @@ double ExpressionTree::foldConstants(const std::string& op, double leftValue, do
     throw SolverException("Unknown operator: '" + op + "'");
 }
 
+std::unique_ptr<ExprNode> ExpressionTree::applyBasicSimplifications(const std::string& op, const std::unique_ptr<ExprNode>& leftNode, const std::unique_ptr<ExprNode>& rightNode) {
+    if (op == "+") {
+        if (rightNode->type == NUMBER && rightNode->value == "0") return std::make_unique<ExprNode>(leftNode->type, leftNode->value);
+        if (leftNode->type == NUMBER && leftNode->value == "0") return std::make_unique<ExprNode>(rightNode->type, rightNode->value);
+    } else if (op == "*") {
+        if (rightNode->type == NUMBER && rightNode->value == "1") return std::make_unique<ExprNode>(leftNode->type, leftNode->value);
+        if (leftNode->type == NUMBER && leftNode->value == "1") return std::make_unique<ExprNode>(rightNode->type, rightNode->value);
+        if (rightNode->type == NUMBER && rightNode->value == "0") return std::make_unique<ExprNode>(NUMBER, "0");
+        if (leftNode->type == NUMBER && leftNode->value == "0") return std::make_unique<ExprNode>(NUMBER, "0");
+    }
+    return nullptr;  // No simplification possible
+}
+
 std::unique_ptr<ExprNode> ExpressionTree::processFunction(const Token& token, std::stack<std::unique_ptr<ExprNode>>& nodeStack, const std::unordered_map<std::string, Function>& functions) {
     size_t argCount = getFunctionArgCount(token.value, functions);
 
@@ -57,17 +70,19 @@ std::unique_ptr<ExprNode> ExpressionTree::processOperator(const Token& token, st
     auto leftNode = std::move(nodeStack.top());
     nodeStack.pop();
 
-    // If both left and right nodes are constants, we can fold them into a single constant
+    // Constant folding (during parsing)
     if (leftNode->type == NUMBER && rightNode->type == NUMBER) {
         double leftValue = std::stod(leftNode->value);
         double rightValue = std::stod(rightNode->value);
         double result = foldConstants(token.value, leftValue, rightValue);
-
-        // Return a new constant node with the computed result
         return std::make_unique<ExprNode>(NUMBER, std::to_string(result));
     }
 
-    // Create a new operator node if constant folding isn't possible
+    // Apply basic algebraic simplifications (during parsing)
+    auto simplifiedNode = applyBasicSimplifications(token.value, leftNode, rightNode);
+    if (simplifiedNode) return simplifiedNode;
+
+    // Otherwise, create a new operator node
     auto node = std::make_unique<ExprNode>(token.type, token.value);
     node->left = std::move(leftNode);
     node->right = std::move(rightNode);
@@ -92,8 +107,8 @@ std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens)
     };
 
     auto isLeftAssociative = [](const std::string& op) {
-        if (op == "^") return false; 
-        return true; 
+        if (op == "^") return false;
+        return true;
     };
 
     for (size_t i = 0; i < tokens.size(); ++i) {
@@ -102,10 +117,10 @@ std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens)
             outputQueue.push(token);
         } else if (token.type == FUNCTION) {
             operatorStack.push(token);
-            argumentCounts.push(1); 
+            argumentCounts.push(1);
         } else if (token.type == OPERATOR) {
             while (!operatorStack.empty() &&
-                    ((isLeftAssociative(token.value) && precedence(token.value) <= precedence(operatorStack.top().value)) ||
+                   ((isLeftAssociative(token.value) && precedence(token.value) <= precedence(operatorStack.top().value)) ||
                     (!isLeftAssociative(token.value) && precedence(token.value) < precedence(operatorStack.top().value)))) {
                 outputQueue.push(operatorStack.top());
                 operatorStack.pop();
@@ -165,15 +180,10 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
         postfixQueue.pop();
 
         if (token.type == NUMBER || token.type == VARIABLE) {
-            // Push number or variable directly into the node stack
             nodeStack.push(std::make_unique<ExprNode>(token.type, token.value));
-
         } else if (token.type == OPERATOR) {
-            // Process operators with possible constant folding
             nodeStack.push(processOperator(token, nodeStack));
-
         } else if (token.type == FUNCTION) {
-            // Process function tokens
             nodeStack.push(processFunction(token, nodeStack, functions));
         }
     }
