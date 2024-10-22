@@ -25,16 +25,19 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
     try {
         auto tokens = tokenize(expression);
         auto exprTree = ExpressionTree::parseExpression(tokens, functions);
+
+        // Register the function with precomputed expression tree
+        auto result = functions.emplace(name, Function(args, expression));
+        if (!result.second) {
+            throw SolverException("Function '" + name + "' already exists.");
+        }
+        result.first->second.exprTree = std::move(exprTree);  // Store precomputed tree
+
     } catch (const std::exception& e) {
         throw SolverException("Invalid expression for function '" + name + "': " + e.what());
     }
-
-    // Register the function without checking dependencies
-    auto result = functions.emplace(name, Function(args, expression));
-    if (!result.second) {
-        throw SolverException("Function '" + name + "' already exists.");
-    }
 }
+
 
 void Solver::declareConstant(const std::string& name, double value) {
     symbolTable.declareConstant(name, value);
@@ -64,7 +67,7 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     // Check if the result is already cached
     auto cachedResult = functionCache.find(cacheKey);
     if (cachedResult != functionCache.end()) {
-        return cachedResult->second;  
+        return cachedResult->second;
     }
 
     // Evaluate the function if not cached
@@ -98,8 +101,8 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
         symbolTable.declareVariable(function.args[i], args[i]);
     }
 
-    // Evaluate the function expression
-    double result = evaluate(function.expression);
+    // Use precomputed expression tree for evaluation
+    double result = evaluateNode(function.exprTree);
     symbolTable.restoreVariables(savedVariables);
 
     // Cache the result
