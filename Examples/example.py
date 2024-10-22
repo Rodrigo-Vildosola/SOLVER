@@ -39,6 +39,7 @@ def run_examples():
         {"description": "Evaluate x(1) + x", "expression": "x(1) + x", "expected_result": 12.0},
 
         {"description": "Evaluate why()", "expression": "why()", "expected_result": 5},
+        {"description": "Evaluate 3 + 2", "expression": "3 + 2", "expected_result": 5},
 
 
     ]
@@ -53,7 +54,7 @@ def run_examples():
         expected = example["expected_result"]
 
         try:
-            result = solver.evaluate(expression)
+            result = solver.evaluate(expression, True)
             if np.isclose(result, expected, atol=1e-6):
                 logger.info(f"PASSED - {description}: {expression} = {result}")
                 passed_count += 1

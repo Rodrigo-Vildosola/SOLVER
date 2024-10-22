@@ -11,7 +11,8 @@
  * @brief A class for evaluating mathematical expressions, managing variables, constants, and user-defined functions.
  * 
  * The Solver class provides methods for declaring constants, variables, user-defined functions, and evaluating
- * mathematical expressions. It supports both predefined and custom functions.
+ * mathematical expressions. It supports both predefined and custom functions. The class also supports memoization
+ * for caching function and expression results, with an option to disable caching if necessary.
  */
 class Solver {
 public:
@@ -21,7 +22,7 @@ public:
      * Initializes the Solver instance and registers built-in functions.
      */
     Solver();
-    
+
     /**
      * @brief Declare a constant in the solver's symbol table.
      * 
@@ -29,7 +30,7 @@ public:
      * @param value The value of the constant.
      */
     void declareConstant(const std::string& name, double value);
-    
+
     /**
      * @brief Declare a variable in the solver's symbol table.
      * 
@@ -37,7 +38,7 @@ public:
      * @param value The initial value of the variable.
      */
     void declareVariable(const std::string& name, double value);
-    
+
     /**
      * @brief Evaluate a mathematical expression.
      * 
@@ -46,7 +47,7 @@ public:
      * @return The result of evaluating the expression.
      */
     double evaluate(const std::string& expression, bool debug = false);
-    
+
     /**
      * @brief Evaluate a mathematical expression over a range of values for a given variable.
      * 
@@ -66,7 +67,7 @@ public:
      * @param argCount The number of arguments the function expects.
      */
     void registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount);
-    
+
     /**
      * @brief Declare a user-defined function.
      * 
@@ -76,13 +77,39 @@ public:
      */
     void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
 
-    // Memoization support
-    void clearCache();  // Clears the cache when variables/constants change
+    /**
+     * @brief Clears the cache when variables or constants change.
+     * 
+     * This clears both the function and expression caches to ensure correct recalculation of results.
+     */
+    void clearCache();
 
+    /**
+     * @brief Set cache usage flag.
+     * 
+     * @param useCache If true, enables caching of results. If false, disables caching.
+     */
+    void setUseCache(bool useCache);
 
-    // New methods to list symbols and functions
+    /**
+     * @brief Lists all declared constants.
+     * 
+     * @return A map of constant names and their values.
+     */
     std::unordered_map<std::string, double> listConstants() const;
+
+    /**
+     * @brief Lists all declared variables.
+     * 
+     * @return A map of variable names and their values.
+     */
     std::unordered_map<std::string, double> listVariables() const;
+
+    /**
+     * @brief Lists all declared functions.
+     * 
+     * @return A map of function names, along with argument lists and a flag indicating whether the function is predefined.
+     */
     std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> listFunctions() const;
 
 private:
@@ -98,7 +125,7 @@ private:
      * @return The result of evaluating the node.
      */
     double evaluateNode(const std::unique_ptr<ExprNode>& node);
-    
+
     /**
      * @brief Tokenize a mathematical equation into tokens.
      * 
@@ -115,7 +142,23 @@ private:
      * @return The result of the function evaluation.
      */
     double evaluateFunction(const std::string& func, const std::vector<double>& args);
-    
+
+    /**
+     * @brief Generates a unique cache key for a given expression or function call.
+     * 
+     * @param base The base string for the cache key.
+     * @param args The arguments used in the expression or function.
+     * @return A unique string to use as the cache key.
+     */
+    std::string generateCacheKey(const std::string& base, const std::vector<double>& args);
+
+    /**
+     * @brief Invalidate cached results.
+     * 
+     * This function is called when the solver's state changes, such as when variables or constants are declared.
+     */
+    void invalidateCaches();
+
     /**
      * @brief Validate that a function's dependencies (arguments) are valid.
      * 
@@ -124,19 +167,15 @@ private:
      */
     void validateFunctionDependencies(const std::string& expression, const std::vector<std::string>& args);
 
-    std::string generateCacheKey(const std::string &base, const std::vector<double> &args);
-
-    // Clear function and expression caches when necessary
-    void invalidateCaches();
-
 
     // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
 
     // Memoization for general expressions and function calls
-    std::unordered_map<std::string, double> expressionCache;  // Cache for evaluated expressions
-    std::unordered_map<std::string, double> functionCache;    // Cache for function results
+    std::unordered_map<std::string, double> expressionCache;  ///< Cache for evaluated expressions
+    std::unordered_map<std::string, double> functionCache;    ///< Cache for function results
 
+    bool cacheEnabled = true;  ///< Flag to enable or disable cache
 
     // SymbolTable for managing variables and constants
     SymbolTable symbolTable;

@@ -8,50 +8,15 @@ Solver::Solver() {
     registerBuiltInFunctions();
 }
 
-void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount) {
-    auto result = functions.emplace(name, Function(callback, argCount));
-    if (!result.second) {
-        throw SolverException("Function '" + name + "' already exists.");
-    }
-}
-
-void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
-    if (!Validator::isValidName(name)) {
-        throw SolverException("Invalid function name: '" + name + "'.");
-    }
-
-    Validator::isValidSyntax(expression);
-
-    try {
-        auto tokens = tokenize(expression);
-        auto exprTree = ExpressionTree::parseExpression(tokens, functions);
-
-        // Register the function with precomputed expression tree
-        auto result = functions.emplace(name, Function(args, expression));
-        if (!result.second) {
-            throw SolverException("Function '" + name + "' already exists.");
-        }
-        result.first->second.exprTree = std::move(exprTree);  // Store precomputed tree
-
-    } catch (const std::exception& e) {
-        throw SolverException("Invalid expression for function '" + name + "': " + e.what());
-    }
-}
-
-
-void Solver::declareConstant(const std::string& name, double value) {
-    symbolTable.declareConstant(name, value);
-    invalidateCaches();  // Invalidate the cache since constants have changed
-}
-
-void Solver::declareVariable(const std::string& name, double value) {
-    symbolTable.declareVariable(name, value);
-    invalidateCaches();  // Invalidate the cache since variables have changed
+void Solver::setUseCache(bool useCache) {
+    cacheEnabled = useCache;
 }
 
 void Solver::invalidateCaches() {
-    expressionCache.clear();  // Clear cached expressions
-    functionCache.clear();    // Clear cached function results
+    if (cacheEnabled) {
+        expressionCache.clear();
+        functionCache.clear();
+    }
 }
 
 void Solver::clearCache() {
@@ -59,69 +24,26 @@ void Solver::clearCache() {
     functionCache.clear();
 }
 
+void Solver::declareConstant(const std::string& name, double value) {
+    symbolTable.declareConstant(name, value);
+    invalidateCaches();
+}
 
-double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
-    // Generate the cache key using the helper function
-    std::string cacheKey = generateCacheKey(func, args);
-
-    // Check if the result is already cached
-    auto cachedResult = functionCache.find(cacheKey);
-    if (cachedResult != functionCache.end()) {
-        return cachedResult->second;
-    }
-
-    // Evaluate the function if not cached
-    auto it = functions.find(func);
-    if (it == functions.end()) {
-        throw SolverException("Unknown function: '" + func + "'.");
-    }
-
-    const Function& function = it->second;
-
-    // Handle predefined functions
-    if (function.isPredefined) {
-        if (!function.callback) {
-            throw SolverException("Invalid predefined function: '" + func + "'.");
-        }
-        double result = function.callback(args);  // Call the predefined function
-        functionCache[cacheKey] = result;  // Cache the result
-        return result;
-    }
-
-    // Handle user-defined functions
-    if (function.args.size() != args.size()) {
-        throw SolverException("Function argument count mismatch for '" + func + "'. Expected " +
-                              std::to_string(function.args.size()) + " but got " + std::to_string(args.size()) + ".");
-    }
-
-    // Backup and set new variables (arguments)
-    auto savedVariables = symbolTable.getVariables();
-    symbolTable.clearVariables();
-    for (size_t i = 0; i < function.args.size(); ++i) {
-        symbolTable.declareVariable(function.args[i], args[i]);
-    }
-
-    // Use precomputed expression tree for evaluation
-    double result = evaluateNode(function.exprTree);
-    symbolTable.restoreVariables(savedVariables);
-
-    // Cache the result
-    functionCache[cacheKey] = result;
-
-    return result;
+void Solver::declareVariable(const std::string& name, double value) {
+    symbolTable.declareVariable(name, value);
+    invalidateCaches();
 }
 
 double Solver::evaluate(const std::string& expression, bool debug) {
-    // Generate the cache key using the helper function
     std::string cacheKey = generateCacheKey(expression, {});
 
-    // Check if the expression result is cached
-    auto cachedResult = expressionCache.find(cacheKey);
-    if (cachedResult != expressionCache.end()) {
-        return cachedResult->second;  // Return cached result
+    if (cacheEnabled) {
+        auto cachedResult = expressionCache.find(cacheKey);
+        if (cachedResult != expressionCache.end()) {
+            return cachedResult->second;
+        }
     }
 
-    // Tokenize and parse the expression
     auto tokens = tokenize(expression);
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
 
@@ -131,11 +53,11 @@ double Solver::evaluate(const std::string& expression, bool debug) {
         std::cout << "-------------------------\n";
     }
 
-    // Evaluate the expression tree
     double result = evaluateNode(exprTree);
 
-    // Cache the result of the expression
-    expressionCache[cacheKey] = result;
+    if (cacheEnabled) {
+        expressionCache[cacheKey] = result;
+    }
 
     return result;
 }
@@ -157,26 +79,23 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
 }
 
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
-    // Handle constants and variables
     if (node->type == NUMBER) {
-        return std::stod(node->value);  // Directly convert string to double
+        return std::stod(node->value);
     } else if (node->type == VARIABLE) {
-        return symbolTable.lookupSymbol(node->value);  // Lookup variable value
+        return symbolTable.lookupSymbol(node->value);
     }
 
-    // Handle function calls
     if (node->type == FUNCTION) {
         std::vector<double> args;
         for (const auto& argNode : node->arguments) {
-            args.push_back(evaluateNode(argNode));  // Evaluate all arguments
+            args.push_back(evaluateNode(argNode));
         }
-        return evaluateFunction(node->value, args);  // Evaluate the function
+        return evaluateFunction(node->value, args);
     }
 
-    // Handle binary operators
     if (node->type == OPERATOR) {
-        double leftValue = evaluateNode(node->left);   // Evaluate left child
-        double rightValue = evaluateNode(node->right); // Evaluate right child
+        double leftValue = evaluateNode(node->left);
+        double rightValue = evaluateNode(node->right);
 
         if (node->value == "+") return leftValue + rightValue;
         if (node->value == "-") return leftValue - rightValue;
@@ -193,6 +112,83 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     throw SolverException("Unsupported node type.");
 }
 
+void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount) {
+    auto result = functions.emplace(name, Function(callback, argCount));
+    if (!result.second) {
+        throw SolverException("Function '" + name + "' already exists.");
+    }
+}
+
+void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
+    if (!Validator::isValidName(name)) {
+        throw SolverException("Invalid function name: '" + name + "'.");
+    }
+
+    Validator::isValidSyntax(expression);
+
+    try {
+        auto tokens = tokenize(expression);
+        auto exprTree = ExpressionTree::parseExpression(tokens, functions);
+
+        auto result = functions.emplace(name, Function(args, expression));
+        if (!result.second) {
+            throw SolverException("Function '" + name + "' already exists.");
+        }
+        result.first->second.exprTree = std::move(exprTree);
+
+    } catch (const std::exception& e) {
+        throw SolverException("Invalid expression for function '" + name + "': " + e.what());
+    }
+}
+
+double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
+    std::string cacheKey = generateCacheKey(func, args);
+
+    if (cacheEnabled) {
+        auto cachedResult = functionCache.find(cacheKey);
+        if (cachedResult != functionCache.end()) {
+            return cachedResult->second;
+        }
+    }
+
+    auto it = functions.find(func);
+    if (it == functions.end()) {
+        throw SolverException("Unknown function: '" + func + "'.");
+    }
+
+    const Function& function = it->second;
+
+    if (function.isPredefined) {
+        if (!function.callback) {
+            throw SolverException("Invalid predefined function: '" + func + "'.");
+        }
+        double result = function.callback(args);
+        if (cacheEnabled) {
+            functionCache[cacheKey] = result;
+        }
+        return result;
+    }
+
+    if (function.args.size() != args.size()) {
+        throw SolverException("Function argument count mismatch for '" + func + "'. Expected " +
+                              std::to_string(function.args.size()) + " but got " + std::to_string(args.size()) + ".");
+    }
+
+    auto savedVariables = symbolTable.getVariables();
+    symbolTable.clearVariables();
+    for (size_t i = 0; i < function.args.size(); ++i) {
+        symbolTable.declareVariable(function.args[i], args[i]);
+    }
+
+    double result = evaluateNode(function.exprTree);
+    symbolTable.restoreVariables(savedVariables);
+
+    if (cacheEnabled) {
+        functionCache[cacheKey] = result;
+    }
+
+    return result;
+}
 
 // Return the list of constants
 std::unordered_map<std::string, double> Solver::listConstants() const {
