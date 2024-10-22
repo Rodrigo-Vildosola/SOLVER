@@ -1,5 +1,13 @@
 #include "ExprTree.h"
 
+size_t ExpressionTree::getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions) {
+    auto it = functions.find(functionName);
+    if (it != functions.end()) {
+        return it->second.argCount;
+    }
+    throw SolverException("Unknown function '" + functionName + "'");
+}
+
 // Shunting yard algorithm for parsing infix to postfix
 std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens) {
     std::queue<Token> outputQueue;
@@ -160,76 +168,4 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
     return std::move(nodeStack.top());
 }
 
-// Simplify expression tree
-std::unique_ptr<ExprNode> ExpressionTree::simplify(std::unique_ptr<ExprNode> node) {
-    if (!node) return nullptr;
 
-    // Simplify the left and right subtrees (if applicable)
-    node->left = simplify(std::move(node->left));
-    node->right = simplify(std::move(node->right));
-
-    // Simplify based on the operator
-    if (node->value == "+") {
-        // x + 0 = x
-        if (isZero(node->right)) return std::move(node->left);
-        if (isZero(node->left)) return std::move(node->right);
-        // x + x = 2 * x
-        if (areEqual(node->left, node->right)) {
-            return makeMulNode(2, std::move(node->left));
-        }
-    } else if (node->value == "*") {
-        // x * 1 = x
-        if (isOne(node->right)) return std::move(node->left);
-        if (isOne(node->left)) return std::move(node->right);
-        // x * 0 = 0
-        if (isZero(node->right) || isZero(node->left)) {
-            return makeConstNode(0);
-        }
-    } else if (node->value == "-") {
-        // x - 0 = x
-        if (isZero(node->right)) return std::move(node->left);
-    } else if (node->value == "/") {
-        // x / 1 = x
-        if (isOne(node->right)) return std::move(node->left);
-    } else if (node->value == "^") {
-        // x^1 = x
-        if (isOne(node->right)) return std::move(node->left);
-        // x^0 = 1
-        if (isZero(node->right)) return makeConstNode(1);
-    }
-
-    return node;  // Return the simplified (or original) node
-}
-
-
-bool ExpressionTree::isZero(const std::unique_ptr<ExprNode>& node) {
-    return node && node->value == "0";
-}
-
-bool ExpressionTree::isOne(const std::unique_ptr<ExprNode>& node) {
-    return node && node->value == "1";
-}
-
-bool ExpressionTree::areEqual(const std::unique_ptr<ExprNode>& left, const std::unique_ptr<ExprNode>& right) {
-    return left && right && left->value == right->value;
-}
-
-std::unique_ptr<ExprNode> ExpressionTree::makeConstNode(double value) {
-    return std::make_unique<ExprNode>(NUMBER, std::to_string(value));
-}
-
-std::unique_ptr<ExprNode> ExpressionTree::makeMulNode(double coefficient, std::unique_ptr<ExprNode> node) {
-    auto mulNode = std::make_unique<ExprNode>(OPERATOR, "*");
-    mulNode->left = makeConstNode(coefficient);
-    mulNode->right = std::move(node);
-    return mulNode;
-}
-
-
-size_t ExpressionTree::getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions) {
-    auto it = functions.find(functionName);
-    if (it != functions.end()) {
-        return it->second.argCount;
-    }
-    throw SolverException("Unknown function '" + functionName + "'");
-}

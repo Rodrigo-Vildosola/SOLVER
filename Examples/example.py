@@ -41,7 +41,6 @@ def run_examples():
         {"description": "Evaluate why()", "expression": "why()", "expected_result": 5},
         {"description": "Evaluate 3 + 2", "expression": "3 + 2", "expected_result": 5},
 
-
     ]
 
     passed_count = 0
