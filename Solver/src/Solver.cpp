@@ -58,20 +58,13 @@ void Solver::clearCache() {
 
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
-    // Create a unique key for the function and its arguments
-    std::string cacheKey = func + "(";
-    for (size_t i = 0; i < args.size(); ++i) {
-        cacheKey += std::to_string(args[i]);
-        if (i < args.size() - 1) {
-            cacheKey += ", ";
-        }
-    }
-    cacheKey += ")";
+    // Generate the cache key using the helper function
+    std::string cacheKey = generateCacheKey(func, args);
 
     // Check if the result is already cached
     auto cachedResult = functionCache.find(cacheKey);
     if (cachedResult != functionCache.end()) {
-        return cachedResult->second;  // Return cached result
+        return cachedResult->second;  
     }
 
     // Evaluate the function if not cached
@@ -116,8 +109,11 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
 }
 
 double Solver::evaluate(const std::string& expression, bool debug) {
+    // Generate the cache key using the helper function
+    std::string cacheKey = generateCacheKey(expression, {});
+
     // Check if the expression result is cached
-    auto cachedResult = expressionCache.find(expression);
+    auto cachedResult = expressionCache.find(cacheKey);
     if (cachedResult != expressionCache.end()) {
         return cachedResult->second;  // Return cached result
     }
@@ -136,7 +132,7 @@ double Solver::evaluate(const std::string& expression, bool debug) {
     double result = evaluateNode(exprTree);
 
     // Cache the result of the expression
-    expressionCache[expression] = result;
+    expressionCache[cacheKey] = result;
 
     return result;
 }

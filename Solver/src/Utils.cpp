@@ -73,3 +73,29 @@ void Solver::validateFunctionDependencies(const std::string& expression, const s
     }
 }
 
+
+
+std::string Solver::generateCacheKey(const std::string& base, const std::vector<double>& args) {
+    std::ostringstream cacheKey;
+    cacheKey << base;
+
+    // Append function arguments (or expression arguments), only if args is not empty
+    if (!args.empty()) {
+        cacheKey << "(";
+        for (size_t i = 0; i < args.size(); ++i) {
+            cacheKey << std::fixed << std::setprecision(6) << args[i];  // Consistent precision for floating-point numbers
+            if (i < args.size() - 1) {
+                cacheKey << ", ";
+            }
+        }
+        cacheKey << ")";
+    }
+
+    // Append variable state
+    const auto& variables = symbolTable.getVariables();
+    for (const auto& [varName, varValue] : variables) {
+        cacheKey << ";" << varName << "=" << std::fixed << std::setprecision(6) << varValue;  // Ensure consistent precision
+    }
+
+    return cacheKey.str();  // Convert the ostringstream to a string
+}

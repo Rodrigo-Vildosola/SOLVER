@@ -123,7 +123,8 @@ private:
      * @param args The arguments that the function depends on.
      */
     void validateFunctionDependencies(const std::string& expression, const std::vector<std::string>& args);
-    
+
+    std::string generateCacheKey(const std::string &base, const std::vector<double> &args);
 
     // Clear function and expression caches when necessary
     void invalidateCaches();
