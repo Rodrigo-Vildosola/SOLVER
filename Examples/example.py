@@ -22,6 +22,7 @@ def run_examples():
         solver.declareFunction("g", ["x", "y"], "x * y + x + y")
         solver.declareFunction("h", ["x"], "f(g(x, x))")
         solver.declareFunction("x", ["x"], "x + 1")
+        solver.declareFunction("why", [], "2 + 3")
         # Add more function declarations as needed
     except SolverException as e:
         logger.error(f"Initialization Error: {e}")
@@ -35,7 +36,10 @@ def run_examples():
 
         {"description": "Evaluate -2 + 2", "expression": "-2 + 2", "expected_result": 0.0},
         {"description": "Evaluate -5", "expression": "-5", "expected_result": -5.0},
-        {"description": "Evaluate x(1) + x", "expression": "x(1) + x", "expected_result": 12.0},  # Testing negation with power
+        {"description": "Evaluate x(1) + x", "expression": "x(1) + x", "expected_result": 12.0},
+
+        {"description": "Evaluate why()", "expression": "why()", "expected_result": 5},
+
 
     ]
 

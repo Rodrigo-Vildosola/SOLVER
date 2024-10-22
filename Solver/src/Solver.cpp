@@ -58,7 +58,7 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
         if (!function.callback) {
             throw SolverException("Invalid predefined function: '" + func + "'.");
         }
-        return function.callback(args);
+        return function.callback(args);  // Call the predefined function
     }
 
     // Handle user-defined functions
@@ -67,16 +67,14 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
                               std::to_string(function.args.size()) + " but got " + std::to_string(args.size()) + ".");
     }
 
-    // Backup variables and set function arguments as variables
+    // Backup and set the new variables (arguments)
     auto savedVariables = symbolTable.getVariables();
     symbolTable.clearVariables();
     for (size_t i = 0; i < function.args.size(); ++i) {
         symbolTable.declareVariable(function.args[i], args[i]);
     }
 
-    // Perform semantic validation before evaluation
-    validateFunctionDependencies(function.expression, function.args);
-
+    // Evaluate the function expression
     double result = evaluate(function.expression);
     symbolTable.restoreVariables(savedVariables);
     return result;
@@ -118,6 +116,7 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
 }
 
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
+    std::cout << node->stringify() << std::endl;
     if (!node->left && !node->right && node->arguments.empty()) {
         try {
             return symbolTable.lookupSymbol(node->value);
@@ -151,4 +150,23 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     if (node->value == "^") return std::pow(leftValue, rightValue);
 
     throw SolverException("Unknown operator: '" + node->value + "'.");
+}
+
+
+// Return the list of constants
+std::unordered_map<std::string, double> Solver::listConstants() const {
+    return symbolTable.getConstants();
+}
+
+// Return the list of variables
+std::unordered_map<std::string, double> Solver::listVariables() const {
+    return symbolTable.getVariables();
+}
+
+std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> Solver::listFunctions() const {
+    std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> functionList;
+    for (const auto& [name, function] : functions) {
+        functionList[name] = std::make_pair(function.args, function.isPredefined);
+    }
+    return functionList;
 }

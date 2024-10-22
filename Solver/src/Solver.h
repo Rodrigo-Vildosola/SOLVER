@@ -76,6 +76,12 @@ public:
      */
     void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
 
+
+    // New methods to list symbols and functions
+    std::unordered_map<std::string, double> listConstants() const;
+    std::unordered_map<std::string, double> listVariables() const;
+    std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> listFunctions() const;
+
 private:
     /**
      * @brief Register built-in mathematical functions like sin, cos, etc.

@@ -26,25 +26,41 @@ std::vector<double> linspace(double start, double end, int num_points) {
 int main() {
     Solver solver;
 
-    // Declare the variable "x" to be dynamically evaluated
-    solver.declareVariable("z", 0);  // This can be overwritten by evaluateForRange
+    // Add some constants, variables, and functions
+    solver.declareConstant("pi", 3.14159);
+    solver.declareVariable("x", 5.0);
+    solver.declareFunction("f", {"x"}, "x^2");
+    solver.declareFunction("w", {}, "2^2");
 
-    // Expression to evaluate for the range of x values
-    std::string expression = "x^2 + 3*x + 2";
 
-    // Generate 400 evenly spaced numbers between -10 and 10
-    std::vector<double> x_values = linspace(-10, 10, 400);
-
-    // Get the results by evaluating the expression over the range of x values
-    std::vector<double> results = solver.evaluateForRange("x", x_values, expression);
-
-    // Print the results
-    std::cout << "Results for the expression: " << expression << std::endl;
-    std::cout << std::fixed << std::setprecision(5); // Set precision for printing
-    for (size_t i = 0; i < x_values.size(); ++i) {
-        std::cout << "x = " << x_values[i] << " -> f(x) = " << results[i] << std::endl;
+    // List constants
+    auto constants = solver.listConstants();
+    for (const auto& [name, value] : constants) {
+        std::cout << "Constant: " << name << " = " << value << std::endl;
     }
 
-    return 0;
+    std::cout << std::endl;
+
+    // List variables
+    auto variables = solver.listVariables();
+    for (const auto& [name, value] : variables) {
+        std::cout << "Variable: " << name << " = " << value << std::endl;
+    }
+
+    std::cout << std::endl;
+
+    // List functions
+    auto functions = solver.listFunctions();
+    for (const auto& [name, func] : functions) {
+        const auto& [args, isPredefined] = func;
+        std::cout << "Function: " << name << " (Predefined: " << (isPredefined ? "Yes" : "No") << ")";
+        std::cout << " Args: ";
+        for (const auto& arg : args) {
+            std::cout << arg << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    solver.evaluate("w() + 2");
 
 }

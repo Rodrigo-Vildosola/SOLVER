@@ -88,12 +88,12 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
         postfixQueue.pop();
 
         if (token.type == NUMBER || token.type == VARIABLE) {
-            nodeStack.push(std::make_unique<ExprNode>(token.value));
+            nodeStack.push(std::make_unique<ExprNode>(token.type, token.value));
         } else if (token.type == OPERATOR) {
             if (nodeStack.size() < 2) {
                 throw SolverException("Error: Not enough operands for operator '" + token.value + "'");
             }
-            auto node = std::make_unique<ExprNode>(token.value);
+            auto node = std::make_unique<ExprNode>(token.type, token.value);
             node->right = std::move(nodeStack.top());
             nodeStack.pop();
             node->left = std::move(nodeStack.top());
@@ -113,7 +113,7 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
                 nodeStack.pop();
             }
 
-            auto node = std::make_unique<ExprNode>(token.value);
+            auto node = std::make_unique<ExprNode>(token.type, token.value);
             node->arguments = std::move(arguments);
             nodeStack.push(std::move(node));
         }
@@ -181,11 +181,11 @@ bool ExpressionTree::areEqual(const std::unique_ptr<ExprNode>& left, const std::
 }
 
 std::unique_ptr<ExprNode> ExpressionTree::makeConstNode(double value) {
-    return std::make_unique<ExprNode>(std::to_string(value));
+    return std::make_unique<ExprNode>(NUMBER, std::to_string(value));
 }
 
 std::unique_ptr<ExprNode> ExpressionTree::makeMulNode(double coefficient, std::unique_ptr<ExprNode> node) {
-    auto mulNode = std::make_unique<ExprNode>("*");
+    auto mulNode = std::make_unique<ExprNode>(OPERATOR, "*");
     mulNode->left = makeConstNode(coefficient);
     mulNode->right = std::move(node);
     return mulNode;

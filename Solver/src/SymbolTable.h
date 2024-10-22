@@ -15,7 +15,11 @@ public:
 
     // Variable management methods
     void clearVariables();
+    
     std::unordered_map<std::string, double> getVariables() const;
+    std::unordered_map<std::string, double> getConstants() const;
+
+
     void restoreVariables(const std::unordered_map<std::string, double>& savedVariables);
 
     // Utility methods for checks

@@ -51,11 +51,6 @@ void SymbolTable::clearVariables() {
     variables.clear();
 }
 
-// Return a copy of the current variables (for backup/restore purposes)
-std::unordered_map<std::string, double> SymbolTable::getVariables() const {
-    return variables;
-}
-
 // Restore the variables from a saved copy
 void SymbolTable::restoreVariables(const std::unordered_map<std::string, double>& savedVariables) {
     variables = savedVariables;
@@ -69,4 +64,15 @@ bool SymbolTable::isConstant(const std::string& name) const {
 // Check if a symbol is a variable
 bool SymbolTable::isVariable(const std::string& name) const {
     return variables.find(name) != variables.end();
+}
+
+
+// Return a copy of the current constants (for listing purposes)
+std::unordered_map<std::string, double> SymbolTable::getConstants() const {
+    return constants;
+}
+
+// This method already exists to return variables
+std::unordered_map<std::string, double> SymbolTable::getVariables() const {
+    return variables;
 }
