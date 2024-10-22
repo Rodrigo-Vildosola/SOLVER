@@ -4,6 +4,7 @@
 BUILD_DIR=".build"
 EXECUTABLE="Sandbox/Sandbox"
 EXAMPLES_SCRIPT="Examples/example.py"
+BENCHMARK_SCRIPT="Examples/benchmark.py"
 TEST_SCRIPT="Examples/tester.py"
 PYTHON_OUTPUT_DIR="Examples/solver"
 SOLVER_PYTHON_LIB="_SOLVER_PYTHON.so"
@@ -48,6 +49,12 @@ function run_executable() {
     echo "Execution finished."
 }
 
+function run_benchmark() {
+    echo "Running Python benchmark..."
+    python3 $BENCHMARK_SCRIPT
+
+}
+
 # Run the Python examples script
 function run_examples() {
     echo "Running Python examples..."
@@ -89,6 +96,9 @@ function main() {
             ;;
         tests)
             run_tests
+            ;;
+        benchmark)
+            run_benchmark
             ;;
         clean)
             clean
