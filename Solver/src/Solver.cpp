@@ -38,15 +38,12 @@ void Solver::declareVariable(const std::string& name, double value) {
 
 std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debug) {
 
-    // Tokenize and parse the expression into an expression tree
     auto tokens = tokenize(expression);
 
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
 
-    // Simplify the parsed expression tree
     exprTree = ExpressionTree::simplify(std::move(exprTree), symbolTable);
 
-    // If debugging is enabled, print the expression tree
     if (debug) {
         std::cout << "-------------------------\n";
         std::cout << "Expression tree after parsing and simplifying:\n";
@@ -54,9 +51,8 @@ std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debu
         std::cout << "-------------------------\n";
     }
 
-    return exprTree; // Return the simplified expression tree
+    return exprTree; 
 }
-
 
 
 double Solver::evaluate(const std::string& expression, bool debug) {
