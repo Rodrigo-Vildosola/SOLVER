@@ -17,9 +17,6 @@ void Solver::invalidateCaches() {
         expressionCache.clear();
         functionCache.clear();
     }
-    // Reset current expression and tree when caches are invalidated
-    currentExpression.clear();
-    currentExprTree = nullptr;
 }
 
 void Solver::clearCache() {
@@ -244,7 +241,6 @@ std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> Solve
 void Solver::setCurrentExpression(const std::string& expression, bool debug) {
     // If the new expression is the same as the current one, return early
     if (expression == currentExpression && currentExprTree) {
-        // Already parsed and cached, no need to parse again
         return;
     }
 
