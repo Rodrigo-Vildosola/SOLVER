@@ -28,45 +28,25 @@ int main() {
 
     // Add some constants, variables, and functions
     solver.declareConstant("pi", 3.14159);
+    solver.declareConstant("e", 2.71828);  
     solver.declareVariable("x", 5.0);
-    solver.declareFunction("f", {"x"}, "x^2 + 2*x + pi");
+    solver.declareFunction("f", {"x"}, "x^2");
     solver.declareFunction("w", {"z"}, "e^z");
-    solver.declareConstant("e", 2);
 
-
+    // Test a single evaluation for debugging purposes
     std::cout << solver.evaluate("x + 0", true) << std::endl;
-    std::cout << "Result: " << solver.evaluate("f(pi) + pi", true) << std::endl;  // Should replace 'pi' with 3.14159
-    std::cout << "Result: " << solver.evaluate("w(x)", true) << std::endl;  // Should replace 'pi' with 3.14159
+    std::cout << "Result: " << solver.evaluate("f(pi) + pi", true) << std::endl;
+    std::cout << "Result: " << solver.evaluate("w(x)", true) << std::endl;
 
+    // Now use linspace to generate values for x and evaluate f(x) over that range
+    std::vector<double> x_values = linspace(0, 12, 5);
+    std::vector<double> results = solver.evaluateForRange("x", x_values, "f(x)", true);
 
+    // Print the results for each value of x
+    std::cout << "Evaluating f(x) over the range [0, 10]:" << std::endl;
+    for (size_t i = 0; i < x_values.size(); ++i) {
+        std::cout << "f(" << x_values[i] << ") = " << results[i] << std::endl;
+    }
 
-    // List constants
-    // auto constants = solver.listConstants();
-    // for (const auto& [name, value] : constants) {
-    //     std::cout << "Constant: " << name << " = " << value << std::endl;
-    // }
-
-    // std::cout << std::endl;
-
-    // // List variables
-    // auto variables = solver.listVariables();
-    // for (const auto& [name, value] : variables) {
-    //     std::cout << "Variable: " << name << " = " << value << std::endl;
-    // }
-
-    // std::cout << std::endl;
-
-    // // List functions
-    // auto functions = solver.listFunctions();
-    // for (const auto& [name, func] : functions) {
-    //     const auto& [args, isPredefined] = func;
-    //     std::cout << "Function: " << name << " (Predefined: " << (isPredefined ? "Yes" : "No") << ")";
-    //     std::cout << " Args: ";
-    //     for (const auto& arg : args) {
-    //         std::cout << arg << " ";
-    //     }
-    //     std::cout << std::endl;
-    // }
-
-
+    return 0;
 }

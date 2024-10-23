@@ -34,7 +34,34 @@ void Solver::declareVariable(const std::string& name, double value) {
     invalidateCaches();
 }
 
+#pragma region Evaluation
+
+std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debug) {
+
+    // Tokenize and parse the expression into an expression tree
+    auto tokens = tokenize(expression);
+
+    auto exprTree = ExpressionTree::parseExpression(tokens, functions);
+
+    // Simplify the parsed expression tree
+    exprTree = ExpressionTree::simplify(std::move(exprTree), symbolTable);
+
+    // If debugging is enabled, print the expression tree
+    if (debug) {
+        std::cout << "-------------------------\n";
+        std::cout << "Expression tree after parsing and simplifying:\n";
+        printTree(exprTree.get(), std::cout, functions);
+        std::cout << "-------------------------\n";
+    }
+
+    return exprTree; // Return the simplified expression tree
+}
+
+
+
 double Solver::evaluate(const std::string& expression, bool debug) {
+    setCurrentExpression(expression);
+
     std::string cacheKey = generateCacheKey(expression, {});
 
     if (cacheEnabled) {
@@ -44,17 +71,7 @@ double Solver::evaluate(const std::string& expression, bool debug) {
         }
     }
 
-    auto tokens = tokenize(expression);
-    auto exprTree = ExpressionTree::parseExpression(tokens, functions);
-
-    exprTree = ExpressionTree::simplify(std::move(exprTree), symbolTable);
-
-
-    if (debug) {
-        std::cout << "Expression tree:\n";
-        printTree(exprTree.get(), std::cout, functions);
-        std::cout << "-------------------------\n";
-    }
+    auto exprTree = parse(expression, debug);
 
     double result = evaluateNode(exprTree);
 
@@ -68,10 +85,13 @@ double Solver::evaluate(const std::string& expression, bool debug) {
 
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     std::vector<double> results;
+
+    auto exprTree = parse(expression, debug);
+
     for (double value : values) {
         declareVariable(variable, value);
         try {
-            double result = evaluate(expression, debug);
+            double result = evaluateNode(exprTree);
             results.push_back(result);
         } catch (const SolverException& e) {
             std::cerr << "Error evaluating expression with '" << variable << "' = " << value << ": " << e.what() << std::endl;
@@ -80,6 +100,7 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
     }
     return results;
 }
+
 
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     if (node->type == NUMBER) {
@@ -115,6 +136,10 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
 
     throw SolverException("Unsupported node type.");
 }
+
+#pragma endregion
+
+#pragma region Functions
 
 void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount) {
     auto result = functions.emplace(name, Function(callback, argCount));
@@ -194,6 +219,10 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     return result;
 }
 
+#pragma endregion
+
+#pragma region Helpers
+
 // Return the list of constants
 std::unordered_map<std::string, double> Solver::listConstants() const {
     return symbolTable.getConstants();
@@ -211,3 +240,5 @@ std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> Solve
     }
     return functionList;
 }
+
+#pragma endregion

@@ -40,7 +40,18 @@ public:
     void declareVariable(const std::string& name, double value);
 
     /**
+     * @brief Parses and simplifies a mathematical expression.
+     * 
+     * @param expression The mathematical expression to parse.
+     * @param debug If true, enables debug output during parsing and simplification.
+     * @return A unique pointer to the simplified expression tree (ExprNode).
+     */
+    std::unique_ptr<ExprNode> parse(const std::string &expression, bool debug = false);
+
+    /**
      * @brief Evaluate a mathematical expression.
+     * 
+     * This method parses and simplifies the expression (if not cached), evaluates the expression, and returns the result.
      * 
      * @param expression The mathematical expression to evaluate.
      * @param debug If true, enables debug output during evaluation.
@@ -50,6 +61,8 @@ public:
 
     /**
      * @brief Evaluate a mathematical expression over a range of values for a given variable.
+     * 
+     * The method parses and simplifies the expression once, then evaluates the expression tree for each value in the range.
      * 
      * @param variable The name of the variable to iterate over.
      * @param values A vector of values for the variable.
@@ -62,6 +75,8 @@ public:
     /**
      * @brief Register a predefined function with a callback.
      * 
+     * Registers a function in the solver's function table using a predefined callback for execution.
+     * 
      * @param name The name of the function.
      * @param callback A function callback to execute when the function is called.
      * @param argCount The number of arguments the function expects.
@@ -70,6 +85,8 @@ public:
 
     /**
      * @brief Declare a user-defined function.
+     * 
+     * Declares a function in the solver's function table, allowing the user to define functions with expressions and variables.
      * 
      * @param name The name of the function.
      * @param args A vector of argument names for the function.
@@ -112,14 +129,32 @@ public:
      */
     std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> listFunctions() const;
 
+    /**
+     * @brief Set the current expression being evaluated.
+     * 
+     * @param expression The expression to set as the current expression.
+     */
+    void setCurrentExpression(const std::string& expression) { currentExpression = expression; }
+
+    /**
+     * @brief Get the current expression being evaluated.
+     * 
+     * @return The current expression being evaluated.
+     */
+    std::string getCurrentExpression() const { return currentExpression; }
+
 private:
     /**
      * @brief Register built-in mathematical functions like sin, cos, etc.
+     * 
+     * This method is called during initialization to register standard mathematical functions.
      */
     void registerBuiltInFunctions();
 
     /**
      * @brief Evaluate an expression tree node.
+     * 
+     * This method recursively evaluates an expression tree node and returns the result.
      * 
      * @param node A unique pointer to an expression tree node.
      * @return The result of evaluating the node.
@@ -137,6 +172,8 @@ private:
     /**
      * @brief Evaluate a function with the provided arguments.
      * 
+     * This method handles the evaluation of user-defined and predefined functions with the provided arguments.
+     * 
      * @param func The name of the function.
      * @param args A vector of arguments to pass to the function.
      * @return The result of the function evaluation.
@@ -146,7 +183,7 @@ private:
     /**
      * @brief Generates a unique cache key for a given expression or function call.
      * 
-     * @param base The base string for the cache key.
+     * @param base The base string for the cache key (typically the expression or function name).
      * @param args The arguments used in the expression or function.
      * @return A unique string to use as the cache key.
      */
@@ -171,12 +208,16 @@ private:
     // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
 
-    // Memoization for general expressions and function calls
-    std::unordered_map<std::string, double> expressionCache;  ///< Cache for evaluated expressions
-    std::unordered_map<std::string, double> functionCache;    ///< Cache for function results
+    // Cache for parsed and simplified expression trees
+    std::unordered_map<std::string, double> expressionCache; ///< Cache for parsed and simplified expression trees
+
+    // Memoization for function results
+    std::unordered_map<std::string, double> functionCache; ///< Cache for function evaluation results
 
     bool cacheEnabled = true;  ///< Flag to enable or disable cache
 
     // SymbolTable for managing variables and constants
     SymbolTable symbolTable;
+
+    std::string currentExpression; ///< The current expression being evaluated
 };
