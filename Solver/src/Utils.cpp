@@ -1,4 +1,5 @@
 #include "Solver.h"
+#include "Tokenizer.h"
 
 
 
@@ -56,7 +57,7 @@ void Solver::registerBuiltInFunctions() {
 
 // Semantic validation: Ensure all dependencies are defined
 void Solver::validateFunctionDependencies(const std::string& expression, const std::vector<std::string>& args) {
-    auto tokens = tokenize(expression);
+    auto tokens = Tokenizer::tokenize(expression);
     for (const auto& token : tokens) {
         if (token.type == VARIABLE) {
             // Check if the variable is a function argument or a declared constant

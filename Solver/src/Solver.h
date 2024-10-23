@@ -165,14 +165,6 @@ private:
     std::unique_ptr<ExprNode> parse(const std::string &expression, bool debug = false);
 
     /**
-     * @brief Tokenize a mathematical equation into tokens.
-     * 
-     * @param equation The equation to tokenize.
-     * @return A vector of tokens extracted from the equation.
-     */
-    std::vector<Token> tokenize(const std::string& equation);
-
-    /**
      * @brief Evaluate a function with the provided arguments.
      * 
      * This method handles the evaluation of user-defined and predefined functions with the provided arguments.

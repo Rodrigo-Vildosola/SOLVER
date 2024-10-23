@@ -3,6 +3,7 @@
 #include "ExprTree.h"
 #include "Validator.h"
 #include "Debug.h"
+#include "Tokenizer.h"
 
 Solver::Solver() : currentExprTree(nullptr) {
     registerBuiltInFunctions();
@@ -38,7 +39,7 @@ void Solver::declareVariable(const std::string& name, double value) {
 
 std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debug) {
 
-    auto tokens = tokenize(expression);
+    auto tokens = Tokenizer::tokenize(expression);
 
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
 
