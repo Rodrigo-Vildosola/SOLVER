@@ -40,15 +40,6 @@ public:
     void declareVariable(const std::string& name, double value);
 
     /**
-     * @brief Parses and simplifies a mathematical expression.
-     * 
-     * @param expression The mathematical expression to parse.
-     * @param debug If true, enables debug output during parsing and simplification.
-     * @return A unique pointer to the simplified expression tree (ExprNode).
-     */
-    std::unique_ptr<ExprNode> parse(const std::string &expression, bool debug = false);
-
-    /**
      * @brief Evaluate a mathematical expression.
      * 
      * This method parses and simplifies the expression (if not cached), evaluates the expression, and returns the result.
@@ -130,11 +121,14 @@ public:
     std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> listFunctions() const;
 
     /**
-     * @brief Set the current expression being evaluated.
+     * @brief Sets the current expression and parses it into an expression tree.
      * 
-     * @param expression The expression to set as the current expression.
+     * This method stores the expression and its parsed tree, so future evaluations of the same expression can use the cached tree.
+     * 
+     * @param expression The mathematical expression to set as the current expression.
+     * @param debug If true, enables debug output during parsing and simplification.
      */
-    void setCurrentExpression(const std::string& expression) { currentExpression = expression; }
+    void setCurrentExpression(const std::string &expression, bool debug);
 
     /**
      * @brief Get the current expression being evaluated.
@@ -160,6 +154,15 @@ private:
      * @return The result of evaluating the node.
      */
     double evaluateNode(const std::unique_ptr<ExprNode>& node);
+
+    /**
+     * @brief Parses and simplifies a mathematical expression.
+     * 
+     * @param expression The mathematical expression to parse.
+     * @param debug If true, enables debug output during parsing and simplification.
+     * @return A unique pointer to the simplified expression tree (ExprNode).
+     */
+    std::unique_ptr<ExprNode> parse(const std::string &expression, bool debug = false);
 
     /**
      * @brief Tokenize a mathematical equation into tokens.
@@ -220,4 +223,7 @@ private:
     SymbolTable symbolTable;
 
     std::string currentExpression; ///< The current expression being evaluated
+
+    std::unique_ptr<ExprNode> currentExprTree;
+
 };

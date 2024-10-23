@@ -4,7 +4,7 @@
 #include "Validator.h"
 #include "Debug.h"
 
-Solver::Solver() {
+Solver::Solver() : currentExprTree(nullptr) {
     registerBuiltInFunctions();
 }
 
@@ -17,6 +17,9 @@ void Solver::invalidateCaches() {
         expressionCache.clear();
         functionCache.clear();
     }
+    // Reset current expression and tree when caches are invalidated
+    currentExpression.clear();
+    currentExprTree = nullptr;
 }
 
 void Solver::clearCache() {
@@ -45,8 +48,10 @@ std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debu
     exprTree = ExpressionTree::simplify(std::move(exprTree), symbolTable);
 
     if (debug) {
+        std::cout << std::endl;
         std::cout << "Expression tree after parsing and simplifying:\n";
         printTree(exprTree.get(), std::cout, functions);
+        std::cout << std::endl;
     }
 
     return exprTree; 
@@ -55,7 +60,7 @@ std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debu
 
 
 double Solver::evaluate(const std::string& expression, bool debug) {
-    setCurrentExpression(expression);
+    setCurrentExpression(expression, debug);
 
     std::string cacheKey = generateCacheKey(expression, {});
 
@@ -66,26 +71,10 @@ double Solver::evaluate(const std::string& expression, bool debug) {
         }
     }
 
-    // Debug Mode
-    if (debug) {
-        printBoxedHeader("DEBUG MODE: Expression Evaluation", 40);
-        std::cout << CYAN << "Evaluating expression: " << YELLOW << expression << RESET << std::endl;
-    }
+    double result = evaluateNode(currentExprTree);
 
-    auto exprTree = parse(expression, debug);
-
-    double result = evaluateNode(exprTree);
-
-    // Cache the result if caching is enabled
     if (cacheEnabled) {
         expressionCache[cacheKey] = result;
-    }
-
-    if (debug) {
-        // Display result in a boxed format
-        std::stringstream resultStr;
-        resultStr << "Result: " << GREEN << std::fixed << std::setprecision(4) << result << RESET;
-        printBoxedContent(resultStr.str(), 40);
     }
 
     return result;
@@ -94,12 +83,6 @@ double Solver::evaluate(const std::string& expression, bool debug) {
 
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     std::vector<double> results;
-
-    if (debug) {
-        printBoxedHeader("DEBUG MODE: Evaluating for Range", 40);
-        std::cout << CYAN << "Variable: " << YELLOW << variable << RESET << std::endl;
-        std::cout << CYAN << "Expression: " << YELLOW << expression << RESET << std::endl;
-    }
 
     auto exprTree = parse(expression, debug);
 
@@ -110,21 +93,10 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
             double result = evaluateNode(exprTree);
             results.push_back(result);
 
-            if (debug) {
-                std::cout << CYAN << "Evaluating for " << variable << " = " << YELLOW << value << RESET;
-                std::cout << " --> " << GREEN << "Result: " << result << RESET << std::endl;
-            }
-
         } catch (const SolverException& e) {
             std::cerr << RED << "Error evaluating expression with '" << variable << "' = " << value << ": " << e.what() << RESET << std::endl;
             results.push_back(std::nan(""));
         }
-    }
-
-    if (debug) {
-        std::stringstream resultStr;
-        resultStr << "Completed evaluation over range for " << variable;
-        printBoxedContent(resultStr.str(), 40);
     }
 
     return results;
@@ -268,5 +240,22 @@ std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> Solve
     }
     return functionList;
 }
+
+void Solver::setCurrentExpression(const std::string& expression, bool debug) {
+    // If the new expression is the same as the current one, return early
+    if (expression == currentExpression && currentExprTree) {
+        // Already parsed and cached, no need to parse again
+        return;
+    }
+
+    // Otherwise, parse the new expression and update the current expression and tree
+    currentExpression = expression;
+    currentExprTree = parse(expression, debug); // Parse and store the tree
+
+    if (debug) {
+        std::cout << "Current expression set to: " << expression << std::endl;
+    }
+}
+
 
 #pragma endregion
