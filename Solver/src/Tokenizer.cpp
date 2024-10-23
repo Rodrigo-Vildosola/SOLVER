@@ -4,6 +4,7 @@
 
 std::vector<Token> Solver::tokenize(const std::string& equation) {
     std::vector<Token> tokens;
+    tokens.reserve(equation.size());
 
     // Define regular expressions for token types
     std::regex numberRegex(R"(\d+(\.\d+)?)");           // Matches integers and decimals

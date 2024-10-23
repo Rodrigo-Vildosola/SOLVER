@@ -1,6 +1,5 @@
 #include "ExprTree.h"
 
-
 #pragma region Helpers
 
 size_t ExpressionTree::getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions) {
@@ -69,18 +68,6 @@ std::unique_ptr<ExprNode> ExpressionTree::processOperator(const Token& token, st
     nodeStack.pop();
     auto leftNode = std::move(nodeStack.top());
     nodeStack.pop();
-
-    // Constant folding (during parsing)
-    if (leftNode->type == NUMBER && rightNode->type == NUMBER) {
-        double leftValue = std::stod(leftNode->value);
-        double rightValue = std::stod(rightNode->value);
-        double result = foldConstants(token.value, leftValue, rightValue);
-        return std::make_unique<ExprNode>(NUMBER, std::to_string(result));
-    }
-
-    // Apply basic algebraic simplifications (during parsing)
-    auto simplifiedNode = applyBasicSimplifications(token.value, leftNode, rightNode);
-    if (simplifiedNode) return simplifiedNode;
 
     // Otherwise, create a new operator node
     auto node = std::make_unique<ExprNode>(token.type, token.value);
@@ -224,18 +211,28 @@ std::unique_ptr<ExprNode> ExpressionTree::simplify(std::unique_ptr<ExprNode> nod
 
     // Simplify left and right nodes recursively (for operators)
     if (node->type == OPERATOR) {
-        auto simplifiedLeft = simplify(std::move(node->left), symbolTable);
-        auto simplifiedRight = simplify(std::move(node->right), symbolTable);
+        node->left = simplify(std::move(node->left), symbolTable);
+        node->right = simplify(std::move(node->right), symbolTable);
 
-        // If no constant folding, return the node with simplified children
-        node->left = std::move(simplifiedLeft);
-        node->right = std::move(simplifiedRight);
+        // Apply basic algebraic simplifications
+        if (node->left->type == NUMBER && node->right->type == NUMBER) {
+            double leftValue = std::stod(node->left->value);
+            double rightValue = std::stod(node->right->value);
+            double foldedValue = foldConstants(node->value, leftValue, rightValue);
+            return std::make_unique<ExprNode>(NUMBER, std::to_string(foldedValue));
+        }
+
+        // Handle additional cases for simplifications
+        auto simplifiedNode = applyBasicSimplifications(node->value, node->left, node->right);
+        if (simplifiedNode) {
+            return simplifiedNode;
+        }
+
+        // If no simplifications, return node as-is
         return node;
     }
 
-
     return node;  // Return node as-is if it's not simplifiable
 }
-
 
 #pragma endregion

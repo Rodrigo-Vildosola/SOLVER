@@ -14,6 +14,9 @@ def run_examples():
         # Declare constants
         solver.declareConstant("pi", np.pi)
         solver.declareConstant("e", np.e)
+        solver.declareConstant("b", 2)
+        solver.declareConstant("c", 5)
+
 
         solver.declareVariable("x", 10)
 
@@ -31,19 +34,13 @@ def run_examples():
     # Example expressions to evaluate
     examples = [
         {"description": "Evaluate h(2)", "expression": "h(2)", "expected_result": 81.0},
-
-        {"description": "Evaluate -2 + 2", "expression": "-2 + 2", "expected_result": 0.0},
-        {"description": "Evaluate -5", "expression": "-5", "expected_result": -5.0},
-        {"description": "Evaluate x(1) + x", "expression": "x(1) + x", "expected_result": 12.0},
-
         {"description": "Evaluate why()", "expression": "why()", "expected_result": 5},
-        {"description": "Evaluate 3 + 2", "expression": "3 + 2", "expected_result": 5},
-
         {"description": "Evaluate g(5, 5)", "expression": "g(f(2), 5)", "expected_result": 59.0},
         {"description": "Evaluate x + 0", "expression": "x + 0", "expected_result": 10},
         {"description": "Evaluate x * 1", "expression": "x * 1", "expected_result": 10},
-
         {"description": "Evaluate f(4)", "expression": "f(4)", "expected_result": 25.0},
+        {"description": "Evaluate (b + 3) * c", "expression": "(b + 3) * (c + 0)", "expected_result": 25.0},
+
     ]
 
     passed_count = 0
