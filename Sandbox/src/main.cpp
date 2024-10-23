@@ -2,15 +2,9 @@
 #include "Solver.h"
 #include <cmath>
 #include <iomanip>
-
-
-void testEquation(Solver& solver, const std::string& equation) {
-    std::cout << "Testing equation: " << equation << std::endl;
-
-    double evaluatedValue = solver.evaluate(equation);
-    std::cout << "Evaluated expression value: " << evaluatedValue << std::endl;
-    std::cout << "--------------------------" << std::endl << std::endl;
-}
+#include <chrono>  // Include for timing
+#include <vector>
+#include <cassert>
 
 std::vector<double> linspace(double start, double end, int num_points) {
     std::vector<double> points;
@@ -25,6 +19,7 @@ std::vector<double> linspace(double start, double end, int num_points) {
 
 int main() {
     Solver solver;
+    solver.setUseCache(false);
 
     // Add some constants, variables, and functions
     solver.declareConstant("pi", 3.14159);
@@ -33,19 +28,54 @@ int main() {
     solver.declareFunction("f", {"x"}, "x^2");
     solver.declareFunction("w", {"z"}, "e^z");
 
-    // Test a single evaluation for debugging purposes
-    std::cout << solver.evaluate("x + 0", true) << std::endl;
-    std::cout << "Result: " << solver.evaluate("f(pi) + pi", true) << std::endl;
-    std::cout << "Result: " << solver.evaluate("w(x)", true) << std::endl;
-
     // Now use linspace to generate values for x and evaluate f(x) over that range
-    std::vector<double> x_values = linspace(0, 12, 5);
-    std::vector<double> results = solver.evaluateForRange("x", x_values, "f(x)", true);
+    std::vector<double> x_values = linspace(0, 100, 1000);  // Reduce points for quick verification during testing
 
-    // Print the results for each value of x
-    std::cout << "Evaluating f(x) over the range [0, 10]:" << std::endl;
+    // Measure performance using evaluateForRange
+    auto start1 = std::chrono::high_resolution_clock::now();
+    std::vector<double> results = solver.evaluateForRange("x", x_values, "f(x)", false);
+    auto end1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration1 = end1 - start1;
+
+    std::cout << "evaluateForRange took: " << duration1.count() << " seconds." << std::endl;
+
+    // Measure performance using a loop with declareVariable and evaluate
+    auto start2 = std::chrono::high_resolution_clock::now();
+    std::vector<double> loop_results;
+    for (double x : x_values) {
+        solver.declareVariable("x", x);
+        double result = solver.evaluate("f(x)", false);
+        loop_results.push_back(result);
+    }
+    auto end2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration2 = end2 - start2;
+
+    std::cout << "Loop with declareVariable took: " << duration2.count() << " seconds." << std::endl;
+
+    // Sanity check to ensure both approaches give the same result
     for (size_t i = 0; i < x_values.size(); ++i) {
-        std::cout << "f(" << x_values[i] << ") = " << results[i] << std::endl;
+        if (results[i] != loop_results[i]) {
+            std::cerr << "Mismatch at index " << i << ": evaluateForRange(" << x_values[i] 
+                      << ") = " << results[i] << ", loop(" << x_values[i] 
+                      << ") = " << loop_results[i] << std::endl;
+        }
+    }
+
+    // Analytical comparison to expected values for f(x) = x^2
+    bool all_correct = true;
+    for (size_t i = 0; i < x_values.size(); ++i) {
+        double expected = x_values[i] * x_values[i];
+        if (std::fabs(results[i] - expected) > 1e-9) { // Using a small tolerance for floating-point comparison
+            all_correct = false;
+            std::cerr << "Error at index " << i << ": Expected " << expected 
+                      << ", but got " << results[i] << std::endl;
+        }
+    }
+
+    if (all_correct) {
+        std::cout << "All results are correct!" << std::endl;
+    } else {
+        std::cout << "There were some errors in the results." << std::endl;
     }
 
     return 0;
