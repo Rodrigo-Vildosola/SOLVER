@@ -153,8 +153,7 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
     Validator::isValidSyntax(expression);
 
     try {
-        auto tokens = tokenize(expression);
-        auto exprTree = ExpressionTree::parseExpression(tokens, functions);
+        auto exprTree = parse(expression);
 
         auto result = functions.emplace(name, Function(args, expression));
         if (!result.second) {
@@ -246,7 +245,7 @@ void Solver::setCurrentExpression(const std::string& expression, bool debug) {
 
     // Otherwise, parse the new expression and update the current expression and tree
     currentExpression = expression;
-    currentExprTree = parse(expression, debug); // Parse and store the tree
+    currentExprTree = parse(expression, debug); 
 
     if (debug) {
         std::cout << "Current expression set to: " << expression << std::endl;

@@ -73,6 +73,7 @@ def compare_performance():
 
         # Custom Solver Benchmark
         def custom_solver_eval():
+            solver.setCurrentExpression(expr["custom_solver_expr"], True)
             return solver.evaluate(expr["custom_solver_expr"])
 
         # SymPy Benchmark
