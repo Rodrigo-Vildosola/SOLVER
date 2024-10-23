@@ -45,14 +45,13 @@ std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debu
     exprTree = ExpressionTree::simplify(std::move(exprTree), symbolTable);
 
     if (debug) {
-        std::cout << "-------------------------\n";
         std::cout << "Expression tree after parsing and simplifying:\n";
         printTree(exprTree.get(), std::cout, functions);
-        std::cout << "-------------------------\n";
     }
 
     return exprTree; 
 }
+
 
 
 double Solver::evaluate(const std::string& expression, bool debug) {
@@ -67,12 +66,26 @@ double Solver::evaluate(const std::string& expression, bool debug) {
         }
     }
 
+    // Debug Mode
+    if (debug) {
+        printBoxedHeader("DEBUG MODE: Expression Evaluation", 40);
+        std::cout << CYAN << "Evaluating expression: " << YELLOW << expression << RESET << std::endl;
+    }
+
     auto exprTree = parse(expression, debug);
 
     double result = evaluateNode(exprTree);
 
+    // Cache the result if caching is enabled
     if (cacheEnabled) {
         expressionCache[cacheKey] = result;
+    }
+
+    if (debug) {
+        // Display result in a boxed format
+        std::stringstream resultStr;
+        resultStr << "Result: " << GREEN << std::fixed << std::setprecision(4) << result << RESET;
+        printBoxedContent(resultStr.str(), 40);
     }
 
     return result;
@@ -82,21 +95,40 @@ double Solver::evaluate(const std::string& expression, bool debug) {
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     std::vector<double> results;
 
+    if (debug) {
+        printBoxedHeader("DEBUG MODE: Evaluating for Range", 40);
+        std::cout << CYAN << "Variable: " << YELLOW << variable << RESET << std::endl;
+        std::cout << CYAN << "Expression: " << YELLOW << expression << RESET << std::endl;
+    }
+
     auto exprTree = parse(expression, debug);
 
     for (double value : values) {
         declareVariable(variable, value);
+
         try {
             double result = evaluateNode(exprTree);
             results.push_back(result);
+
+            if (debug) {
+                std::cout << CYAN << "Evaluating for " << variable << " = " << YELLOW << value << RESET;
+                std::cout << " --> " << GREEN << "Result: " << result << RESET << std::endl;
+            }
+
         } catch (const SolverException& e) {
-            std::cerr << "Error evaluating expression with '" << variable << "' = " << value << ": " << e.what() << std::endl;
+            std::cerr << RED << "Error evaluating expression with '" << variable << "' = " << value << ": " << e.what() << RESET << std::endl;
             results.push_back(std::nan(""));
         }
     }
+
+    if (debug) {
+        std::stringstream resultStr;
+        resultStr << "Completed evaluation over range for " << variable;
+        printBoxedContent(resultStr.str(), 40);
+    }
+
     return results;
 }
-
 
 double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
     if (node->type == NUMBER) {

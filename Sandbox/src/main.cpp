@@ -2,7 +2,7 @@
 #include "Solver.h"
 #include <cmath>
 #include <iomanip>
-#include <chrono>  // Include for timing
+#include <chrono>  
 #include <vector>
 #include <cassert>
 
@@ -29,7 +29,7 @@ int main() {
     solver.declareFunction("w", {"z"}, "e^z");
 
     // Now use linspace to generate values for x and evaluate f(x) over that range
-    std::vector<double> x_values = linspace(0, 100, 1000);  // Reduce points for quick verification during testing
+    std::vector<double> x_values = linspace(0, 100, 100);  // Reduce points for quick verification during testing
 
     // Measure performance using evaluateForRange
     auto start1 = std::chrono::high_resolution_clock::now();
