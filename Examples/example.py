@@ -30,8 +30,6 @@ def run_examples():
 
     # Example expressions to evaluate
     examples = [
-        {"description": "Evaluate f(4)", "expression": "f(4)", "expected_result": 25.0},
-        {"description": "Evaluate g(5, 5)", "expression": "g(5, 5)", "expected_result": 35.0},
         {"description": "Evaluate h(2)", "expression": "h(2)", "expected_result": 81.0},
 
         {"description": "Evaluate -2 + 2", "expression": "-2 + 2", "expected_result": 0.0},
@@ -41,6 +39,8 @@ def run_examples():
         {"description": "Evaluate why()", "expression": "why()", "expected_result": 5},
         {"description": "Evaluate 3 + 2", "expression": "3 + 2", "expected_result": 5},
 
+        {"description": "Evaluate f(4)", "expression": "f(4)", "expected_result": 25.0},
+        {"description": "Evaluate g(5, 5)", "expression": "g(f(2), 5)", "expected_result": 59.0},
         {"description": "Evaluate x + 0", "expression": "x + 0", "expected_result": 10},
         {"description": "Evaluate x * 1", "expression": "x * 1", "expected_result": 10},
 

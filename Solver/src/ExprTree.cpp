@@ -204,34 +204,14 @@ std::unique_ptr<ExprNode> ExpressionTree::simplify(std::unique_ptr<ExprNode> nod
     if (!node) return nullptr;
 
     // Handle leaf nodes (NUMBER or VARIABLE)
-    if (node->type == NUMBER) {
-        return std::make_unique<ExprNode>(NUMBER, node->value);  // Return as-is for numbers
-    } else if (node->type == VARIABLE) {
-        // Check if the variable is a constant and replace it
-        if (symbolTable.isConstant(node->value)) {
+    if (node->type == NUMBER || node->type == VARIABLE) {
+        // For variables, check if they are constants and simplify
+        if (node->type == VARIABLE && symbolTable.isConstant(node->value)) {
             double constantValue = symbolTable.lookupSymbol(node->value);
-            return std::make_unique<ExprNode>(NUMBER, std::to_string(constantValue));
+            node->value = std::to_string(constantValue);
+            node->type = NUMBER;
         }
-        return std::make_unique<ExprNode>(VARIABLE, node->value);  // Return as-is for variables
-    }
-
-    // Simplify left and right nodes recursively (for operators)
-    if (node->type == OPERATOR) {
-        auto simplifiedLeft = simplify(std::move(node->left), symbolTable);
-        auto simplifiedRight = simplify(std::move(node->right), symbolTable);
-
-        // Perform constant folding if both sides are numbers
-        if (simplifiedLeft->type == NUMBER && simplifiedRight->type == NUMBER) {
-            double leftValue = std::stod(simplifiedLeft->value);
-            double rightValue = std::stod(simplifiedRight->value);
-            double result = foldConstants(node->value, leftValue, rightValue);
-            return std::make_unique<ExprNode>(NUMBER, std::to_string(result));
-        }
-
-        // If no constant folding, return the node with simplified children
-        node->left = std::move(simplifiedLeft);
-        node->right = std::move(simplifiedRight);
-        return node;
+        return node;  // Return as-is for numbers or simplified variables
     }
 
     // Simplify function arguments recursively
@@ -241,6 +221,18 @@ std::unique_ptr<ExprNode> ExpressionTree::simplify(std::unique_ptr<ExprNode> nod
         }
         return node;
     }
+
+    // Simplify left and right nodes recursively (for operators)
+    if (node->type == OPERATOR) {
+        auto simplifiedLeft = simplify(std::move(node->left), symbolTable);
+        auto simplifiedRight = simplify(std::move(node->right), symbolTable);
+
+        // If no constant folding, return the node with simplified children
+        node->left = std::move(simplifiedLeft);
+        node->right = std::move(simplifiedRight);
+        return node;
+    }
+
 
     return node;  // Return node as-is if it's not simplifiable
 }
