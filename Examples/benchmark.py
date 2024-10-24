@@ -64,7 +64,7 @@ def compare_performance():
         }
     ]
 
-    num_trials = 100000
+    num_trials = 10000
     performance_results = []
 
     # Benchmark each expression

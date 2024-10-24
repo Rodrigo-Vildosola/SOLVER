@@ -203,8 +203,8 @@ private:
     // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
 
-    // Cache for parsed and simplified expression trees
-    std::unordered_map<std::string, double> expressionCache; ///< Cache for parsed and simplified expression trees
+    // Cache for results of evaluationg expressions
+    std::unordered_map<std::string, double> expressionCache; 
 
     // Memoization for function results
     std::unordered_map<std::string, double> functionCache; ///< Cache for function evaluation results
