@@ -5,6 +5,8 @@
 #include "ExprNode.h"
 #include "SymbolTable.h"
 #include "Function.h"
+#include "LRUCache.h"
+
 
 /**
  * @class Solver
@@ -21,7 +23,7 @@ public:
      * 
      * Initializes the Solver instance and registers built-in functions.
      */
-    Solver();
+    Solver(size_t exprCacheSize = 100, size_t funcCacheSize = 100);
 
     /**
      * @brief Declare a constant in the solver's symbol table.
@@ -203,11 +205,8 @@ private:
     // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
 
-    // Cache for results of evaluationg expressions
-    std::unordered_map<std::string, double> expressionCache; 
-
-    // Memoization for function results
-    std::unordered_map<std::string, double> functionCache; ///< Cache for function evaluation results
+    LRUCache<std::string, double> expressionCache;  ///< LRU Cache for expression evaluation results
+    LRUCache<std::string, double> functionCache;    ///< LRU Cache for function evaluation results
 
     bool cacheEnabled = true;  ///< Flag to enable or disable cache
 

@@ -5,7 +5,8 @@
 #include "Debug.h"
 #include "Tokenizer.h"
 
-Solver::Solver() : currentExprTree(nullptr) {
+Solver::Solver(size_t exprCacheSize, size_t funcCacheSize)
+    : expressionCache(exprCacheSize), functionCache(funcCacheSize), currentExprTree(nullptr)  {
     registerBuiltInFunctions();
 }
 
@@ -63,16 +64,15 @@ double Solver::evaluate(const std::string& expression, bool debug) {
     std::string cacheKey = generateCacheKey(expression, {});
 
     if (cacheEnabled) {
-        auto cachedResult = expressionCache.find(cacheKey);
-        if (cachedResult != expressionCache.end()) {
-            return cachedResult->second;
+        if (double* cachedResult = expressionCache.get(cacheKey)) {
+            return *cachedResult;  // Return cached result if found
         }
     }
 
     double result = evaluateNode(currentExprTree);
 
     if (cacheEnabled) {
-        expressionCache[cacheKey] = result;
+        expressionCache.put(cacheKey, result);  // Cache the result
     }
 
     return result;
@@ -171,11 +171,11 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     std::string cacheKey = generateCacheKey(func, args);
 
     if (cacheEnabled) {
-        auto cachedResult = functionCache.find(cacheKey);
-        if (cachedResult != functionCache.end()) {
-            return cachedResult->second;
+        if (double* cachedResult = functionCache.get(cacheKey)) {
+            return *cachedResult;  // Return cached result if found
         }
     }
+
 
     auto it = functions.find(func);
     if (it == functions.end()) {
@@ -190,7 +190,7 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
         }
         double result = function.callback(args);
         if (cacheEnabled) {
-            functionCache[cacheKey] = result;
+            functionCache.put(cacheKey, result);  // Cache the result
         }
         return result;
     }
@@ -210,7 +210,7 @@ double Solver::evaluateFunction(const std::string& func, const std::vector<doubl
     symbolTable.restoreVariables(savedVariables);
 
     if (cacheEnabled) {
-        functionCache[cacheKey] = result;
+        functionCache.put(cacheKey, result);  // Cache the result
     }
 
     return result;
