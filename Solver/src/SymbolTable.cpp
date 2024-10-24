@@ -3,76 +3,105 @@
 
 // Declare a constant, ensuring no variable with the same name exists and the name is valid
 void SymbolTable::declareConstant(const std::string& name, double value) {
-    // Validate the name
     if (!Validator::isValidName(name)) {
-        throw SolverException("Invalid constant name '" + name + "'. Names must start with a letter or underscore and contain only letters, digits, or underscores, and must not be reserved keywords.");
+        throw SolverException("Invalid constant name '" + name + "'.");
     }
 
-    if (constants.find(name) != constants.end()) {
-        throw SolverException("Cannot redeclare constant '" + name + "'. Constants cannot be redeclared.");
+    auto it = entries.find(name);
+    if (it != entries.end() && it->second.type == SymbolType::CONSTANT) {
+        throw SolverException("Constant '" + name + "' already declared.");
     }
-
-    if (variables.find(name) != variables.end()) {
-        throw SolverException("Cannot declare constant '" + name + "' because a variable with the same name already exists.");
-    }
-
-    constants[name] = value;
+    entries[name] = SymbolEntry(value, SymbolType::CONSTANT);
 }
 
 
 // Declare a variable, ensuring no constant with the same name exists and the name is valid
 void SymbolTable::declareVariable(const std::string& name, double value) {
-    // Validate the name
     if (!Validator::isValidName(name)) {
-        throw SolverException("Invalid variable name '" + name + "'. Names must start with a letter or underscore and contain only letters, digits, or underscores, and must not be reserved keywords.");
+        throw SolverException("Invalid variable name '" + name + "'.");
     }
 
-    // Check for name collision with constants
-    if (constants.find(name) != constants.end()) {
-        throw SolverException("Cannot declare variable '" + name + "' because a constant with the same name already exists.");
+    auto it = entries.find(name);
+    if (it != entries.end() && it->second.type == SymbolType::CONSTANT) {
+        throw SolverException("Cannot declare variable '" + name + "', constant with the same name exists.");
     }
-
-    variables[name] = value;
+    entries[name] = SymbolEntry(value, SymbolType::VARIABLE);
 }
 
 // Lookup a symbol in the table (checks both variables and constants)
 double SymbolTable::lookupSymbol(const std::string& name) const {
-    if (variables.find(name) != variables.end()) {
-        return variables.at(name);
-    } else if (constants.find(name) != constants.end()) {
-        return constants.at(name);
-    } else {
-        throw SolverException("Unknown symbol: '" + name + "'");
+    if (cachedSymbolName == name) {
+        return cachedSymbolEntry.value; // Return cached result
     }
+
+    auto it = entries.find(name);
+    if (it != entries.end()) {
+        // Cache the result
+        cachedSymbolName = name;
+        cachedSymbolEntry = it->second;
+        return it->second.value;
+    }
+
+    throw SolverException("Unknown symbol: '" + name + "'");
 }
 
 // Clear all variables (constants remain unaffected)
 void SymbolTable::clearVariables() {
-    variables.clear();
+    for (auto it = entries.begin(); it != entries.end();) {
+        if (it->second.type == SymbolType::VARIABLE) {
+            it = entries.erase(it); // Erase variable
+        } else {
+            ++it; // Keep constants
+        }
+    }
 }
+
 
 // Restore the variables from a saved copy
 void SymbolTable::restoreVariables(const std::unordered_map<std::string, double>& savedVariables) {
-    variables = savedVariables;
+    for (const auto& [name, value] : savedVariables) {
+        entries[name] = SymbolEntry(value, SymbolType::VARIABLE);  // Assume every entry is a variable
+    }
 }
+
 
 // Check if a symbol is a constant
 bool SymbolTable::isConstant(const std::string& name) const {
-    return constants.find(name) != constants.end();
+    auto it = entries.find(name);
+    return it != entries.end() && it->second.type == SymbolType::CONSTANT;
 }
 
-// Check if a symbol is a variable
 bool SymbolTable::isVariable(const std::string& name) const {
-    return variables.find(name) != variables.end();
+    auto it = entries.find(name);
+    return it != entries.end() && it->second.type == SymbolType::VARIABLE;
 }
+
 
 
 // Return a copy of the current constants (for listing purposes)
 std::unordered_map<std::string, double> SymbolTable::getConstants() const {
+    std::unordered_map<std::string, double> constants;
+    for (const auto& [name, entry] : entries) {
+        if (entry.type == SymbolType::CONSTANT) {
+            constants[name] = entry.value;
+        }
+    }
     return constants;
 }
 
-// This method already exists to return variables
+// Return a copy of the current variables (for listing purposes)
 std::unordered_map<std::string, double> SymbolTable::getVariables() const {
+    std::unordered_map<std::string, double> variables;
+    for (const auto& [name, entry] : entries) {
+        if (entry.type == SymbolType::VARIABLE) {
+            variables[name] = entry.value;
+        }
+    }
     return variables;
 }
+
+// Return a copy of all entries (both constants and variables)
+std::unordered_map<std::string, SymbolEntry> SymbolTable::getEntries() const {
+    return entries;  // Return the entire entries map
+}
+

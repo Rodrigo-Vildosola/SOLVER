@@ -29,7 +29,7 @@ int main() {
     solver.declareFunction("w", {"z"}, "e^z");
 
     // Now use linspace to generate values for x and evaluate f(x) over that range
-    std::vector<double> x_values = linspace(0, 100, 100);  // Reduce points for quick verification during testing
+    std::vector<double> x_values = linspace(2, 100, 10);  // Reduce points for quick verification during testing
 
     // Measure performance using evaluateForRange
     auto start1 = std::chrono::high_resolution_clock::now();
@@ -44,7 +44,7 @@ int main() {
     std::vector<double> loop_results;
     for (double x : x_values) {
         solver.declareVariable("x", x);
-        double result = solver.evaluate("f(x)", false);
+        double result = solver.evaluate("x^2", false);
         loop_results.push_back(result);
     }
     auto end2 = std::chrono::high_resolution_clock::now();
@@ -54,6 +54,7 @@ int main() {
 
     // Sanity check to ensure both approaches give the same result
     for (size_t i = 0; i < x_values.size(); ++i) {
+        std::cout << results[i] << " " << loop_results[i] << std::endl;
         if (results[i] != loop_results[i]) {
             std::cerr << "Mismatch at index " << i << ": evaluateForRange(" << x_values[i] 
                       << ") = " << results[i] << ", loop(" << x_values[i] 

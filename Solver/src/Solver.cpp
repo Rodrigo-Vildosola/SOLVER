@@ -81,6 +81,7 @@ double Solver::evaluate(const std::string& expression, bool debug) {
 
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     std::vector<double> results;
+    results.reserve(values.size());
 
     auto exprTree = parse(expression, debug);
 
