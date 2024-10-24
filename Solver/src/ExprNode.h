@@ -2,6 +2,8 @@
 
 #include "pch.h"
 #include "Token.h"  // Assuming TokenType is defined in Token.h
+#include "MemoryPool.h"
+
 
 class ExprNode {
 public:
@@ -35,3 +37,5 @@ private:
         }
     }
 };
+
+// static MemoryPool<ExprNode> exprNodePool(1024);  // Pool with initial size of 1024

@@ -1,10 +1,8 @@
 #pragma once
 
+#include "pch.h"
 #include "Token.h"
 #include "Exception.h"
-#include <regex>
-#include <vector>
-#include <iterator>
 
 /**
  * @class Tokenizer
