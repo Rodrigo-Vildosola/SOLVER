@@ -23,7 +23,7 @@ void SymbolTable::declareVariable(const std::string& name, double value) {
 
     // Invalidate the cache if the variable being declared is cached
     if (cachedSymbolName == name) {
-        cachedSymbolName.clear();  // Clear the cached name to invalidate the cache
+        cachedSymbolName.clear();  
     }
 
     auto it = entries.find(name);
@@ -37,8 +37,7 @@ void SymbolTable::declareVariable(const std::string& name, double value) {
 // Lookup a symbol in the table (checks both variables and constants)
 double SymbolTable::lookupSymbol(const std::string& name) const {
     if (cachedSymbolName == name) {
-        std::cout << "Cache hit for symbol: " << name << std::endl;
-        return cachedSymbolEntry.value; // Return cached result
+        return cachedSymbolEntry.value; 
     }
 
     auto it = entries.find(name);

@@ -14,7 +14,7 @@ def compare_performance():
         solver.declareVariable("x", 10)
         solver.declareVariable("y", 100)
 
-        solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
+        solver.declareFunction("f", ["x"], "x^2 + (2*x + 1)")
         solver.declareFunction("g", ["x", "y"], "x * y + x + y")
         solver.declareFunction("h", ["x"], "f(g(x, x))")
     except SolverException as e:

@@ -16,6 +16,7 @@ void Solver::setUseCache(bool useCache) {
 
 void Solver::invalidateCaches() {
     if (cacheEnabled) {
+        // std::cout << "cache invalidated" << std::endl;
         expressionCache.clear();
         functionCache.clear();
     }
@@ -83,13 +84,13 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
     std::vector<double> results;
     results.reserve(values.size());
 
-    auto exprTree = parse(expression, debug);
+    setCurrentExpression(expression, debug);
 
     for (double value : values) {
-        declareVariable(variable, value);
+        symbolTable.declareVariable(variable, value);
 
         try {
-            double result = evaluateNode(exprTree);
+            double result = evaluateNode(currentExprTree);
             results.push_back(result);
 
         } catch (const SolverException& e) {
@@ -155,6 +156,7 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
     Validator::isValidSyntax(expression);
 
     try {
+        // Parse and store the expression tree during function declaration
         auto exprTree = parse(expression);
 
         auto result = functions.emplace(name, Function(args, expression));
@@ -167,6 +169,7 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
         throw SolverException("Invalid expression for function '" + name + "': " + e.what());
     }
 }
+
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
     std::size_t cacheKey = generateCacheKey(func, args);
