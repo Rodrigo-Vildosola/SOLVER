@@ -21,6 +21,11 @@ void SymbolTable::declareVariable(const std::string& name, double value) {
         throw SolverException("Invalid variable name '" + name + "'.");
     }
 
+    // Invalidate the cache if the variable being declared is cached
+    if (cachedSymbolName == name) {
+        cachedSymbolName.clear();  // Clear the cached name to invalidate the cache
+    }
+
     auto it = entries.find(name);
     if (it != entries.end() && it->second.type == SymbolType::CONSTANT) {
         throw SolverException("Cannot declare variable '" + name + "', constant with the same name exists.");
@@ -28,9 +33,11 @@ void SymbolTable::declareVariable(const std::string& name, double value) {
     entries[name] = SymbolEntry(value, SymbolType::VARIABLE);
 }
 
+
 // Lookup a symbol in the table (checks both variables and constants)
 double SymbolTable::lookupSymbol(const std::string& name) const {
     if (cachedSymbolName == name) {
+        std::cout << "Cache hit for symbol: " << name << std::endl;
         return cachedSymbolEntry.value; // Return cached result
     }
 
@@ -47,6 +54,9 @@ double SymbolTable::lookupSymbol(const std::string& name) const {
 
 // Clear all variables (constants remain unaffected)
 void SymbolTable::clearVariables() {
+    // Invalidate cache when clearing variables
+    cachedSymbolName.clear();  // Clear cached name to invalidate the cache
+    
     for (auto it = entries.begin(); it != entries.end();) {
         if (it->second.type == SymbolType::VARIABLE) {
             it = entries.erase(it); // Erase variable
@@ -57,12 +67,17 @@ void SymbolTable::clearVariables() {
 }
 
 
+
 // Restore the variables from a saved copy
 void SymbolTable::restoreVariables(const std::unordered_map<std::string, double>& savedVariables) {
+    // Invalidate cache when restoring variables
+    cachedSymbolName.clear();  // Clear cached name to invalidate the cache
+
     for (const auto& [name, value] : savedVariables) {
         entries[name] = SymbolEntry(value, SymbolType::VARIABLE);  // Assume every entry is a variable
     }
 }
+
 
 
 // Check if a symbol is a constant
