@@ -184,7 +184,7 @@ private:
      * @param args The arguments used in the expression or function.
      * @return A unique string to use as the cache key.
      */
-    std::string generateCacheKey(const std::string& base, const std::vector<double>& args);
+    std::size_t generateCacheKey(const std::string& base, const std::vector<double>& args);
 
     /**
      * @brief Invalidate cached results.
@@ -205,8 +205,8 @@ private:
     // Predefined functions and user-defined functions
     std::unordered_map<std::string, Function> functions;
 
-    LRUCache<std::string, double> expressionCache;  ///< LRU Cache for expression evaluation results
-    LRUCache<std::string, double> functionCache;    ///< LRU Cache for function evaluation results
+    LRUCache<std::size_t, double> expressionCache;  ///< LRU Cache for expression evaluation results
+    LRUCache<std::size_t, double> functionCache;    ///< LRU Cache for function evaluation results
 
     bool cacheEnabled = true;  ///< Flag to enable or disable cache
 

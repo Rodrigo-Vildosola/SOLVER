@@ -61,7 +61,7 @@ std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debu
 double Solver::evaluate(const std::string& expression, bool debug) {
     setCurrentExpression(expression, debug);
 
-    std::string cacheKey = generateCacheKey(expression, {});
+    std::size_t cacheKey = generateCacheKey(expression, {});
 
     if (cacheEnabled) {
         if (double* cachedResult = expressionCache.get(cacheKey)) {
@@ -168,7 +168,7 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
 }
 
 double Solver::evaluateFunction(const std::string& func, const std::vector<double>& args) {
-    std::string cacheKey = generateCacheKey(func, args);
+    std::size_t cacheKey = generateCacheKey(func, args);
 
     if (cacheEnabled) {
         if (double* cachedResult = functionCache.get(cacheKey)) {

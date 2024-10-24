@@ -76,7 +76,7 @@ void Solver::validateFunctionDependencies(const std::string& expression, const s
 
 
 
-std::string Solver::generateCacheKey(const std::string& base, const std::vector<double>& args) {
+std::size_t Solver::generateCacheKey(const std::string& base, const std::vector<double>& args) {
     std::size_t hash = std::hash<std::string>{}(base);
 
     // Hash the function or expression arguments
@@ -84,6 +84,7 @@ std::string Solver::generateCacheKey(const std::string& base, const std::vector<
         hash ^= std::hash<double>{}(arg) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
     }
 
-    return std::to_string(hash);  // Return the hashed key as a string
+    return hash;  // Return the hashed key as an integer instead of converting to string
 }
+
 

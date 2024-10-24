@@ -26,6 +26,13 @@ public:
     bool isConstant(const std::string& name) const;
     bool isVariable(const std::string& name) const;
 
+    std::shared_ptr<SymbolTable> clone() const {
+        auto newTable = std::make_shared<SymbolTable>();
+        newTable->constants = this->constants;  // Constants are immutable, so shallow copy is fine
+        newTable->variables = this->variables;  // Variables will be independently manipulated
+        return newTable;
+    }
+
 private:
     std::unordered_map<std::string, double> constants;
     std::unordered_map<std::string, double> variables;
