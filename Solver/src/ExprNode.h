@@ -1,8 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "Token.h"  // Assuming TokenType is defined in Token.h
-#include "MemoryPool.h"
+#include "Token.h"  
 
 
 class ExprNode {
@@ -22,20 +21,5 @@ public:
         return type == NUMBER;
     }
 
-private:
-    // Utility function to convert TokenType enum to string for display purposes
-    std::string tokenTypeToString(TokenType type) const {
-        switch (type) {
-            case NUMBER: return "NUMBER";
-            case VARIABLE: return "VARIABLE";
-            case OPERATOR: return "OPERATOR";
-            case FUNCTION: return "FUNCTION";
-            case PAREN: return "PAREN";
-            case SEPARATOR: return "SEPARATOR";
-            case UNARY_OPERATOR: return "UNARY_OPERATOR";
-            default: return "UNKNOWN";
-        }
-    }
 };
 
-// static MemoryPool<ExprNode> exprNodePool(1024);  // Pool with initial size of 1024
