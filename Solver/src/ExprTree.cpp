@@ -1,8 +1,15 @@
-#include "ExprTree.h"
+#include "pch.h"
+#include "Token.h"
+#include "Function.h"
+#include "ExprNode.h"
+#include "Exception.h"
+#include "SymbolTable.h"
+
+namespace ExpressionTree {
 
 #pragma region Helpers
 
-size_t ExpressionTree::getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions) {
+size_t getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions) {
     auto it = functions.find(functionName);
     if (it != functions.end()) {
         return it->second.argCount;
@@ -10,7 +17,7 @@ size_t ExpressionTree::getFunctionArgCount(const std::string& functionName, cons
     throw SolverException("Unknown function '" + functionName + "'");
 }
 
-double ExpressionTree::foldConstants(const std::string& op, double leftValue, double rightValue) {
+double foldConstants(const std::string& op, double leftValue, double rightValue) {
     if (op == "+") {
         return leftValue + rightValue;
     } else if (op == "-") {
@@ -28,14 +35,12 @@ double ExpressionTree::foldConstants(const std::string& op, double leftValue, do
     throw SolverException("Unknown operator: '" + op + "'");
 }
 
-ExprNode* ExpressionTree::applyBasicSimplifications(const std::string& op, ExprNode* leftNode, ExprNode* rightNode) {
+ExprNode* applyBasicSimplifications(const std::string& op, ExprNode* leftNode, ExprNode* rightNode) {
     if (op == "+") {
         if (rightNode->type == NUMBER && rightNode->value == "0") {
-            // Return a new node with the simplified leftNode
             return new ExprNode(leftNode->type, leftNode->value); 
         }
         if (leftNode->type == NUMBER && leftNode->value == "0") {
-            // Return a new node with the simplified rightNode
             return new ExprNode(rightNode->type, rightNode->value);
         }
     } else if (op == "*") {
@@ -53,11 +58,102 @@ ExprNode* ExpressionTree::applyBasicSimplifications(const std::string& op, ExprN
         }
     }
 
-    return nullptr;  // No simplification possible
+    return nullptr;
 }
 
+#pragma endregion
 
-ExprNode* ExpressionTree::processFunction(const Token& token, std::stack<ExprNode*>& nodeStack, const std::unordered_map<std::string, Function>& functions) {
+#pragma region Parsing and Shunting Yard
+
+int getPrecedence(const std::string& op) {
+    if (op == "+" || op == "-") return 1;
+    if (op == "*" || op == "/") return 2;
+    if (op == "^") return 3;
+    return 0;
+}
+
+bool isLeftAssociative(const std::string& op) {
+    return op != "^";  // "^" is right-associative, all others are left-associative
+}
+
+void processOperatorStack(const Token& token, std::stack<Token>& operatorStack, std::queue<Token>& outputQueue) {
+    while (!operatorStack.empty() &&
+           ((isLeftAssociative(token.value) && getPrecedence(token.value) <= getPrecedence(operatorStack.top().value)) ||
+            (!isLeftAssociative(token.value) && getPrecedence(token.value) < getPrecedence(operatorStack.top().value)))) {
+        outputQueue.push(operatorStack.top());
+        operatorStack.pop();
+    }
+    operatorStack.push(token);
+}
+
+void handleParentheses(std::stack<Token>& operatorStack, std::queue<Token>& outputQueue) {
+    while (!operatorStack.empty() && operatorStack.top().value != "(") {
+        outputQueue.push(operatorStack.top());
+        operatorStack.pop();
+    }
+    if (operatorStack.empty()) {
+        throw SolverException("Mismatched parentheses.");
+    }
+    operatorStack.pop();  // Pop the left parenthesis
+}
+
+void handleFunctionArgumentSeparator(std::stack<Token>& operatorStack, std::queue<Token>& outputQueue, std::stack<int>& argumentCounts) {
+    while (!operatorStack.empty() && operatorStack.top().value != "(") {
+        outputQueue.push(operatorStack.top());
+        operatorStack.pop();
+    }
+    if (operatorStack.empty()) {
+        throw SolverException("Mismatched parentheses or misplaced comma.");
+    }
+    // Increase the argument count for the current function
+    if (!argumentCounts.empty()) {
+        argumentCounts.top()++;
+    }
+}
+
+std::queue<Token> shuntingYard(const std::vector<Token>& tokens) {
+    std::queue<Token> outputQueue;
+    std::stack<Token> operatorStack;
+    std::stack<int> argumentCounts;
+
+    for (const auto& token : tokens) {
+        if (token.type == NUMBER || token.type == VARIABLE) {
+            outputQueue.push(token);
+        } else if (token.type == FUNCTION) {
+            operatorStack.push(token);
+            argumentCounts.push(1);
+        } else if (token.type == OPERATOR) {
+            processOperatorStack(token, operatorStack, outputQueue);
+        } else if (token.value == "(") {
+            operatorStack.push(token);
+        } else if (token.value == ")") {
+            handleParentheses(operatorStack, outputQueue);
+            if (!operatorStack.empty() && operatorStack.top().type == FUNCTION) {
+                outputQueue.push(operatorStack.top());
+                operatorStack.pop();
+            }
+        } else if (token.value == ",") {
+            handleFunctionArgumentSeparator(operatorStack, outputQueue, argumentCounts);
+        }
+    }
+
+    // Pop all remaining operators in the stack to the output queue
+    while (!operatorStack.empty()) {
+        if (operatorStack.top().value == "(" || operatorStack.top().value == ")") {
+            throw SolverException("Mismatched parentheses.");
+        }
+        outputQueue.push(operatorStack.top());
+        operatorStack.pop();
+    }
+
+    return outputQueue;
+}
+
+#pragma endregion
+
+#pragma region Expression Tree Construction
+
+ExprNode* processFunction(const Token& token, std::stack<ExprNode*>& nodeStack, const std::unordered_map<std::string, Function>& functions) {
     size_t argCount = getFunctionArgCount(token.value, functions);
 
     if (nodeStack.size() < argCount) {
@@ -75,7 +171,7 @@ ExprNode* ExpressionTree::processFunction(const Token& token, std::stack<ExprNod
     return node;
 }
 
-ExprNode* ExpressionTree::processOperator(const Token& token, std::stack<ExprNode*>& nodeStack) {
+ExprNode* processOperator(const Token& token, std::stack<ExprNode*>& nodeStack) {
     if (nodeStack.size() < 2) {
         throw SolverException("Error: Not enough operands for operator '" + token.value + "'");
     }
@@ -91,102 +187,20 @@ ExprNode* ExpressionTree::processOperator(const Token& token, std::stack<ExprNod
     return node;
 }
 
-#pragma endregion
-
-
-#pragma region Tree Parsers
-
-std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens) {
-    std::queue<Token> outputQueue;
-    std::stack<Token> operatorStack;
-    std::stack<int> argumentCounts;
-
-    auto precedence = [](const std::string& op) {
-        if (op == "+" || op == "-") return 1;
-        if (op == "*" || op == "/") return 2;
-        if (op == "^") return 3;
-        return 0;
-    };
-
-    auto isLeftAssociative = [](const std::string& op) {
-        if (op == "^") return false;
-        return true;
-    };
-
-    for (size_t i = 0; i < tokens.size(); ++i) {
-        const auto& token = tokens[i];
-        if (token.type == NUMBER || token.type == VARIABLE) {
-            outputQueue.push(token);
-        } else if (token.type == FUNCTION) {
-            operatorStack.push(token);
-            argumentCounts.push(1);
-        } else if (token.type == OPERATOR) {
-            while (!operatorStack.empty() &&
-                   ((isLeftAssociative(token.value) && precedence(token.value) <= precedence(operatorStack.top().value)) ||
-                    (!isLeftAssociative(token.value) && precedence(token.value) < precedence(operatorStack.top().value)))) {
-                outputQueue.push(operatorStack.top());
-                operatorStack.pop();
-            }
-            operatorStack.push(token);
-        } else if (token.value == "(") {
-            operatorStack.push(token);
-        } else if (token.value == ")") {
-            // Pop until the left parenthesis is found
-            while (!operatorStack.empty() && operatorStack.top().value != "(") {
-                outputQueue.push(operatorStack.top());
-                operatorStack.pop();
-            }
-            if (operatorStack.empty()) {
-                throw SolverException("Mismatched parentheses.");
-            }
-            operatorStack.pop(); // Pop the left parenthesis
-
-            // If a function is on top of the stack, add it to the output queue
-            if (!operatorStack.empty() && operatorStack.top().type == FUNCTION) {
-                outputQueue.push(operatorStack.top());
-                operatorStack.pop();
-            }
-        } else if (token.value == ",") {
-            // Comma should pop the operators until a left parenthesis is found
-            while (!operatorStack.empty() && operatorStack.top().value != "(") {
-                outputQueue.push(operatorStack.top());
-                operatorStack.pop();
-            }
-            if (operatorStack.empty()) {
-                throw SolverException("Mismatched parentheses or misplaced comma.");
-            }
-            // Increase the argument count for the current function
-            if (!argumentCounts.empty()) {
-                argumentCounts.top()++;
-            }
-        }
-    }
-
-    while (!operatorStack.empty()) {
-        if (operatorStack.top().value == "(" || operatorStack.top().value == ")") {
-            throw SolverException("Mismatched parentheses.");
-        }
-        outputQueue.push(operatorStack.top());
-        operatorStack.pop();
-    }
-
-    return outputQueue;
-}
-
-ExprNode* ExpressionTree::parseExpression(const std::vector<Token>& tokens, const std::unordered_map<std::string, Function>& functions) {
+ExprNode* parseExpression(const std::vector<Token>& tokens, const std::unordered_map<std::string, Function>& functions) {
     auto postfixQueue = shuntingYard(tokens);
-    std::stack<ExprNode*> nodeStack;  // Use raw pointers now
+    std::stack<ExprNode*> nodeStack;
 
     while (!postfixQueue.empty()) {
         Token token = postfixQueue.front();
         postfixQueue.pop();
 
         if (token.type == NUMBER || token.type == VARIABLE) {
-            nodeStack.push(new ExprNode(token.type, token.value));  // Use new raw pointer from memory pool
+            nodeStack.push(new ExprNode(token.type, token.value));
         } else if (token.type == OPERATOR) {
-            nodeStack.push(processOperator(token, nodeStack));  // Use raw pointers
+            nodeStack.push(processOperator(token, nodeStack));
         } else if (token.type == FUNCTION) {
-            nodeStack.push(processFunction(token, nodeStack, functions));  // Use raw pointers
+            nodeStack.push(processFunction(token, nodeStack, functions));
         }
     }
 
@@ -194,15 +208,14 @@ ExprNode* ExpressionTree::parseExpression(const std::vector<Token>& tokens, cons
         throw SolverException("Error: The expression could not be parsed into an expression tree.");
     }
 
-    return nodeStack.top();  // Return the root node as a raw pointer
+    return nodeStack.top();
 }
 
 #pragma endregion
 
+#pragma region Expression Tree Simplification
 
-#pragma region Post Tree Parsers
-
-ExprNode* ExpressionTree::simplify(ExprNode* node, const SymbolTable& symbolTable) {
+ExprNode* simplify(ExprNode* node, const SymbolTable& symbolTable) {
     if (!node) return nullptr;
 
     // Handle leaf nodes (NUMBER or VARIABLE)
@@ -213,13 +226,13 @@ ExprNode* ExpressionTree::simplify(ExprNode* node, const SymbolTable& symbolTabl
             node->value = std::to_string(constantValue);
             node->type = NUMBER;
         }
-        return node;  // Return as-is for numbers or simplified variables
+        return node;
     }
 
     // Simplify function arguments recursively
     if (node->type == FUNCTION) {
         for (auto& arg : node->arguments) {
-            arg = simplify(arg, symbolTable);  // No move needed
+            arg = simplify(arg, symbolTable);
         }
         return node;
     }
@@ -234,22 +247,23 @@ ExprNode* ExpressionTree::simplify(ExprNode* node, const SymbolTable& symbolTabl
             double leftValue = std::stod(node->left->value);
             double rightValue = std::stod(node->right->value);
             double foldedValue = foldConstants(node->value, leftValue, rightValue);
-            node->destroy();  // Free up old node
-            return new ExprNode(NUMBER, std::to_string(foldedValue));  // Use new node from pool
+            node->destroy();
+            return new ExprNode(NUMBER, std::to_string(foldedValue));
         }
 
         // Handle additional cases for simplifications
         ExprNode* simplifiedNode = applyBasicSimplifications(node->value, node->left, node->right);
         if (simplifiedNode) {
-            node->destroy();  // Free up old node
+            node->destroy();
             return simplifiedNode;
         }
 
-        // If no simplifications, return node as-is
         return node;
     }
 
-    return node;  // Return node as-is if it's not simplifiable
+    return node;
 }
 
 #pragma endregion
+
+}  // namespace ExpressionTree
