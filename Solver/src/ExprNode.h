@@ -7,11 +7,11 @@
 
 class ExprNode {
 public:
-    TokenType type;                // Type of the node (NUMBER, VARIABLE, OPERATOR, FUNCTION, etc.)
-    std::string value;             // The value of the node (e.g., "42", "x", "+", "sin")
-    std::unique_ptr<ExprNode> left;  // Left child (if applicable)
-    std::unique_ptr<ExprNode> right; // Right child (if applicable)
-    std::vector<std::unique_ptr<ExprNode>> arguments; // Arguments (for function nodes)
+    TokenType type;                                     // Type of the node (NUMBER, VARIABLE, OPERATOR, FUNCTION, etc.)
+    std::string value;                                  // The value of the node (e.g., "42", "x", "+", "sin")
+    std::unique_ptr<ExprNode> left;                     // Left child (if applicable)
+    std::unique_ptr<ExprNode> right;                    // Right child (if applicable)
+    std::vector<std::unique_ptr<ExprNode>> arguments;   // Arguments (for function nodes)
 
     // Constructor
     ExprNode(TokenType nodeType, const std::string& val)
