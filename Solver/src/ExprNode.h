@@ -16,10 +16,5 @@ public:
     ExprNode(TokenType nodeType, const std::string& val)
         : type(nodeType), value(val), left(nullptr), right(nullptr) {}
 
-    // Method to check if the node is a number
-    bool isNumber() const {
-        return type == NUMBER;
-    }
-
 };
 
