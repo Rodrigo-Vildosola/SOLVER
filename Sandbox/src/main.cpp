@@ -18,20 +18,25 @@ std::vector<double> linspace(double start, double end, int num_points) {
 }
 
 int main() {
+    
+    double e = 2.71828;
+    double pi = 3.14159;
+
+
     Solver solver;
     solver.setUseCache(true);
 
     // Add some constants, variables, and functions
-    solver.declareConstant("pi", 3.14159);
-    solver.declareConstant("e", 2.71828);  
+    solver.declareConstant("pi", pi);
+    solver.declareConstant("e", e);  
     solver.declareVariable("x", 5.0);
-    solver.declareFunction("f", {"x"}, "x^2");
+    solver.declareFunction("f", {"x"}, "x^2 + (pi * x) + e");
     solver.declareFunction("w", {"z"}, "e^z");
 
     solver.setCurrentExpression("f(x)", true);
 
     // Now use linspace to generate values for x and evaluate f(x) over that range
-    std::vector<double> x_values = linspace(0, 100, 1000);  // Reduce points for quick verification during testing
+    std::vector<double> x_values = linspace(0, 100, 10000);  // Reduce points for quick verification during testing
 
     // Measure performance using evaluateForRange
     auto start1 = std::chrono::high_resolution_clock::now();
@@ -67,7 +72,7 @@ int main() {
     // Analytical comparison to expected values for f(x) = x^2
     bool all_correct = true;
     for (size_t i = 0; i < x_values.size(); ++i) {
-        double expected = x_values[i] * x_values[i];
+        double expected = x_values[i] * x_values[i] + (pi * x_values[i]) + e;
         if (std::fabs(results[i] - expected) > 1e-9) { // Using a small tolerance for floating-point comparison
             all_correct = false;
             std::cerr << "Error at index " << i << ": Expected " << expected 
