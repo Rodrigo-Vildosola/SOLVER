@@ -1,7 +1,8 @@
-// MemoryPool.h
 #pragma once
 #include <vector>
 #include <memory>
+#include <cstdlib>  // for std::aligned_alloc
+#include <cassert>  // for assert
 
 template<typename T>
 class MemoryPool {
@@ -35,7 +36,7 @@ public:
 
     // Destroy the object and return it to the pool
     void destroy(T* obj) {
-        obj->~T();  // Explicitly call destructor
+        obj->~T();  // Explicitly call the destructor
         deallocate(obj);  // Return memory to the pool
     }
 
@@ -48,14 +49,21 @@ public:
 private:
     size_t poolSize;  // Number of objects per pool allocation
     std::vector<T*> freeList;  // List of free memory slots
-    std::vector<std::unique_ptr<T[]>> memoryBlocks;  // Store memory blocks to prevent memory leaks
+    std::vector<std::unique_ptr<void, void(*)(void*)>> memoryBlocks;  // Store raw memory blocks
 
     // Allocate a new block of memory
     void allocatePool() {
-        std::unique_ptr<T[]> newBlock = std::make_unique<T[]>(poolSize);
+        // Allocate raw memory aligned for type T
+        void* rawMemory = std::aligned_alloc(alignof(T), poolSize * sizeof(T));
+        assert(rawMemory != nullptr && "Memory allocation failed!");
+
+        // Convert raw memory to T pointers and add them to the free list
+        T* block = static_cast<T*>(rawMemory);
         for (size_t i = 0; i < poolSize; ++i) {
-            freeList.push_back(&newBlock[i]);
+            freeList.push_back(&block[i]);
         }
-        memoryBlocks.push_back(std::move(newBlock));
+
+        // Use a custom deleter to free the aligned memory
+        memoryBlocks.emplace_back(rawMemory, [](void* ptr) { std::free(ptr); });
     }
 };

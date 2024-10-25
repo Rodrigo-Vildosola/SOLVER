@@ -28,51 +28,66 @@ double ExpressionTree::foldConstants(const std::string& op, double leftValue, do
     throw SolverException("Unknown operator: '" + op + "'");
 }
 
-std::unique_ptr<ExprNode> ExpressionTree::applyBasicSimplifications(const std::string& op, const std::unique_ptr<ExprNode>& leftNode, const std::unique_ptr<ExprNode>& rightNode) {
+ExprNode* ExpressionTree::applyBasicSimplifications(const std::string& op, ExprNode* leftNode, ExprNode* rightNode) {
     if (op == "+") {
-        if (rightNode->type == NUMBER && rightNode->value == "0") return std::make_unique<ExprNode>(leftNode->type, leftNode->value);
-        if (leftNode->type == NUMBER && leftNode->value == "0") return std::make_unique<ExprNode>(rightNode->type, rightNode->value);
+        if (rightNode->type == NUMBER && rightNode->value == "0") {
+            // Return a new node with the simplified leftNode
+            return new ExprNode(leftNode->type, leftNode->value); 
+        }
+        if (leftNode->type == NUMBER && leftNode->value == "0") {
+            // Return a new node with the simplified rightNode
+            return new ExprNode(rightNode->type, rightNode->value);
+        }
     } else if (op == "*") {
-        if (rightNode->type == NUMBER && rightNode->value == "1") return std::make_unique<ExprNode>(leftNode->type, leftNode->value);
-        if (leftNode->type == NUMBER && leftNode->value == "1") return std::make_unique<ExprNode>(rightNode->type, rightNode->value);
-        if (rightNode->type == NUMBER && rightNode->value == "0") return std::make_unique<ExprNode>(NUMBER, "0");
-        if (leftNode->type == NUMBER && leftNode->value == "0") return std::make_unique<ExprNode>(NUMBER, "0");
+        if (rightNode->type == NUMBER && rightNode->value == "1") {
+            return new ExprNode(leftNode->type, leftNode->value);
+        }
+        if (leftNode->type == NUMBER && leftNode->value == "1") {
+            return new ExprNode(rightNode->type, rightNode->value);
+        }
+        if (rightNode->type == NUMBER && rightNode->value == "0") {
+            return new ExprNode(NUMBER, "0");  // Multiplying by zero
+        }
+        if (leftNode->type == NUMBER && leftNode->value == "0") {
+            return new ExprNode(NUMBER, "0");  // Multiplying by zero
+        }
     }
+
     return nullptr;  // No simplification possible
 }
 
-std::unique_ptr<ExprNode> ExpressionTree::processFunction(const Token& token, std::stack<std::unique_ptr<ExprNode>>& nodeStack, const std::unordered_map<std::string, Function>& functions) {
+
+ExprNode* ExpressionTree::processFunction(const Token& token, std::stack<ExprNode*>& nodeStack, const std::unordered_map<std::string, Function>& functions) {
     size_t argCount = getFunctionArgCount(token.value, functions);
 
     if (nodeStack.size() < argCount) {
         throw SolverException("Error: Not enough operands for function '" + token.value + "'.");
     }
 
-    std::vector<std::unique_ptr<ExprNode>> arguments(argCount);
+    std::vector<ExprNode*> arguments(argCount);
     for (size_t i = 0; i < argCount; ++i) {
-        arguments[argCount - i - 1] = std::move(nodeStack.top());
+        arguments[argCount - i - 1] = nodeStack.top();  // Use raw pointers
         nodeStack.pop();
     }
 
-    auto node = std::make_unique<ExprNode>(token.type, token.value);
+    ExprNode* node = new ExprNode(token.type, token.value);
     node->arguments = std::move(arguments);
     return node;
 }
 
-std::unique_ptr<ExprNode> ExpressionTree::processOperator(const Token& token, std::stack<std::unique_ptr<ExprNode>>& nodeStack) {
+ExprNode* ExpressionTree::processOperator(const Token& token, std::stack<ExprNode*>& nodeStack) {
     if (nodeStack.size() < 2) {
         throw SolverException("Error: Not enough operands for operator '" + token.value + "'");
     }
 
-    auto rightNode = std::move(nodeStack.top());
+    ExprNode* rightNode = nodeStack.top();
     nodeStack.pop();
-    auto leftNode = std::move(nodeStack.top());
+    ExprNode* leftNode = nodeStack.top();
     nodeStack.pop();
 
-    // Otherwise, create a new operator node
-    auto node = std::make_unique<ExprNode>(token.type, token.value);
-    node->left = std::move(leftNode);
-    node->right = std::move(rightNode);
+    ExprNode* node = new ExprNode(token.type, token.value);
+    node->left = leftNode;
+    node->right = rightNode;
     return node;
 }
 
@@ -158,20 +173,20 @@ std::queue<Token> ExpressionTree::shuntingYard(const std::vector<Token>& tokens)
     return outputQueue;
 }
 
-std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Token>& tokens, const std::unordered_map<std::string, Function>& functions) {
+ExprNode* ExpressionTree::parseExpression(const std::vector<Token>& tokens, const std::unordered_map<std::string, Function>& functions) {
     auto postfixQueue = shuntingYard(tokens);
-    std::stack<std::unique_ptr<ExprNode>> nodeStack;
+    std::stack<ExprNode*> nodeStack;  // Use raw pointers now
 
     while (!postfixQueue.empty()) {
         Token token = postfixQueue.front();
         postfixQueue.pop();
 
         if (token.type == NUMBER || token.type == VARIABLE) {
-            nodeStack.push(std::make_unique<ExprNode>(token.type, token.value));
+            nodeStack.push(new ExprNode(token.type, token.value));  // Use new raw pointer from memory pool
         } else if (token.type == OPERATOR) {
-            nodeStack.push(processOperator(token, nodeStack));
+            nodeStack.push(processOperator(token, nodeStack));  // Use raw pointers
         } else if (token.type == FUNCTION) {
-            nodeStack.push(processFunction(token, nodeStack, functions));
+            nodeStack.push(processFunction(token, nodeStack, functions));  // Use raw pointers
         }
     }
 
@@ -179,7 +194,7 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
         throw SolverException("Error: The expression could not be parsed into an expression tree.");
     }
 
-    return std::move(nodeStack.top());
+    return nodeStack.top();  // Return the root node as a raw pointer
 }
 
 #pragma endregion
@@ -187,7 +202,7 @@ std::unique_ptr<ExprNode> ExpressionTree::parseExpression(const std::vector<Toke
 
 #pragma region Post Tree Parsers
 
-std::unique_ptr<ExprNode> ExpressionTree::simplify(std::unique_ptr<ExprNode> node, const SymbolTable& symbolTable) {
+ExprNode* ExpressionTree::simplify(ExprNode* node, const SymbolTable& symbolTable) {
     if (!node) return nullptr;
 
     // Handle leaf nodes (NUMBER or VARIABLE)
@@ -204,27 +219,29 @@ std::unique_ptr<ExprNode> ExpressionTree::simplify(std::unique_ptr<ExprNode> nod
     // Simplify function arguments recursively
     if (node->type == FUNCTION) {
         for (auto& arg : node->arguments) {
-            arg = simplify(std::move(arg), symbolTable);
+            arg = simplify(arg, symbolTable);  // No move needed
         }
         return node;
     }
 
     // Simplify left and right nodes recursively (for operators)
     if (node->type == OPERATOR) {
-        node->left = simplify(std::move(node->left), symbolTable);
-        node->right = simplify(std::move(node->right), symbolTable);
+        node->left = simplify(node->left, symbolTable);
+        node->right = simplify(node->right, symbolTable);
 
         // Apply basic algebraic simplifications
         if (node->left->type == NUMBER && node->right->type == NUMBER) {
             double leftValue = std::stod(node->left->value);
             double rightValue = std::stod(node->right->value);
             double foldedValue = foldConstants(node->value, leftValue, rightValue);
-            return std::make_unique<ExprNode>(NUMBER, std::to_string(foldedValue));
+            node->destroy();  // Free up old node
+            return new ExprNode(NUMBER, std::to_string(foldedValue));  // Use new node from pool
         }
 
         // Handle additional cases for simplifications
-        auto simplifiedNode = applyBasicSimplifications(node->value, node->left, node->right);
+        ExprNode* simplifiedNode = applyBasicSimplifications(node->value, node->left, node->right);
         if (simplifiedNode) {
+            node->destroy();  // Free up old node
             return simplifiedNode;
         }
 

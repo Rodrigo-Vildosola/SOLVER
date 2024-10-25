@@ -57,18 +57,18 @@ void printTree(const ExprNode* node, std::ostream& out, const std::unordered_map
             auto functionIt = functions.find(node->value);
             if (functionIt != functions.end() && functionIt->second.exprTree) {
                 out << childPrefix << (isLeft ? "│   " : "    ") << "└── Expression Tree for function '" << node->value << "':\n";
-                printTree(functionIt->second.exprTree.get(), out, functions, depth + 1, childPrefix, true);
+                printTree(functionIt->second.exprTree, out, functions, depth + 1, childPrefix, true);
             }
         }
 
         // Print the left subtree (if it's an operator or other node with children)
         if (node->left) {
-            printTree(node->left.get(), out, functions, depth + 1, childPrefix, true);
+            printTree(node->left, out, functions, depth + 1, childPrefix, true);
         }
 
         // Print the right subtree (if it's an operator or other node with children)
         if (node->right) {
-            printTree(node->right.get(), out, functions, depth + 1, childPrefix, false);
+            printTree(node->right, out, functions, depth + 1, childPrefix, false);
         }
     }
 }

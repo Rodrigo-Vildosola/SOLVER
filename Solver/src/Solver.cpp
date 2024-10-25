@@ -39,18 +39,18 @@ void Solver::declareVariable(const std::string& name, double value) {
 
 #pragma region Evaluation
 
-std::unique_ptr<ExprNode> Solver::parse(const std::string& expression, bool debug) {
+ExprNode* Solver::parse(const std::string& expression, bool debug) {
 
     auto tokens = Tokenizer::tokenize(expression);
 
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
 
-    exprTree = ExpressionTree::simplify(std::move(exprTree), symbolTable);
+    exprTree = ExpressionTree::simplify(exprTree, symbolTable);
 
     if (debug) {
         std::cout << std::endl;
         std::cout << "Expression tree after parsing and simplifying:\n";
-        printTree(exprTree.get(), std::cout, functions);
+        printTree(exprTree, std::cout, functions);
         std::cout << std::endl;
     }
 
@@ -102,7 +102,7 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
     return results;
 }
 
-double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
+double Solver::evaluateNode(ExprNode* node) {
     if (node->type == NUMBER) {
         double val = std::stod(node->value);
         return val;
@@ -112,15 +112,15 @@ double Solver::evaluateNode(const std::unique_ptr<ExprNode>& node) {
 
     if (node->type == FUNCTION) {
         std::vector<double> args;
-        for (const auto& argNode : node->arguments) {
-            args.push_back(evaluateNode(argNode));
+        for (auto& argNode : node->arguments) {
+            args.push_back(evaluateNode(argNode));  // Now passing raw pointers
         }
         return evaluateFunction(node->value, args);
     }
 
     if (node->type == OPERATOR) {
-        double leftValue = evaluateNode(node->left);
-        double rightValue = evaluateNode(node->right);
+        double leftValue = evaluateNode(node->left);  // Now passing raw pointers
+        double rightValue = evaluateNode(node->right);  // Now passing raw pointers
 
         if (node->value == "+") return leftValue + rightValue;
         if (node->value == "-") return leftValue - rightValue;
@@ -246,6 +246,10 @@ void Solver::setCurrentExpression(const std::string& expression, bool debug) {
     // If the new expression is the same as the current one, return early
     if (expression == currentExpression && currentExprTree) {
         return;
+    }
+
+    if (currentExprTree) {
+        currentExprTree->destroy();
     }
 
     // Otherwise, parse the new expression and update the current expression and tree
