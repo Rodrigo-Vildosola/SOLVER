@@ -155,7 +155,7 @@ private:
      * @param node A unique pointer to an expression tree node.
      * @return The result of evaluating the node.
      */
-    double evaluateNode(const std::unique_ptr<ExprNode>& node);
+    double evaluateNode(ExprNode* node);
 
     /**
      * @brief Parses and simplifies a mathematical expression.
@@ -164,7 +164,7 @@ private:
      * @param debug If true, enables debug output during parsing and simplification.
      * @return A unique pointer to the simplified expression tree (ExprNode).
      */
-    std::unique_ptr<ExprNode> parse(const std::string &expression, bool debug = false);
+    ExprNode* parse(const std::string &expression, bool debug = false);
 
     /**
      * @brief Evaluate a function with the provided arguments.
@@ -215,6 +215,6 @@ private:
 
     std::string currentExpression; ///< The current expression being evaluated
 
-    std::unique_ptr<ExprNode> currentExprTree;
+    ExprNode* currentExprTree;
 
 };
