@@ -21,6 +21,8 @@ public:
     ExprNode(TokenType nodeType, const std::string& val)
         : type(nodeType), value(val), left(nullptr), right(nullptr) {}
 
+    ExprNode(const std::string& op, ExprNode* leftNode, ExprNode* rightNode)
+        : type(OPERATOR), value(op), left(leftNode), right(rightNode) {}
 
     // Override new and delete operators to use memory pool
     void* operator new(size_t) {

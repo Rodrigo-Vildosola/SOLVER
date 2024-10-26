@@ -18,7 +18,7 @@ std::vector<double> linspace(double start, double end, int num_points) {
 }
 
 int main() {
-    
+
     double e = 2.71828;
     double pi = 3.14159;
 
@@ -36,7 +36,7 @@ int main() {
     solver.setCurrentExpression("f(x)", true);
 
     // Now use linspace to generate values for x and evaluate f(x) over that range
-    std::vector<double> x_values = linspace(0, 100, 10000);  // Reduce points for quick verification during testing
+    std::vector<double> x_values = linspace(0, 100, 100);  // Reduce points for quick verification during testing
 
     // Measure performance using evaluateForRange
     auto start1 = std::chrono::high_resolution_clock::now();

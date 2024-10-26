@@ -4,6 +4,7 @@
 #include "ExprNode.h"
 #include "Exception.h"
 #include "SymbolTable.h"
+#include "MultiPassSimplifier.h"
 
 namespace ExpressionTree {
 
@@ -220,7 +221,7 @@ ExprNode* simplify(ExprNode* node, const SymbolTable& symbolTable) {
 
     // Handle leaf nodes (NUMBER or VARIABLE)
     if (node->type == NUMBER || node->type == VARIABLE) {
-        // For variables, check if they are constants and simplify
+        // Check if the node is a constant and simplify it
         if (node->type == VARIABLE && symbolTable.isConstant(node->value)) {
             double constantValue = symbolTable.lookupSymbol(node->value);
             node->value = std::to_string(constantValue);
@@ -237,31 +238,15 @@ ExprNode* simplify(ExprNode* node, const SymbolTable& symbolTable) {
         return node;
     }
 
-    // Simplify left and right nodes recursively (for operators)
+    // Simplify left and right nodes recursively for operators
     if (node->type == OPERATOR) {
         node->left = simplify(node->left, symbolTable);
         node->right = simplify(node->right, symbolTable);
-
-        // Apply basic algebraic simplifications
-        if (node->left->type == NUMBER && node->right->type == NUMBER) {
-            double leftValue = std::stod(node->left->value);
-            double rightValue = std::stod(node->right->value);
-            double foldedValue = foldConstants(node->value, leftValue, rightValue);
-            node->destroy();
-            return new ExprNode(NUMBER, std::to_string(foldedValue));
-        }
-
-        // Handle additional cases for simplifications
-        ExprNode* simplifiedNode = applyBasicSimplifications(node->value, node->left, node->right);
-        if (simplifiedNode) {
-            node->destroy();
-            return simplifiedNode;
-        }
-
-        return node;
     }
 
-    return node;
+    // Use MultiPassSimplifier to handle all operator-based simplifications
+    MultiPassSimplifier simplifier;
+    return simplifier.simplify(node);
 }
 
 #pragma endregion
