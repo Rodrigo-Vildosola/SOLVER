@@ -18,72 +18,67 @@ std::vector<double> linspace(double start, double end, int num_points) {
 }
 
 int main() {
-
+    // Initialize constants for the Solver instance
     double e = 2.71828;
     double pi = 3.14159;
-
 
     Solver solver;
     solver.setUseCache(true);
 
-    // Add some constants, variables, and functions
+    // Declare constants and variables
     solver.declareConstant("pi", pi);
     solver.declareConstant("e", e);  
     solver.declareVariable("x", 5.0);
-    solver.declareFunction("f", {"x"}, "x^2 + (((pi * 2) + 1) * ((x * 2) + 1)) + e");
-    solver.declareFunction("w", {"z"}, "e^z");
+    solver.declareVariable("y", 10.0);
+    solver.declareVariable("z", 15.0);
 
-    solver.setCurrentExpression("f(x)", true);
+    // Expressions and expected results
+    std::vector<std::pair<std::string, double>> testExpressions = {
+        {"x + 0", 5.0},               // Simplifies to x, value should be 5
+        {"0 + x", 5.0},               // Simplifies to x, value should be 5
+        {"x * 1", 5.0},               // Simplifies to x, value should be 5
+        {"1 * x", 5.0},               // Simplifies to x, value should be 5
+        {"x * 0", 0.0},               // Simplifies to 0, value should be 0
+        {"0 * x", 0.0},               // Simplifies to 0, value should be 0
+        {"x - 0", 5.0},               // Simplifies to x, value should be 5
+        {"x / 1", 5.0},               // Simplifies to x, value should be 5
+        {"x ^ 1", 5.0},               // Simplifies to x, value should be 5
+        {"x ^ 0", 1.0},               // Simplifies to 1, value should be 1
+        {"2 + 3", 5.0},               // Constant folding, should be 5
+        {"4 * 5", 20.0},              // Constant folding, should be 20
+        {"(x + 0) * (1 + 2)", 15.0},  // x+0 simplifies to x, 1+2 to 3, then x*3 = 15
+        {"x * (y + z)", 125.0},       // Should be x*(y+z) = 5*(10+15) = 125
+        {"3 * (x + 4)", 27.0},        // Should distribute to 3x + 12 = 15 + 12 = 27
+        {"e ^ 1", e},                 // Simplifies to e
+        {"(x^2) * (x^3)", 3125.0}     // Simplifies to x^(2+3) -> x^5 = 3125 for x=5
+    };
 
-    // Now use linspace to generate values for x and evaluate f(x) over that range
-    std::vector<double> x_values = linspace(0, 100, 100);  // Reduce points for quick verification during testing
-
-    // Measure performance using evaluateForRange
-    auto start1 = std::chrono::high_resolution_clock::now();
-    std::vector<double> results = solver.evaluateForRange("x", x_values, "f(x)", false);
-    auto end1 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration1 = end1 - start1;
-
-    std::cout << "evaluateForRange took: " << duration1.count() << " seconds." << std::endl;
-
-    // Measure performance using a loop with declareVariable and evaluate
-    auto start2 = std::chrono::high_resolution_clock::now();
-    std::vector<double> loop_results;
-    for (double x : x_values) {
-        solver.declareVariable("x", x);
-        double result = solver.evaluate("f(x)", false);
-        loop_results.push_back(result);
-    }
-    auto end2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration2 = end2 - start2;
-
-    std::cout << "Loop with declareVariable took: " << duration2.count() << " seconds." << std::endl;
-
-    // Sanity check to ensure both approaches give the same result
-    for (size_t i = 0; i < x_values.size(); ++i) {
-        // std::cout << results[i] << " " << loop_results[i] << std::endl;
-        if (results[i] != loop_results[i]) {
-            std::cerr << "Mismatch at index " << i << ": evaluateForRange(" << x_values[i] 
-                      << ") = " << results[i] << ", loop(" << x_values[i] 
-                      << ") = " << loop_results[i] << std::endl;
-        }
-    }
-
-    // Analytical comparison to expected values for f(x) = x^2
+    // Loop through test expressions and simplify them
     bool all_correct = true;
-    // for (size_t i = 0; i < x_values.size(); ++i) {
-    //     double expected = x_values[i] * x_values[i] + (pi * x_values[i]) + e + x_values[i];
-    //     if (std::fabs(results[i] - expected) > 1e-9) { // Using a small tolerance for floating-point comparison
-    //         all_correct = false;
-    //         std::cerr << "Error at index " << i << ": Expected " << expected 
-    //                   << ", but got " << results[i] << std::endl;
-    //     }
-    // }
+    for (const auto& [expr, expected] : testExpressions) {
+        std::cout << "Original expression: " << expr << std::endl;
+        solver.setCurrentExpression(expr, true);
+
+        double result = solver.evaluate(expr, true);  // Set debug to true to see simplification steps
+
+        // Check if the result matches the expected value
+        if (std::fabs(result - expected) > 1e-9) {  // Using a small tolerance for floating-point comparison
+            all_correct = false;
+            std::cerr << "Mismatch for expression: " << expr 
+                      << "\nExpected: " << expected 
+                      << "\nGot: " << result 
+                      << std::endl;
+        } else {
+            std::cout << "Simplified result: " << result << " (Correct)" << std::endl;
+        }
+
+        std::cout << "------------------------------------------" << std::endl;
+    }
 
     if (all_correct) {
-        std::cout << "All results are correct!" << std::endl;
+        std::cout << "All expressions simplified correctly!" << std::endl;
     } else {
-        std::cout << "There were some errors in the results." << std::endl;
+        std::cout << "Some expressions did not simplify as expected." << std::endl;
     }
 
     return 0;
