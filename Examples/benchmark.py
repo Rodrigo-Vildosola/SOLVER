@@ -8,7 +8,7 @@ from solver import Solver, SolverException
 def compare_performance():
     # Initialize custom solver
     solver = Solver()
-    solver.setUseCache(True)
+    solver.setUseCache(False)
     try:
         solver.declareConstant("pi", np.pi)
         solver.declareVariable("x", 10)
