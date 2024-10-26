@@ -217,35 +217,7 @@ ExprNode* parseExpression(const std::vector<Token>& tokens, const std::unordered
 #pragma region Expression Tree Simplification
 
 ExprNode* simplify(ExprNode* node, const SymbolTable& symbolTable) {
-    if (!node) return nullptr;
-
-    // Handle leaf nodes (NUMBER or VARIABLE)
-    if (node->type == NUMBER || node->type == VARIABLE) {
-        // Check if the node is a constant and simplify it
-        if (node->type == VARIABLE && symbolTable.isConstant(node->value)) {
-            double constantValue = symbolTable.lookupSymbol(node->value);
-            node->value = std::to_string(constantValue);
-            node->type = NUMBER;
-        }
-        return node;
-    }
-
-    // Simplify function arguments recursively
-    if (node->type == FUNCTION) {
-        for (auto& arg : node->arguments) {
-            arg = simplify(arg, symbolTable);
-        }
-        return node;
-    }
-
-    // Simplify left and right nodes recursively for operators
-    if (node->type == OPERATOR) {
-        node->left = simplify(node->left, symbolTable);
-        node->right = simplify(node->right, symbolTable);
-    }
-
-    // Use MultiPassSimplifier to handle all operator-based simplifications
-    MultiPassSimplifier simplifier;
+    MultiPassSimplifier simplifier(symbolTable);
     return simplifier.simplify(node);
 }
 

@@ -4,6 +4,7 @@
 #include "Validator.h"
 #include "Debug.h"
 #include "Tokenizer.h"
+#include "MultiPassSimplifier.h"
 
 Solver::Solver(size_t exprCacheSize, size_t funcCacheSize)
     : expressionCache(exprCacheSize), functionCache(funcCacheSize), currentExprTree(nullptr)  {
@@ -45,7 +46,11 @@ ExprNode* Solver::parse(const std::string& expression, bool debug) {
 
     auto exprTree = ExpressionTree::parseExpression(tokens, functions);
 
-    exprTree = ExpressionTree::simplify(exprTree, symbolTable);
+    MultiPassSimplifier simplifier(symbolTable);
+
+    exprTree = simplifier.simplify(exprTree);
+
+    // exprTree = ExpressionTree::simplify(exprTree, symbolTable);
 
     if (debug) {
         std::cout << std::endl;
