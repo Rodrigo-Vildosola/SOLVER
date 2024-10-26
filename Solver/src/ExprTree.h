@@ -18,14 +18,6 @@ namespace ExpressionTree {
     ExprNode* parseExpression(const std::vector<Token>& tokens, const std::unordered_map<std::string, Function>& functions);
 
     /**
-     * @brief Simplifies an expression tree by applying algebraic rules.
-     * @param node The root of the expression tree to simplify.
-     * @param symbolTable Symbol table containing known constants and variables.
-     * @return Simplified expression tree (ExprNode).
-     */
-    ExprNode* simplify(ExprNode* node, const SymbolTable& symbolTable);
-
-    /**
      * @brief Converts an infix expression represented by tokens to postfix notation using the Shunting Yard algorithm.
      * @param tokens A vector of tokens representing the expression in infix notation.
      * @return A queue of tokens in postfix notation.
@@ -99,24 +91,5 @@ namespace ExpressionTree {
      */
     size_t getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions);
 
-    /**
-     * @brief Folds two constant values based on a given operator.
-     * @param op The operator as a string.
-     * @param leftValue The left operand.
-     * @param rightValue The right operand.
-     * @return Result of the operation.
-     * @throws SolverException for unknown operators or division by zero.
-     */
-    double foldConstants(const std::string& op, double leftValue, double rightValue);
-
-    /**
-     * @brief Applies basic algebraic simplifications to an operator node.
-     *        E.g., x + 0 becomes x, x * 1 becomes x, x * 0 becomes 0.
-     * @param op The operator as a string.
-     * @param leftNode The left operand node.
-     * @param rightNode The right operand node.
-     * @return Pointer to a simplified node or nullptr if no simplification is possible.
-     */
-    ExprNode* applyBasicSimplifications(const std::string& op, ExprNode* leftNode, ExprNode* rightNode);
 
 }  // namespace ExpressionTree

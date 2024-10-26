@@ -50,8 +50,6 @@ ExprNode* Solver::parse(const std::string& expression, bool debug) {
 
     exprTree = simplifier.simplify(exprTree);
 
-    // exprTree = ExpressionTree::simplify(exprTree, symbolTable);
-
     if (debug) {
         std::cout << std::endl;
         std::cout << "Expression tree after parsing and simplifying:\n";

@@ -18,50 +18,6 @@ size_t getFunctionArgCount(const std::string& functionName, const std::unordered
     throw SolverException("Unknown function '" + functionName + "'");
 }
 
-double foldConstants(const std::string& op, double leftValue, double rightValue) {
-    if (op == "+") {
-        return leftValue + rightValue;
-    } else if (op == "-") {
-        return leftValue - rightValue;
-    } else if (op == "*") {
-        return leftValue * rightValue;
-    } else if (op == "/") {
-        if (rightValue == 0) {
-            throw SolverException("Division by zero error.");
-        }
-        return leftValue / rightValue;
-    } else if (op == "^") {
-        return std::pow(leftValue, rightValue);
-    }
-    throw SolverException("Unknown operator: '" + op + "'");
-}
-
-ExprNode* applyBasicSimplifications(const std::string& op, ExprNode* leftNode, ExprNode* rightNode) {
-    if (op == "+") {
-        if (rightNode->type == NUMBER && rightNode->value == "0") {
-            return new ExprNode(leftNode->type, leftNode->value); 
-        }
-        if (leftNode->type == NUMBER && leftNode->value == "0") {
-            return new ExprNode(rightNode->type, rightNode->value);
-        }
-    } else if (op == "*") {
-        if (rightNode->type == NUMBER && rightNode->value == "1") {
-            return new ExprNode(leftNode->type, leftNode->value);
-        }
-        if (leftNode->type == NUMBER && leftNode->value == "1") {
-            return new ExprNode(rightNode->type, rightNode->value);
-        }
-        if (rightNode->type == NUMBER && rightNode->value == "0") {
-            return new ExprNode(NUMBER, "0");  // Multiplying by zero
-        }
-        if (leftNode->type == NUMBER && leftNode->value == "0") {
-            return new ExprNode(NUMBER, "0");  // Multiplying by zero
-        }
-    }
-
-    return nullptr;
-}
-
 #pragma endregion
 
 #pragma region Parsing and Shunting Yard
@@ -210,15 +166,6 @@ ExprNode* parseExpression(const std::vector<Token>& tokens, const std::unordered
     }
 
     return nodeStack.top();
-}
-
-#pragma endregion
-
-#pragma region Expression Tree Simplification
-
-ExprNode* simplify(ExprNode* node, const SymbolTable& symbolTable) {
-    MultiPassSimplifier simplifier(symbolTable);
-    return simplifier.simplify(node);
 }
 
 #pragma endregion
