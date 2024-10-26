@@ -50,7 +50,9 @@ int main() {
         {"x * (y + z)", 125.0},       // Should be x*(y+z) = 5*(10+15) = 125
         {"3 * (x + 4)", 27.0},        // Should distribute to 3x + 12 = 15 + 12 = 27
         {"e ^ 1", e},                 // Simplifies to e
-        {"(x^2) * (x^3)", 3125.0}     // Simplifies to x^(2+3) -> x^5 = 3125 for x=5
+        {"(x^2) * (x^3)", 3125.0},    // Simplifies to x^(2+3) -> x^5 = 3125 for x=5
+        {"sin(x)^2 + cos(x)^2", 1.0}     // Simplifies to x^(2+3) -> x^5 = 3125 for x=5
+
     };
 
     // Loop through test expressions and simplify them

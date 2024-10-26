@@ -20,9 +20,9 @@ struct Function {
 
     // Constructor for predefined functions
     Function(FunctionCallback cb, size_t argCnt)
-        : callback(cb), args(), expression(), argCount(argCnt), isPredefined(true) {}
+        : callback(cb), args(), expression(), exprTree(nullptr), argCount(argCnt), isPredefined(true) {}
 
     // Constructor for user-defined functions
     Function(std::vector<std::string> a, std::string expr)
-        : callback(), args(std::move(a)), expression(std::move(expr)), argCount(args.size()), isPredefined(false) {}
+        : callback(), args(std::move(a)), expression(std::move(expr)), exprTree(nullptr), argCount(args.size()), isPredefined(false) {}
 };
