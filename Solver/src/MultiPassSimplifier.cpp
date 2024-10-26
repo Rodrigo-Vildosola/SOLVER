@@ -90,7 +90,6 @@ void MultiPassSimplifier::initializePasses() {
         { 
             [](const ExprNode& node) { return node.value == "*" && node.right->value == "+"; },
             [](ExprNode* node) {
-                std::cout << "Here on 1 " << std::endl;
                 ExprNode* left = new ExprNode(OPERATOR, "*", node->left, node->right->left);
                 ExprNode* right = new ExprNode(OPERATOR, "*", node->left, node->right->right);
                 node->value = "+";
@@ -103,7 +102,6 @@ void MultiPassSimplifier::initializePasses() {
         {   
             [](const ExprNode& node) { return node.value == "*" && node.left->value == "+"; },
             [](ExprNode* node) {
-                std::cout << "Here on 2 " << std::endl;
                 ExprNode* left = new ExprNode(OPERATOR, "*", node->left->left, node->right);
                 ExprNode* right = new ExprNode(OPERATOR, "*", node->left->right, node->right);
                 node->value = "+";
@@ -116,7 +114,6 @@ void MultiPassSimplifier::initializePasses() {
         { 
             [](const ExprNode& node) { return node.value == "*" && node.left->value == "^" && node.right->value == "^" && node.left->left->value == node.right->left->value; },
             [](ExprNode* node) {
-                std::cout << "Here on 3 " << std::endl;
                 ExprNode* newExp = new ExprNode(OPERATOR, "+", node->left->right, node->right->right);
                 node->value = "^"; 
                 node->left = node->left->left; 
@@ -126,12 +123,27 @@ void MultiPassSimplifier::initializePasses() {
         }
     });
 
+    // Pass 5: Division Simplification
+    passes.push_back({
+        // Rule: (a * b) / b -> a
+        { [](const ExprNode& node) { return node.value == "/" && node.left->value == "*" && node.left->right->value == node.right->value; },
+          [](ExprNode* node) { return node->left->left; } }
+    });
+
+    // Pass 6: Trigonometric Identities
+    passes.push_back({
+        // Rule: sin^2(x) + cos^2(x) -> 1
+        { [](const ExprNode& node) { return node.value == "+" && node.left->value == "^" && node.right->value == "^" &&
+                                     node.left->left->value == "sin" && node.right->left->value == "cos" &&
+                                     node.left->left->arguments[0]->value == node.right->left->arguments[0]->value; },
+          [](ExprNode* node) { node->value = "1"; node->type = NUMBER; node->left = node->right = nullptr; return node; } }
+    });
+
     // Final Pass: Constant Folding after all transformations
     passes.push_back({
         { 
             [](const ExprNode& node) { return node.type == OPERATOR && node.left->type == NUMBER && node.right->type == NUMBER; },
             [](ExprNode* node) {                 
-                std::cout << "Here on 4 " << std::endl;
                 return foldConstants(node); 
             } 
         }
