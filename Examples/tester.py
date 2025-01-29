@@ -1,15 +1,30 @@
 # test_script.py
 from data import run_all_tests, load_test_suites
-from report import print_report
-from logger import Logger
 from solver import Solver, SolverException
 import numpy as np
+import logging
 import sys
 
+class Logger:
+    def __init__(self, logger_name: str):
+        self.logger = logging.getLogger(logger_name)
+        self.logger.setLevel(logging.INFO)
+
+        # Prevent adding multiple handlers to the same logger
+        if not self.logger.handlers:
+            # Console Handler
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setLevel(logging.INFO)
+            console_formatter = logging.Formatter('%(levelname)s - %(message)s')
+            console_handler.setFormatter(console_formatter)
+            self.logger.addHandler(console_handler)
+
+    def get_logger(self) -> logging.Logger:
+        return self.logger
 
 def main():
     # Initialize a separate logger for testing
-    test_logger_instance = Logger("TestLogger", "test_results.log")
+    test_logger_instance = Logger("TestLogger")
     logger = test_logger_instance.get_logger()
 
     # Initialize solver and declare functions

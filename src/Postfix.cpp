@@ -169,97 +169,172 @@ double evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable
 }
 
 
-std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const std::unordered_map<std::string, Function>& functions) {
+std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue,
+                                  const std::unordered_map<std::string, Function>& functions)
+{
     PROFILE_FUNCTION();
 
-    std::vector<Token> flattenedPostfix;
-    std::stack<std::vector<Token>> argumentStack; // Stack to hold arguments for nested functions
+    // We use a stack of "partial" postfix expressions. Each element on the stack
+    // is a fully formed (sub)postfix sequence. For instance, if we see a NUMBER token,
+    // we push a vector containing just that one token. If we see an OPERATOR that needs
+    // two operands, we pop the top two vectors from the stack, concatenate them, then
+    // append the operator, creating a single new vector we push back.
 
-    for (size_t i = 0; i < postfixQueue.size(); ++i) {
-        const Token& token = postfixQueue[i];
+    std::stack<std::vector<Token>> argumentStack;
 
-        if (token.type == FUNCTION) {
-            // Retrieve the function definition
-            auto it = functions.find(token.value);
-            if (it == functions.end()) {
-                throw SolverException("Unknown function: '" + token.value + "'");
+    for (const auto& token : postfixQueue)
+    {
+        switch (token.type)
+        {
+        case NUMBER:
+        case VARIABLE:
+        {
+            // For a simple number or variable, just push it as a single-element vector.
+            argumentStack.push({ token });
+            break;
+        }
+
+        case OPERATOR:
+        {
+            // An operator needs two operands in postfix:
+            // leftExpr + rightExpr + operator
+            if (argumentStack.size() < 2)
+            {
+                throw SolverException(
+                    "Not enough operands for operator '" + token.value + "'");
             }
-
-            const Function& function = it->second;
-
-            // Collect arguments
-            if (argumentStack.size() < function.argCount) {
-                throw SolverException("Insufficient arguments for function: '" + token.value + "'");
-            }
-
-            std::vector<std::vector<Token>> args(function.argCount);
-            for (size_t j = 0; j < function.argCount; ++j) {
-                args[function.argCount - j - 1] = argumentStack.top();
-                argumentStack.pop();
-            }
-
-            if (function.isPredefined) {
-                // For predefined functions, append arguments and the function token directly
-                for (const auto& arg : args) {
-                    flattenedPostfix.insert(flattenedPostfix.end(), arg.begin(), arg.end());
-                }
-                flattenedPostfix.push_back(token);
-                continue; // Skip further processing for predefined functions
-            }
-
-            // Inline user-defined function
-            std::vector<Token> inlinedPostfix;
-            for (const auto& fToken : function.inlinedPostfix) {
-                if (fToken.type == VARIABLE) {
-                    auto argIt = std::find(function.argumentNames.begin(), function.argumentNames.end(), fToken.value);
-                    if (argIt != function.argumentNames.end()) {
-                        size_t index = std::distance(function.argumentNames.begin(), argIt);
-                        inlinedPostfix.insert(inlinedPostfix.end(), args[index].begin(), args[index].end());
-                    } else {
-                        inlinedPostfix.push_back(fToken);
-                    }
-                } else {
-                    inlinedPostfix.push_back(fToken);
-                }
-            }
-
-            // Push the inlined result for user-defined functions back onto the stack
-            argumentStack.push(inlinedPostfix);
-
-        } else if (token.type == NUMBER || token.type == VARIABLE) {
-            // Handle numbers and variables
-            argumentStack.push({token});
-        } else if (token.type == OPERATOR) {
-            if (argumentStack.size() < 2) {
-                throw SolverException("Not enough operands for operator '" + token.value + "'");
-            }
-
-            // Pop two operands
+            // Pop the right-hand side
             auto right = argumentStack.top();
             argumentStack.pop();
+            // Pop the left-hand side
             auto left = argumentStack.top();
             argumentStack.pop();
 
-            // Combine into a single postfix sequence
-            std::vector<Token> combinedPostfix = left;
-            combinedPostfix.insert(combinedPostfix.end(), right.begin(), right.end());
-            combinedPostfix.push_back(token);
+            // Merge them into one postfix expression
+            std::vector<Token> combined = left;
+            combined.insert(combined.end(), right.begin(), right.end());
+            combined.push_back(token);
 
-            // Push the result back onto the stack
-            argumentStack.push(combinedPostfix);
-        } else {
-            throw SolverException("Unsupported token type during flattening.");
+            argumentStack.push(std::move(combined));
+            break;
+        }
+
+        case FUNCTION:
+        {
+            // A function can be either a predefined function (like sin, cos) or
+            // a user-defined function. We retrieve it from the function map:
+            auto it = functions.find(token.value);
+            if (it == functions.end())
+            {
+                throw SolverException(
+                    "Unknown function: '" + token.value + "'");
+            }
+
+            const Function& function = it->second;
+            const size_t argCount = function.argCount;
+
+            // Check if we have enough arguments on the stack
+            if (argumentStack.size() < argCount)
+            {
+                throw SolverException(
+                    "Insufficient arguments for function: '" + token.value + "'");
+            }
+
+            // Collect the top `argCount` vectors from the stack
+            // in reverse order, because the top is the last argument.
+            std::vector<std::vector<Token>> args(argCount);
+            for (size_t j = 0; j < argCount; ++j)
+            {
+                args[argCount - j - 1] = argumentStack.top();
+                argumentStack.pop();
+            }
+
+            if (function.isPredefined)
+            {
+                // For predefined functions, we do NOT inline anything.
+                // Instead, we simply combine the arguments into one
+                // postfix sequence and then append the function token.
+                std::vector<Token> combined;
+                for (const auto& argPostfix : args)
+                {
+                    combined.insert(combined.end(),
+                                    argPostfix.begin(),
+                                    argPostfix.end());
+                }
+                combined.push_back(token);
+
+                // Push the resulting single postfix expression for
+                // this function call back onto the stack.
+                argumentStack.push(std::move(combined));
+            }
+            else
+            {
+                // For user-defined functions, we inline the function definition.
+                // The function.inlinedPostfix is the user-defined function's
+                // body in postfix form (where variables are placeholders).
+                // We substitute each occurrence of the variable with its
+                // corresponding argument postfix vector.
+
+                std::vector<Token> inlined;
+                inlined.reserve(function.inlinedPostfix.size() * 2); 
+                // Rough reservation to reduce reallocs
+
+                for (const auto& fToken : function.inlinedPostfix)
+                {
+                    // If it's a variable, see if it matches one of the argument names.
+                    // If so, replace it with that argument's flattened postfix tokens.
+                    if (fToken.type == VARIABLE)
+                    {
+                        auto argIt = std::find(function.argumentNames.begin(),
+                                               function.argumentNames.end(),
+                                               fToken.value);
+                        if (argIt != function.argumentNames.end())
+                        {
+                            // This variable is one of the function's formal parameters
+                            size_t index = std::distance(function.argumentNames.begin(),
+                                                         argIt);
+                            // Insert the entire argument postfix
+                            const auto& argPostfix = args[index];
+                            inlined.insert(inlined.end(),
+                                           argPostfix.begin(),
+                                           argPostfix.end());
+                        }
+                        else
+                        {
+                            // It's some other variable that isn't a function param
+                            inlined.push_back(fToken);
+                        }
+                    }
+                    else
+                    {
+                        // Keep numbers, operators, etc. as is
+                        inlined.push_back(fToken);
+                    }
+                }
+
+                // Push the fully inlined postfix expression for this function call
+                argumentStack.push(std::move(inlined));
+            }
+            break;
+        }
+
+        default:
+            throw SolverException(
+                "Unsupported token type during flattening: " + token.value);
         }
     }
 
-    // Collect the final flattened expression
-    while (!argumentStack.empty()) {
-        auto result = argumentStack.top();
-        argumentStack.pop();
-        flattenedPostfix.insert(flattenedPostfix.end(), result.begin(), result.end());
+    // At the end, there should be exactly ONE expression in the stack
+    // if the postfix expression was well-formed.
+    if (argumentStack.size() != 1)
+    {
+        throw SolverException(
+            "Flattening error: leftover expressions in the stack. Stack size = "
+            + std::to_string(argumentStack.size()));
     }
 
-    return flattenedPostfix;
+    // This single element is our fully flattened postfix expression.
+    return argumentStack.top();
 }
 
 

@@ -1,12 +1,29 @@
 # example_script.py
 
-from logger import Logger
+import logging
 from solver import Solver, SolverException
 import numpy as np
 import sys
 
+class Logger:
+    def __init__(self, logger_name: str):
+        self.logger = logging.getLogger(logger_name)
+        self.logger.setLevel(logging.INFO)
+
+        # Prevent adding multiple handlers to the same logger
+        if not self.logger.handlers:
+            # Console Handler
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setLevel(logging.INFO)
+            console_formatter = logging.Formatter('%(levelname)s - %(message)s')
+            console_handler.setFormatter(console_formatter)
+            self.logger.addHandler(console_handler)
+
+    def get_logger(self) -> logging.Logger:
+        return self.logger
+
 def run_examples():
-    example_logger_instance = Logger("ExampleLogger", "example_results.log")
+    example_logger_instance = Logger("SimpleExpressions")
     logger = example_logger_instance.get_logger()
 
     solver = Solver()
@@ -41,6 +58,8 @@ def run_examples():
         {"description": "Evaluate f(4)", "expression": "f(4)", "expected_result": 25.0},
         {"description": "Evaluate (b + 3) * c", "expression": "(b + 3) * (c + 0)", "expected_result": 25.0},
         {"description": "Evaluate 3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3", "expression": "3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3", "expected_result": 3.0001},
+        {"description": "Evaluate sin(pi/2)", "expression": "sin(pi/2)", "expected_result": 1},
+        {"description": "Evaluate f(g(2, 2) + sin(pi/2))", "expression": "f(g(2, 2) + sin(pi/2))", "expected_result": 100},
 
     ]
 
