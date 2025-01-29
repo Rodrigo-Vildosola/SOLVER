@@ -21,4 +21,6 @@
 #include <list>
 #include <future>
 
+#include <Python.h>
+
 #include "utils/profiler.h"
