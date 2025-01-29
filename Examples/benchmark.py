@@ -8,14 +8,14 @@ from solver import Solver, SolverException
 def setup_solver():
     """Initialize and return a configured custom solver instance."""
     solver = Solver()
-    solver.setUseCache(False)
+    solver.use_cache(False)
     try:
-        solver.declareConstant("pi", np.pi)
-        solver.declareVariable("x", 10)
-        solver.declareVariable("y", 100)
-        solver.declareFunction("f", ["x"], "x^2 + (2*x + 1)")
-        solver.declareFunction("g", ["x", "y"], "x * y + x + y")
-        solver.declareFunction("h", ["x"], "f(g(x, x))")
+        solver.declare_constant("pi", np.pi)
+        solver.declare_variable("x", 10)
+        solver.declare_variable("y", 100)
+        solver.declare_function("f", ["x"], "x^2 + (2*x + 1)")
+        solver.declare_function("g", ["x", "y"], "x * y + x + y")
+        solver.declare_function("h", ["x"], "f(g(x, x))")
     except SolverException as e:
         print(f"Error initializing solver: {e}")
         return None
@@ -43,12 +43,12 @@ def compare_performance(benchmarks, num_trials=10000, range_trials=100):
         
         # Custom Solver
         def custom_solver_eval():
-            solver.setCurrentExpression(bench["custom_solver_expr"], True)
+            solver.set_current_expression(bench["custom_solver_expr"], True)
             return solver.evaluate(bench["custom_solver_expr"])
 
         # Range-based evaluation
         def custom_solver_range_eval():
-            return solver.evaluateForRange(range_var, range_values, bench["custom_solver_expr"])
+            return solver.evaluate_range(range_var, range_values, bench["custom_solver_expr"])
 
         # SymPy
         def sympy_eval():

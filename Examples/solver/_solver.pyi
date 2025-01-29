@@ -2,7 +2,7 @@
 Python bindings for the solver C++ math expression parsing and solving library.
 """
 from __future__ import annotations
-__all__ = ['Solver', 'SolverException']
+__all__ = ['Solver', 'SolverException', 'version']
 class Solver:
     """
     A class for evaluating mathematical expressions, managing variables, constants,
@@ -22,14 +22,14 @@ class Solver:
         
         Initializes the Solver instance and registers built-in functions.
         """
-    def clearCache(self) -> None:
+    def clear_cache(self) -> None:
         """
         Clears the cache when variables or constants change.
         
         This clears both the function and expression caches to ensure correct
         recalculation of results.
         """
-    def declareConstant(self, name: str, value: float) -> None:
+    def declare_constant(self, name: str, value: float) -> None:
         """
         Declare a constant in the solver's symbol table.
         
@@ -39,7 +39,7 @@ class Solver:
         Parameter ``value``:
             The value of the constant.
         """
-    def declareFunction(self, name: str, args: list[str], expression: str) -> None:
+    def declare_function(self, name: str, args: list[str], expression: str) -> None:
         """
         Declare a user-defined function.
         
@@ -55,7 +55,7 @@ class Solver:
         Parameter ``expression``:
             The mathematical expression defining the function.
         """
-    def declareVariable(self, name: str, value: float) -> None:
+    def declare_variable(self, name: str, value: float) -> None:
         """
         Declare a variable in the solver's symbol table.
         
@@ -81,7 +81,7 @@ class Solver:
         Returns:
             The result of evaluating the expression.
         """
-    def evaluateForRange(self, variable: str, values: list[float], expression: str, debug: bool = False) -> list[float]:
+    def evaluate_range(self, variable: str, values: list[float], expression: str, debug: bool = False) -> list[float]:
         """
         Evaluate a mathematical expression over a range of values for a given variable.
         
@@ -103,30 +103,30 @@ class Solver:
         Returns:
             A vector of results for each value in the range.
         """
-    def getCurrentExpression(self) -> str:
+    def get_current_expression(self) -> str:
         """
         Get the current expression being evaluated.
         
         Returns:
             The current expression being evaluated.
         """
-    def listConstants(self) -> dict[str, float]:
+    def list_constants(self) -> dict[str, float]:
         """
         Lists all declared constants.
         
         Returns:
             A map of constant names and their values.
         """
-    def listVariables(self) -> dict[str, float]:
+    def list_variables(self) -> dict[str, float]:
         """
         Lists all declared variables.
         
         Returns:
             A map of variable names and their values.
         """
-    def printFunctionExpressions(self) -> None:
+    def print_function_expressions(self) -> None:
         ...
-    def setCurrentExpression(self, expression: str, debug: bool = False) -> None:
+    def set_current_expression(self, expression: str, debug: bool = False) -> None:
         """
         Sets the current expression and parses it into an expression tree.
         
@@ -139,7 +139,7 @@ class Solver:
         Parameter ``debug``:
             If true, enables debug output during parsing and simplification.
         """
-    def setUseCache(self, useCache: bool) -> None:
+    def use_cache(self, useCache: bool) -> None:
         """
         Set cache usage flag.
         
@@ -148,3 +148,15 @@ class Solver:
         """
 class SolverException(Exception):
     pass
+def version() -> str:
+    """
+    Get the software version information.
+    
+    This function returns a string that contains the current version of the
+    software, along with the build date, time, and the system platform (Linux or
+    Windows). It also includes the version of Python being used in the environment.
+    
+    Returns:
+        A string containing version, build date, system platform, and Python
+        version.
+    """

@@ -576,6 +576,17 @@ Parameter ``tokens``:
 
 static const char *__doc_tokenTypeToString = R"doc()doc";
 
+static const char *__doc_version =
+R"doc(Get the software version information.
+
+This function returns a string that contains the current version of the
+software, along with the build date, time, and the system platform (Linux or
+Windows). It also includes the version of Python being used in the environment.
+
+Returns:
+    A string containing version, build date, system platform, and Python
+    version.)doc";
+
 #if defined(__GNUG__)
 #pragma GCC diagnostic pop
 #endif

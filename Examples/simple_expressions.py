@@ -23,26 +23,25 @@ class Logger:
         return self.logger
 
 def run_examples():
-    example_logger_instance = Logger("SimpleExpressions")
-    logger = example_logger_instance.get_logger()
+    logger = Logger("SimpleExpressions").get_logger()
 
     solver = Solver()
     try:
         # Declare constants
-        solver.declareConstant("pi", np.pi)
-        solver.declareConstant("e", np.e)
-        solver.declareConstant("b", 2)
-        solver.declareConstant("c", 5)
+        solver.declare_constant("pi", np.pi)
+        solver.declare_constant("e", np.e)
+        solver.declare_constant("b", 2)
+        solver.declare_constant("c", 5)
 
 
         solver.declareVariable("x", 10)
 
         # Declare user-defined functions
-        solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
-        solver.declareFunction("g", ["x", "y"], "x * y + x + y")
-        solver.declareFunction("h", ["x"], "f(g(x, x))")
-        solver.declareFunction("x", ["x"], "x + 1")
-        solver.declareFunction("why", [], "2 + 3")
+        solver.declare_function("f", ["x"], "x^2 + 2*x + 1")
+        solver.declare_function("g", ["x", "y"], "x * y + x + y")
+        solver.declare_function("h", ["x"], "f(g(x, x))")
+        solver.declare_function("x", ["x"], "x + 1")
+        solver.declare_function("why", [], "2 + 3")
         # Add more function declarations as needed
     except SolverException as e:
         logger.error(f"Initialization Error: {e}")

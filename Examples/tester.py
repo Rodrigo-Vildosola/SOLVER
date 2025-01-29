@@ -24,25 +24,24 @@ class Logger:
 
 def main():
     # Initialize a separate logger for testing
-    test_logger_instance = Logger("TestLogger")
-    logger = test_logger_instance.get_logger()
+    logger = Logger("TestLogger").get_logger()
 
     # Initialize solver and declare functions
     solver = Solver()
     try:
         # Declare constants
-        solver.declareConstant("pi", np.pi)
-        solver.declareConstant("e", np.e)
+        solver.declare_constant("pi", np.pi)
+        solver.declare_constant("e", np.e)
 
         # Declare user-defined functions
-        solver.declareFunction("f", ["x"], "x^2 + 2*x + 1")
-        solver.declareFunction("g", ["x", "y"], "x * y + x + y")
-        solver.declareFunction("h", ["x"], "f(g(x, x))")
-        solver.declareFunction("k", ["x"], "f(x) + g(x, x)")
-        solver.declareFunction("m", ["x", "y"], "h(x) + f(g(x, y))")
-        solver.declareFunction("p", ["x", "y"], "m(x, y) + k(x)")
-        solver.declareFunction("n", ["x"], "x + z") 
-        solver.declareFunction("circle_area", ["r"], "pi * r^2")
+        solver.declare_function("f", ["x"], "x^2 + 2*x + 1")
+        solver.declare_function("g", ["x", "y"], "x * y + x + y")
+        solver.declare_function("h", ["x"], "f(g(x, x))")
+        solver.declare_function("k", ["x"], "f(x) + g(x, x)")
+        solver.declare_function("m", ["x", "y"], "h(x) + f(g(x, y))")
+        solver.declare_function("p", ["x", "y"], "m(x, y) + k(x)")
+        solver.declare_function("n", ["x"], "x + z") 
+        solver.declare_function("circle_area", ["r"], "pi * r^2")
     except SolverException as e:
         logger.error(f"Initialization Error: {e}")
         sys.exit(1)

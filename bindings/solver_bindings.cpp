@@ -18,17 +18,17 @@ void bind_solver(py::module_ &m) {
              DOC(Solver, Solver))  // If docstrings are defined for constructor
 
         // Expose methods
-        .def("printFunctionExpressions", 
+        .def("print_function_expressions", 
              &Solver::printFunctionExpressions, 
              DOC(Solver, printFunctionExpressions))
 
-        .def("declareConstant", 
+        .def("declare_constant", 
              &Solver::declareConstant,
              py::arg("name"),
              py::arg("value"),
              DOC(Solver, declareConstant))
 
-        .def("declareVariable", 
+        .def("declare_variable", 
              &Solver::declareVariable,
              py::arg("name"),
              py::arg("value"),
@@ -40,7 +40,7 @@ void bind_solver(py::module_ &m) {
              py::arg("debug") = false,
              DOC(Solver, evaluate))
 
-        .def("evaluateForRange",
+        .def("evaluate_range",
              &Solver::evaluateForRange,
              py::arg("variable"),
              py::arg("values"),
@@ -58,37 +58,37 @@ void bind_solver(py::module_ &m) {
         //      py::arg("argCount"),
         //      DOC(Solver, registerPredefinedFunction))
 
-        .def("declareFunction",
+        .def("declare_function",
              &Solver::declareFunction,
              py::arg("name"),
              py::arg("args"),
              py::arg("expression"),
              DOC(Solver, declareFunction))
 
-        .def("clearCache", 
+        .def("clear_cache", 
              &Solver::clearCache,
              DOC(Solver, clearCache))
 
-        .def("setUseCache", 
+        .def("use_cache", 
              &Solver::setUseCache,
              py::arg("useCache"),
              DOC(Solver, setUseCache))
 
-        .def("listConstants", 
+        .def("list_constants", 
              &Solver::listConstants,
              DOC(Solver, listConstants))
 
-        .def("listVariables", 
+        .def("list_variables", 
              &Solver::listVariables,
              DOC(Solver, listVariables))
 
-        .def("setCurrentExpression",
+        .def("set_current_expression",
              &Solver::setCurrentExpression,
              py::arg("expression"),
              py::arg("debug") = false,
              DOC(Solver, setCurrentExpression))
 
-        .def("getCurrentExpression", 
+        .def("get_current_expression", 
              &Solver::getCurrentExpression, 
              DOC(Solver, getCurrentExpression));
 }
