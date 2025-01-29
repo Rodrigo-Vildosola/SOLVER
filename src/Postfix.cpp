@@ -169,9 +169,7 @@ double evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable
 }
 
 
-std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue,
-                                  const std::unordered_map<std::string, Function>& functions)
-{
+std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const std::unordered_map<std::string, Function>& functions) {
     PROFILE_FUNCTION();
 
     // We use a stack of "partial" postfix expressions. Each element on the stack
@@ -340,4 +338,4 @@ std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue,
 
 #pragma endregion
 
-}  // namespace ExpressionTree
+}

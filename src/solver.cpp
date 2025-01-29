@@ -44,9 +44,8 @@ void Solver::declareVariable(const std::string& name, double value) {
 
 std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     PROFILE_FUNCTION();
-    auto tokens = Tokenizer::tokenize(expression);  // Tokenize the input expression
-    auto postfix = Postfix::shuntingYard(tokens);  // Convert to postfix using Shunting Yard
-    printPostfix(postfix);
+    auto tokens = Tokenizer::tokenize(expression);
+    auto postfix = Postfix::shuntingYard(tokens);
     auto flatened = Postfix::flattenPostfix(postfix, functions);
 
     if (debug) {
