@@ -153,14 +153,6 @@ std::unordered_map<std::string, double> Solver::listVariables() const {
     return symbolTable.getVariables();
 }
 
-// std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> Solver::listFunctions() const {
-//     std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> functionList;
-//     for (const auto& [name, function] : functions) {
-//         functionList[name] = std::make_pair(function.args, function.isPredefined);
-//     }
-//     return functionList;
-// }
-
 void Solver::setCurrentExpression(const std::string& expression, bool debug) {
     // Check if the expression is the same and the currentPostfix is not empty
     if (expression == currentExpression && !currentPostfix.empty()) {

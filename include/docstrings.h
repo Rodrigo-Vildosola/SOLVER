@@ -73,35 +73,6 @@ Parameter ``op``:
 Returns:
     Integer representing the precedence level.)doc";
 
-static const char *__doc_ExpressionTree_handleFunctionArgumentSeparator =
-R"doc(Processes a function argument separator (comma) in the Shunting Yard algorithm.
-Ensures operators are correctly handled within function arguments.
-
-Parameter ``operatorStack``:
-    Stack of operators.
-
-Parameter ``outputQueue``:
-    Queue for output tokens in postfix notation.
-
-Parameter ``argumentCounts``:
-    Stack tracking the argument counts for nested functions.
-
-Throws:
-    SolverException if parentheses or comma placement is invalid.)doc";
-
-static const char *__doc_ExpressionTree_handleParentheses =
-R"doc(Handles closing parentheses in the Shunting Yard algorithm. Pops operators from
-the stack until an opening parenthesis is found.
-
-Parameter ``operatorStack``:
-    Stack of operators.
-
-Parameter ``outputQueue``:
-    Queue for output tokens in postfix notation.
-
-Throws:
-    SolverException if parentheses are mismatched.)doc";
-
 static const char *__doc_ExpressionTree_isLeftAssociative =
 R"doc(Determines if an operator is left-associative.
 
@@ -776,31 +747,6 @@ R"doc(Print the tokens with their types for debugging purposes.
 
 Parameter ``tokens``:
     A vector of Token objects representing the expression.)doc";
-
-static const char *__doc_printTree =
-R"doc(Print the expression tree for debugging purposes, including function
-definitions.
-
-This function recursively prints the tree structure and handles special cases
-for functions, showing inline arguments and sub-trees for functions.
-
-Parameter ``node``:
-    The current node of the expression tree.
-
-Parameter ``out``:
-    The output stream to print to (usually std::cout).
-
-Parameter ``functions``:
-    The function map to handle user-defined functions.
-
-Parameter ``depth``:
-    The depth of the current node (used for indentation).
-
-Parameter ``prefix``:
-    The string prefix for the current node (used for formatting).
-
-Parameter ``isLeft``:
-    Whether the current node is a left child.)doc";
 
 static const char *__doc_tokenTypeToString = R"doc()doc";
 

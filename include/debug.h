@@ -2,8 +2,8 @@
 
 #include "pch.h"
 #include "token.h"
-#include "expr_node.h"
 #include "function.h"
+#include "exception.h"
 
 // Color definitions
 #define RESET "\033[0m"
@@ -127,21 +127,6 @@ inline void printPostfix(const std::vector<Token>& tokens) {
  */
 void printTokens(const std::vector<Token>& tokens);
 
-
-/**
- * @brief Print the expression tree for debugging purposes, including function definitions.
- * 
- * This function recursively prints the tree structure and handles special cases for functions,
- * showing inline arguments and sub-trees for functions.
- * 
- * @param node The current node of the expression tree.
- * @param out The output stream to print to (usually std::cout).
- * @param functions The function map to handle user-defined functions.
- * @param depth The depth of the current node (used for indentation).
- * @param prefix The string prefix for the current node (used for formatting).
- * @param isLeft Whether the current node is a left child.
- */
-void printTree(const ExprNode* node, std::ostream& out, const std::unordered_map<std::string, Function>& functions, int depth = 0, const std::string& prefix = "", bool isLeft = true);
 
 /**
  * @brief Print a boxed header with colored output for debug mode.
