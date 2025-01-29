@@ -17,7 +17,6 @@ void Solver::setUseCache(bool useCache) {
 
 void Solver::invalidateCaches() {
     if (cacheEnabled) {
-        // std::cout << "cache invalidated" << std::endl;
         expressionCache.clear();
         functionCache.clear();
     }

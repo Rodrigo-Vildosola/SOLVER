@@ -40,6 +40,7 @@ def run_examples():
         {"description": "Evaluate x * 1", "expression": "x * 1", "expected_result": 10},
         {"description": "Evaluate f(4)", "expression": "f(4)", "expected_result": 25.0},
         {"description": "Evaluate (b + 3) * c", "expression": "(b + 3) * (c + 0)", "expected_result": 25.0},
+        {"description": "Evaluate 3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3", "expression": "3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3", "expected_result": 3.0001},
 
     ]
 
