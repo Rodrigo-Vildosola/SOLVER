@@ -3,7 +3,7 @@
 
 // Declare a constant, ensuring no variable with the same name exists and the name is valid
 void SymbolTable::declareConstant(const std::string& name, double value) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     if (!Validator::isValidName(name)) {
         throw SolverException("Invalid constant name '" + name + "'.");
     }
@@ -18,7 +18,7 @@ void SymbolTable::declareConstant(const std::string& name, double value) {
 
 // Declare a variable, ensuring no constant with the same name exists and the name is valid
 void SymbolTable::declareVariable(const std::string& name, double value, double skipCheck) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     if (!skipCheck && !Validator::isValidName(name)) {
         throw SolverException("Invalid variable name '" + name + "'.");
     }

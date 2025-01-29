@@ -4,7 +4,7 @@
 #include "tokenizer.h"
 
 std::vector<Token> Tokenizer::tokenize(const std::string& equation) {
-    PROFILE_FUNCTION(); // Profile the entire tokenize function
+    PROFILE_FUNCTION() // Profile the entire tokenize function
 
     std::vector<Token> tokens;
     tokens.reserve(equation.size());
@@ -22,7 +22,7 @@ std::vector<Token> Tokenizer::tokenize(const std::string& equation) {
 }
 
 std::sregex_iterator Tokenizer::tokenizeUsingRegex(const std::string& equation) {
-    PROFILE_FUNCTION(); // Profile the regex tokenization function
+    PROFILE_FUNCTION() // Profile the regex tokenization function
     // Regex definitions
     static const std::regex tokenRegex(R"(\s*([+\-*/^]|\d+(\.\d+)?|[a-zA-Z_][a-zA-Z_0-9]*|[(),])\s*)");
     
@@ -30,7 +30,7 @@ std::sregex_iterator Tokenizer::tokenizeUsingRegex(const std::string& equation) 
 }
 
 void Tokenizer::processMatch(const std::string& match, std::vector<Token>& tokens, std::sregex_iterator& it, const std::sregex_iterator& end) {
-    PROFILE_FUNCTION(); // Profile the processMatch function
+    PROFILE_FUNCTION() // Profile the processMatch function
     static const std::regex numberRegex(R"(\d+(\.\d+)?)");
     static const std::regex variableRegex(R"([a-zA-Z_][a-zA-Z_0-9]*)");
     static const std::regex operatorRegex(R"([+\-*/^])");
@@ -58,7 +58,7 @@ void Tokenizer::processMatch(const std::string& match, std::vector<Token>& token
 }
 
 void Tokenizer::handleNumberToken(const std::string& match, std::vector<Token>& tokens, std::sregex_iterator& it, const std::sregex_iterator& end) {
-    PROFILE_FUNCTION(); // Profile the handleNumberToken function
+    PROFILE_FUNCTION() // Profile the handleNumberToken function
     // Handle negation case for numbers
     if (!tokens.empty() && tokens.back().type == FUNCTION && tokens.back().value == "neg") {
         auto next_it = std::next(it);
@@ -73,7 +73,7 @@ void Tokenizer::handleNumberToken(const std::string& match, std::vector<Token>& 
 }
 
 void Tokenizer::handleVariableOrFunctionToken(const std::string& match, std::vector<Token>& tokens, std::sregex_iterator& it, const std::sregex_iterator& end) {
-    PROFILE_FUNCTION(); // Profile the handleVariableOrFunctionToken function
+    PROFILE_FUNCTION() // Profile the handleVariableOrFunctionToken function
     auto next_it = std::next(it);
     if (next_it != end && (*next_it)[1].str() == "(") {
         tokens.emplace_back(Token{FUNCTION, match});
@@ -83,7 +83,7 @@ void Tokenizer::handleVariableOrFunctionToken(const std::string& match, std::vec
 }
 
 void Tokenizer::handleOperatorToken(const std::string& match, std::vector<Token>& tokens, std::sregex_iterator& it, const std::sregex_iterator& end) {
-    PROFILE_FUNCTION(); // Profile the handleOperatorToken function
+    PROFILE_FUNCTION() // Profile the handleOperatorToken function
     if (match == "-" && (tokens.empty() || isUnaryContext(tokens.back()))) {
         // PROFILE_SCOPE("Tokenizer::handleOperatorToken_UnaryMinus");
         // Handle unary minus (negation)
@@ -98,7 +98,7 @@ void Tokenizer::handleOperatorToken(const std::string& match, std::vector<Token>
 }
 
 bool Tokenizer::isUnaryContext(const Token& lastToken) {
-    PROFILE_FUNCTION(); // Profile the isUnaryContext function
+    PROFILE_FUNCTION() // Profile the isUnaryContext function
     return lastToken.type == OPERATOR || 
            lastToken.type == PAREN || 
            lastToken.type == SEPARATOR || 

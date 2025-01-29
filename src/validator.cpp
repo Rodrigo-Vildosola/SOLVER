@@ -5,7 +5,7 @@
 namespace Validator {
 
     bool isValidName(const std::string& name) {
-        PROFILE_FUNCTION();
+        PROFILE_FUNCTION()
         // Define the regex pattern for valid names
         static const std::regex pattern("^[A-Za-z_][A-Za-z0-9_]*$");
         
@@ -35,7 +35,7 @@ namespace Validator {
 
     // Syntactic validation: Check for basic syntax correctness and provide detailed error messages
     void isValidSyntax(const std::string& expression) {
-        PROFILE_FUNCTION();
+        PROFILE_FUNCTION()
         int balance = 0;
         bool lastWasOperator = true; // To handle cases like "-3"
 

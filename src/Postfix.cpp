@@ -65,7 +65,7 @@ void handleFunctionArgumentSeparator(std::stack<Token>& operatorStack, std::vect
 }
 
 std::vector<Token> shuntingYard(const std::vector<Token>& tokens) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     std::vector<Token> outputVector;       // Use a vector instead of queue
     std::stack<Token> operatorStack;
     std::stack<int> argumentCounts;
@@ -108,7 +108,7 @@ std::vector<Token> shuntingYard(const std::vector<Token>& tokens) {
 #pragma region Postfix Evaluation
 
 double evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     std::stack<double> stack;
 
     for (const auto& token : postfixQueue) {
@@ -170,7 +170,7 @@ double evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable
 
 
 std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const std::unordered_map<std::string, Function>& functions) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
 
     // We use a stack of "partial" postfix expressions. Each element on the stack
     // is a fully formed (sub)postfix sequence. For instance, if we see a NUMBER token,

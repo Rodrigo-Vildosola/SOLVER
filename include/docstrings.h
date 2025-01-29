@@ -23,128 +23,6 @@
 #endif
 
 
-static const char *__doc_ExprNode = R"doc()doc";
-
-static const char *__doc_ExprNode_2 = R"doc()doc";
-
-static const char *__doc_ExprNode_ExprNode = R"doc()doc";
-
-static const char *__doc_ExprNode_ExprNode_2 = R"doc()doc";
-
-static const char *__doc_ExprNode_ExprNode_3 = R"doc()doc";
-
-static const char *__doc_ExprNode_arguments = R"doc()doc";
-
-static const char *__doc_ExprNode_destroy = R"doc()doc";
-
-static const char *__doc_ExprNode_left = R"doc()doc";
-
-static const char *__doc_ExprNode_operator_delete = R"doc()doc";
-
-static const char *__doc_ExprNode_operator_new = R"doc()doc";
-
-static const char *__doc_ExprNode_right = R"doc()doc";
-
-static const char *__doc_ExprNode_type = R"doc()doc";
-
-static const char *__doc_ExprNode_value = R"doc()doc";
-
-static const char *__doc_ExpressionTree_getFunctionArgCount =
-R"doc(Retrieves the expected argument count for a given function.
-
-Parameter ``functionName``:
-    The name of the function.
-
-Parameter ``functions``:
-    Map of available functions with argument details.
-
-Returns:
-    Number of arguments the function expects.
-
-Throws:
-    SolverException if the function is not found.)doc";
-
-static const char *__doc_ExpressionTree_getPrecedence =
-R"doc(Retrieves the precedence level of a given operator.
-
-Parameter ``op``:
-    The operator as a string.
-
-Returns:
-    Integer representing the precedence level.)doc";
-
-static const char *__doc_ExpressionTree_isLeftAssociative =
-R"doc(Determines if an operator is left-associative.
-
-Parameter ``op``:
-    The operator as a string.
-
-Returns:
-    True if the operator is left-associative, false otherwise.)doc";
-
-static const char *__doc_ExpressionTree_parseExpression =
-R"doc(Parses a list of tokens into an expression tree.
-
-Parameter ``tokens``:
-    A vector of tokens representing the expression.
-
-Parameter ``functions``:
-    A map of available functions with their details.
-
-Returns:
-    Pointer to the root of the parsed expression tree (ExprNode).)doc";
-
-static const char *__doc_ExpressionTree_processFunction =
-R"doc(Processes a function token and its arguments from the node stack, creating a
-function node in the expression tree.
-
-Parameter ``token``:
-    The function token to process.
-
-Parameter ``nodeStack``:
-    Stack of expression nodes to pop arguments from.
-
-Parameter ``functions``:
-    Map of available functions with argument details.
-
-Returns:
-    Pointer to the function expression node created.)doc";
-
-static const char *__doc_ExpressionTree_processOperator =
-R"doc(Processes an operator token and its operands from the node stack, creating an
-operator node in the expression tree.
-
-Parameter ``token``:
-    The operator token to process.
-
-Parameter ``nodeStack``:
-    Stack of expression nodes to pop operands from.
-
-Returns:
-    Pointer to the operator expression node created.)doc";
-
-static const char *__doc_ExpressionTree_processOperatorStack =
-R"doc(Manages the operator stack according to precedence and associativity rules.
-
-Parameter ``token``:
-    The current operator token.
-
-Parameter ``operatorStack``:
-    Stack of operators.
-
-Parameter ``outputQueue``:
-    Queue for output tokens in postfix notation.)doc";
-
-static const char *__doc_ExpressionTree_shuntingYard =
-R"doc(Converts an infix expression represented by tokens to postfix notation using the
-Shunting Yard algorithm.
-
-Parameter ``tokens``:
-    A vector of tokens representing the expression in infix notation.
-
-Returns:
-    A queue of tokens in postfix notation.)doc";
-
 static const char *__doc_Function = R"doc()doc";
 
 static const char *__doc_Function_Function = R"doc()doc";
@@ -178,40 +56,6 @@ static const char *__doc_LRUCache_get = R"doc()doc";
 static const char *__doc_LRUCache_maxSize = R"doc()doc";
 
 static const char *__doc_LRUCache_put = R"doc()doc";
-
-static const char *__doc_MemoryPool = R"doc()doc";
-
-static const char *__doc_MemoryPool_MemoryPool = R"doc()doc";
-
-static const char *__doc_MemoryPool_allocate = R"doc()doc";
-
-static const char *__doc_MemoryPool_allocatePool = R"doc()doc";
-
-static const char *__doc_MemoryPool_clearPool = R"doc()doc";
-
-static const char *__doc_MemoryPool_construct = R"doc()doc";
-
-static const char *__doc_MemoryPool_deallocate = R"doc()doc";
-
-static const char *__doc_MemoryPool_destroy = R"doc()doc";
-
-static const char *__doc_MemoryPool_freeList = R"doc()doc";
-
-static const char *__doc_MemoryPool_memoryBlocks = R"doc()doc";
-
-static const char *__doc_MemoryPool_poolSize = R"doc()doc";
-
-static const char *__doc_MultiPassSimplifier = R"doc()doc";
-
-static const char *__doc_MultiPassSimplifier_MultiPassSimplifier = R"doc()doc";
-
-static const char *__doc_MultiPassSimplifier_initializePasses = R"doc()doc";
-
-static const char *__doc_MultiPassSimplifier_passes = R"doc()doc";
-
-static const char *__doc_MultiPassSimplifier_simplify = R"doc()doc";
-
-static const char *__doc_MultiPassSimplifier_symbolTable = R"doc()doc";
 
 static const char *__doc_Postfix_evaluatePostfix = R"doc()doc";
 
@@ -362,24 +206,6 @@ static const char *__doc_Profiler_Utils_CleanedString = R"doc()doc";
 static const char *__doc_Profiler_Utils_CleanedString_data = R"doc()doc";
 
 static const char *__doc_Profiler_Utils_cleanup_output_string = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteEngine = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteEngine_addRule = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteEngine_applyRules = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteEngine_rules = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteRule = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteRule_apply = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteRule_matches = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteRule_pattern = R"doc()doc";
-
-static const char *__doc_Simplification_RewriteRule_replacement = R"doc()doc";
 
 static const char *__doc_Solver =
 R"doc(A class for evaluating mathematical expressions, managing variables, constants,

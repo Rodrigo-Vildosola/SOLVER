@@ -12,30 +12,30 @@ Solver::Solver(size_t exprCacheSize)
 }
 
 void Solver::setUseCache(bool useCache) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     cacheEnabled = useCache;
 }
 
 void Solver::invalidateCaches() {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     if (cacheEnabled) {
         expressionCache.clear();
     }
 }
 
 void Solver::clearCache() {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     expressionCache.clear();
 }
 
 void Solver::declareConstant(const std::string& name, double value) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     symbolTable.declareConstant(name, value);
     invalidateCaches();
 }
 
 void Solver::declareVariable(const std::string& name, double value) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     symbolTable.declareVariable(name, value);
     invalidateCaches();
 }
@@ -43,7 +43,7 @@ void Solver::declareVariable(const std::string& name, double value) {
 #pragma region Evaluation
 
 std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     auto tokens = Tokenizer::tokenize(expression);
     auto postfix = Postfix::shuntingYard(tokens);
     auto flatened = Postfix::flattenPostfix(postfix, functions);
@@ -57,7 +57,7 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
 }
 
 double Solver::evaluate(const std::string& expression, bool debug) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     setCurrentExpression(expression, debug);
 
     std::size_t cacheKey = generateCacheKey(expression, {});
@@ -77,7 +77,7 @@ double Solver::evaluate(const std::string& expression, bool debug) {
 }
 
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     setCurrentExpression(expression, debug);
 
     std::vector<double> results;
@@ -108,7 +108,7 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
 #pragma region Functions
 
 void Solver::registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     auto result = functions.emplace(name, Function(callback, argCount));
     if (!result.second) {
         throw SolverException("Function '" + name + "' already exists.");
@@ -116,7 +116,7 @@ void Solver::registerPredefinedFunction(const std::string& name, const FunctionC
 }
 
 void Solver::declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression) {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     if (!Validator::isValidName(name)) {
         throw SolverException("Invalid function name: '" + name + "'.");
     }

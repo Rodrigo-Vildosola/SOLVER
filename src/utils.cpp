@@ -5,7 +5,7 @@
 
 // Register standard math functions
 void Solver::registerBuiltInFunctions() {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
     registerPredefinedFunction("neg", [](const std::vector<double>& args) -> double {
         return -args[0];
     }, 1);
@@ -89,7 +89,7 @@ std::size_t Solver::generateCacheKey(const std::string& base, const std::vector<
 }
 
 void Solver::printFunctionExpressions() {
-    PROFILE_FUNCTION();
+    PROFILE_FUNCTION()
 
     std::cout << "=== Solver Functions Report ===" << std::endl;
     for (const auto& [name, function] : functions) {
