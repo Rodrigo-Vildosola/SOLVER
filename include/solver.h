@@ -23,7 +23,13 @@ public:
      * 
      * Initializes the Solver instance and registers built-in functions.
      */
-    Solver(size_t exprCacheSize = 100, size_t funcCacheSize = 100);
+    Solver(size_t exprCacheSize = 100);
+
+    ~Solver() {
+        PROFILE_END_SESSION();
+    }
+
+    void printFunctionExpressions();
 
     /**
      * @brief Declare a constant in the solver's symbol table.
@@ -120,7 +126,7 @@ public:
      * 
      * @return A map of function names, along with argument lists and a flag indicating whether the function is predefined.
      */
-    std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> listFunctions() const;
+    // std::unordered_map<std::string, std::pair<std::vector<std::string>, bool>> listFunctions() const;
 
     /**
      * @brief Sets the current expression and parses it into an expression tree.
@@ -148,34 +154,13 @@ private:
     void registerBuiltInFunctions();
 
     /**
-     * @brief Evaluate an expression tree node.
-     * 
-     * This method recursively evaluates an expression tree node and returns the result.
-     * 
-     * @param node A unique pointer to an expression tree node.
-     * @return The result of evaluating the node.
-     */
-    double evaluateNode(ExprNode* node);
-
-    /**
      * @brief Parses and simplifies a mathematical expression.
      * 
      * @param expression The mathematical expression to parse.
      * @param debug If true, enables debug output during parsing and simplification.
      * @return A unique pointer to the simplified expression tree (ExprNode).
      */
-    ExprNode* parse(const std::string &expression, bool debug = false);
-
-    /**
-     * @brief Evaluate a function with the provided arguments.
-     * 
-     * This method handles the evaluation of user-defined and predefined functions with the provided arguments.
-     * 
-     * @param func The name of the function.
-     * @param args A vector of arguments to pass to the function.
-     * @return The result of the function evaluation.
-     */
-    double evaluateFunction(const std::string& func, const std::vector<double>& args);
+    std::vector<Token> parse(const std::string &expression, bool debug = false);
 
     /**
      * @brief Generates a unique cache key for a given expression or function call.
@@ -206,7 +191,6 @@ private:
     std::unordered_map<std::string, Function> functions;
 
     LRUCache<std::size_t, double> expressionCache;  ///< LRU Cache for expression evaluation results
-    LRUCache<std::size_t, double> functionCache;    ///< LRU Cache for function evaluation results
 
     bool cacheEnabled = true;  ///< Flag to enable or disable cache
 
@@ -215,6 +199,6 @@ private:
 
     std::string currentExpression; ///< The current expression being evaluated
 
-    ExprNode* currentExprTree;
+    std::vector<Token> currentPostfix;
 
 };

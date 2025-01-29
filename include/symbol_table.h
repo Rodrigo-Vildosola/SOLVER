@@ -22,7 +22,7 @@ class SymbolTable {
 public:
     // Methods to declare constants and variables
     void declareConstant(const std::string& name, double value);
-    void declareVariable(const std::string& name, double value);
+    void declareVariable(const std::string& name, double value, double skipCheck = false);
     // Lookup for a symbol (constant or variable)
     double lookupSymbol(const std::string& name) const;
 

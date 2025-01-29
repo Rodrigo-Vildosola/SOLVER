@@ -9,6 +9,6 @@
 namespace py = pybind11;
 
 PYBIND11_MODULE(MODULE_NAME, m) {
-    m.doc() = "Python bindings for the bootest C++ testing library.";
+    m.doc() = "Python bindings for the solver C++ math expression parsing and solving library.";
 
 }

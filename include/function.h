@@ -7,22 +7,21 @@
 using FunctionCallback = std::function<double(const std::vector<double>&)>;
 
 struct Function {
-    FunctionCallback callback;             // For predefined functions
-    std::vector<std::string> args;         // For user-defined functions
-    std::string expression;                // For user-defined functions
-    ExprNode* exprTree;                    // Pre-parsed expression tree
-    size_t argCount;                       // Number of arguments
-    bool isPredefined;                     // Flag to differentiate between predefined and user-defined functions
+    FunctionCallback callback;              // For predefined functions
+    std::vector<Token> inlinedPostfix;      // Postfix expression for user-defined functions
+    std::vector<std::string> argumentNames; // Names of the arguments
+    size_t argCount;                        // Number of arguments
+    bool isPredefined;                      // Flag for predefined functions
 
     // Default Constructor
     Function()
-        : callback(), args(), expression(), exprTree(), argCount(0), isPredefined(true) {}
+        : callback(nullptr), inlinedPostfix(), argumentNames(), argCount(0), isPredefined(true) {}
 
     // Constructor for predefined functions
     Function(FunctionCallback cb, size_t argCnt)
-        : callback(cb), args(), expression(), exprTree(nullptr), argCount(argCnt), isPredefined(true) {}
+        : callback(std::move(cb)), inlinedPostfix(), argumentNames(), argCount(argCnt), isPredefined(true) {}
 
     // Constructor for user-defined functions
-    Function(std::vector<std::string> a, std::string expr)
-        : callback(), args(std::move(a)), expression(std::move(expr)), exprTree(nullptr), argCount(args.size()), isPredefined(false) {}
+    Function(std::vector<Token> postfix, std::vector<std::string> args)
+        : callback(nullptr), inlinedPostfix(std::move(postfix)), argumentNames(std::move(args)), argCount(argumentNames.size()), isPredefined(false) {}
 };

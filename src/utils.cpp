@@ -1,10 +1,11 @@
 #include "solver.h"
 #include "tokenizer.h"
-
+#include "debug.h"
 
 
 // Register standard math functions
 void Solver::registerBuiltInFunctions() {
+    PROFILE_FUNCTION();
     registerPredefinedFunction("neg", [](const std::vector<double>& args) -> double {
         return -args[0];
     }, 1);
@@ -86,5 +87,37 @@ std::size_t Solver::generateCacheKey(const std::string& base, const std::vector<
 
     return hash;  // Return the hashed key as an integer instead of converting to string
 }
+
+void Solver::printFunctionExpressions() {
+    PROFILE_FUNCTION();
+
+    std::cout << "=== Solver Functions Report ===" << std::endl;
+    for (const auto& [name, function] : functions) {
+        if (function.isPredefined) continue;
+        std::cout << "Function Name: " << name << std::endl;
+        std::cout << "  Arguments: ";
+        if (function.argumentNames.empty()) {
+            std::cout << "None";
+        } else {
+            for (const auto& arg : function.argumentNames) {
+                std::cout << arg << " ";
+            }
+        }
+        std::cout << std::endl;
+
+        std::cout << "  Type: " << (function.isPredefined ? "Predefined" : "User-defined") << std::endl;
+
+        if (!function.isPredefined) {
+            std::cout << "  Postfix Expression: ";
+            printPostfix(function.inlinedPostfix);
+        } else {
+            std::cout << "  Predefined Callback: Yes" << std::endl;
+        }
+
+        std::cout << std::endl;
+    }
+    std::cout << "=== End of Report ===" << std::endl;
+}
+
 
 
