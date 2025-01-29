@@ -1,0 +1,82 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "BuildConfig Schema",
+    "type": "object",
+    "properties": {
+      "library_name": {
+        "type": "string",
+        "description": "Name of the Python library."
+      },
+      "author": {
+        "type": "string",
+        "description": "Name of the author."
+      },
+      "description": {
+        "type": "string",
+        "description": "Short description of the library."
+      },
+      "url": {
+        "type": "string",
+        "description": "Project homepage or repo URL."
+      },
+      "version_file": {
+        "type": "string",
+        "description": "File path containing the version string."
+      },
+      "readme_file": {
+        "type": "string",
+        "description": "File path for your README."
+      },
+      "install_requires": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of Python dependencies."
+      },
+      "classifiers": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Trove classifiers for PyPI."
+      },
+      "python_requires": {
+        "type": "string",
+        "description": "Python version requirement specifier."
+      },
+      "zip_safe": {
+        "type": "boolean",
+        "description": "Whether the package can be installed as a zip."
+      },
+      "build_directory": {
+        "type": "string",
+        "description": "Directory for build artifacts."
+      },
+      "extra_directories": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Directories for copying built artifacts."
+      },
+      "tests_directory": {
+        "type": "string",
+        "description": "Directory containing Python tests (optional).",
+        "default": "tests"
+      },
+  
+      "headers_directory": {
+        "type": "string",
+        "description": "Directory for C++ headers (optional).",
+        "default": "include"
+      },
+      "docstrings_file": {
+        "type": "string",
+        "description": "Filename for docstrings (optional).",
+        "default": "docstrings.h"
+      }
+    },
+    "required": [
+        "library_name", "author", "description", "url",
+        "version_file", "readme_file",
+        "install_requires", "classifiers", "python_requires",
+        "zip_safe",
+        "extra_directories"
+      ]
+  }
+  

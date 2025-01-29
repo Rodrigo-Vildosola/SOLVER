@@ -1,0 +1,561 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+#  Syntax: mkdoc.py [-I<path> ..] [.. a list of header files ..]
+#
+#  Extract documentation from C++ header files to use it in Python bindings
+#
+
+import os
+import sys
+import platform
+import re
+import textwrap
+import hashlib
+import json
+
+import ctypes.util
+
+from clang import cindex
+from clang.cindex import CursorKind
+from collections import OrderedDict
+from glob import glob
+from io import StringIO
+from threading import Thread, Semaphore
+from multiprocessing import cpu_count
+
+from .logger import FileTracker
+
+RECURSE_LIST = [
+    CursorKind.TRANSLATION_UNIT,
+    CursorKind.NAMESPACE,
+    CursorKind.CLASS_DECL,
+    CursorKind.STRUCT_DECL,
+    CursorKind.ENUM_DECL,
+    CursorKind.CLASS_TEMPLATE
+]
+
+PRINT_LIST = [
+    CursorKind.CLASS_DECL,
+    CursorKind.STRUCT_DECL,
+    CursorKind.ENUM_DECL,
+    CursorKind.ENUM_CONSTANT_DECL,
+    CursorKind.CLASS_TEMPLATE,
+    CursorKind.FUNCTION_DECL,
+    CursorKind.FUNCTION_TEMPLATE,
+    CursorKind.CONVERSION_FUNCTION,
+    CursorKind.CXX_METHOD,
+    CursorKind.CONSTRUCTOR,
+    CursorKind.FIELD_DECL
+]
+
+PREFIX_BLACKLIST = [
+    CursorKind.TRANSLATION_UNIT
+]
+
+CPP_OPERATORS = {
+    '<=': 'le', '>=': 'ge', '==': 'eq', '!=': 'ne', '[]': 'array',
+    '+=': 'iadd', '-=': 'isub', '*=': 'imul', '/=': 'idiv', '%=':
+    'imod', '&=': 'iand', '|=': 'ior', '^=': 'ixor', '<<=': 'ilshift',
+    '>>=': 'irshift', '++': 'inc', '--': 'dec', '<<': 'lshift', '>>':
+    'rshift', '&&': 'land', '||': 'lor', '!': 'lnot', '~': 'bnot',
+    '&': 'band', '|': 'bor', '+': 'add', '-': 'sub', '*': 'mul', '/':
+    'div', '%': 'mod', '<': 'lt', '>': 'gt', '=': 'assign', '()': 'call'
+}
+
+CPP_OPERATORS = OrderedDict(
+    sorted(CPP_OPERATORS.items(), key=lambda t: -len(t[0])))
+
+job_count = cpu_count()
+job_semaphore = Semaphore(job_count)
+errors_detected = False
+docstring_width = int(70)
+
+
+class NoFilenamesError(ValueError):
+    pass
+
+
+def d(s):
+    return s if isinstance(s, str) else s.decode('utf8')
+
+
+def sanitize_name(name):
+    name = re.sub(r'type-parameter-0-([0-9]+)', r'T\1', name)
+    for k, v in CPP_OPERATORS.items():
+        name = name.replace('operator%s' % k, 'operator_%s' % v)
+    name = re.sub('<.*>', '', name)
+    name = ''.join([ch if ch.isalnum() else '_' for ch in name])
+    name = re.sub('_$', '', re.sub('_+', '_', name))
+    return '__doc_' + name
+
+
+def process_comment(comment):
+    result = ''
+
+    # Remove C++ comment syntax
+    leading_spaces = float('inf')
+    for s in comment.expandtabs(tabsize=4).splitlines():
+        s = s.strip()
+        if s.endswith('*/'):
+            s = s[:-2].rstrip('*')
+        if s.startswith('/*'):
+            s = s[2:].lstrip('*!<')
+        elif s.startswith('//'):
+            s = s[2:].lstrip('/!<')
+        elif s.startswith('*'):
+            s = s[1:]
+        if len(s) > 0:
+            leading_spaces = min(leading_spaces, len(s) - len(s.lstrip()))
+        result += s + '\n'
+
+    if leading_spaces != float('inf'):
+        result2 = ""
+        for s in result.splitlines():
+            result2 += s[leading_spaces:] + '\n'
+        result = result2
+
+    # Doxygen tags
+    cpp_group = r'([^\s]+)'
+    param_group = r'([\[\w:,\]]+)'
+
+    s = result
+    s = re.sub(r'[\\@][cp]\s+%s' % cpp_group, r'``\1``', s)
+    s = re.sub(r'[\\@]a\s+%s' % cpp_group, r'*\1*', s)
+    s = re.sub(r'[\\@]e\s+%s' % cpp_group, r'*\1*', s)
+    s = re.sub(r'[\\@]em\s+%s' % cpp_group, r'*\1*', s)
+    s = re.sub(r'[\\@]b\s+%s' % cpp_group, r'**\1**', s)
+    s = re.sub(r'[\\@]ingroup\s+%s' % cpp_group, r'', s)
+    s = re.sub(r'[\\@]param%s?\s+%s' % (param_group, cpp_group),
+               r'\n\n$Parameter ``\2``:\n\n', s)
+    s = re.sub(r'[\\@]tparam%s?\s+%s' % (param_group, cpp_group),
+               r'\n\n$Template parameter ``\2``:\n\n', s)
+
+    # Remove class and struct tags
+    s = re.sub(r'[\\@](class|struct)\s+.*', '', s)
+
+    for in_, out_ in {
+        'returns': 'Returns',
+        'return': 'Returns',
+        'authors': 'Authors',
+        'author': 'Author',
+        'copyright': 'Copyright',
+        'date': 'Date',
+        'remark': 'Remark',
+        'sa': 'See also',
+        'see': 'See also',
+        'extends': 'Extends',
+        'throws': 'Throws',
+        'throw': 'Throws'
+    }.items():
+        s = re.sub(r'[\\@]%s\s*' % in_, r'\n\n$%s:\n\n' % out_, s)
+
+    s = re.sub(r'[\\@]details\s*', r'\n\n', s)
+    s = re.sub(r'[\\@]brief\s*', r'', s)
+    s = re.sub(r'[\\@]short\s*', r'', s)
+    s = re.sub(r'[\\@]ref\s*', r'', s)
+
+    s = re.sub(r'[\\@]code\s?(.*?)\s?[\\@]endcode',
+               r"```\n\1\n```\n", s, flags=re.DOTALL)
+    s = re.sub(r'[\\@]warning\s?(.*?)\s?\n\n',
+               r'$.. warning::\n\n\1\n\n', s, flags=re.DOTALL)
+    # Deprecated expects a version number for reST and not for Doxygen. Here the first word of the
+    # doxygen directives is assumed to correspond to the version number
+    s = re.sub(r'[\\@]deprecated\s(.*?)\s?(.*?)\s?\n\n',
+               r'$.. deprecated:: \1\n\n\2\n\n', s, flags=re.DOTALL)
+    s = re.sub(r'[\\@]since\s?(.*?)\s?\n\n',
+               r'.. versionadded:: \1\n\n', s, flags=re.DOTALL)
+    s = re.sub(r'[\\@]todo\s?(.*?)\s?\n\n',
+               r'$.. todo::\n\n\1\n\n', s, flags=re.DOTALL)
+
+    # HTML/TeX tags
+    s = re.sub(r'<tt>(.*?)</tt>', r'``\1``', s, flags=re.DOTALL)
+    s = re.sub(r'<pre>(.*?)</pre>', r"```\n\1\n```\n", s, flags=re.DOTALL)
+    s = re.sub(r'<em>(.*?)</em>', r'*\1*', s, flags=re.DOTALL)
+    s = re.sub(r'<b>(.*?)</b>', r'**\1**', s, flags=re.DOTALL)
+    s = re.sub(r'[\\@]f\$(.*?)[\\@]f\$', r':math:`\1`', s, flags=re.DOTALL)
+    s = re.sub(r'<li>', r'\n\n* ', s)
+    s = re.sub(r'</?ul>', r'', s)
+    s = re.sub(r'</li>', r'\n\n', s)
+
+    s = s.replace('``true``', '``True``')
+    s = s.replace('``false``', '``False``')
+
+    # Re-flow text
+    wrapper = textwrap.TextWrapper()
+    wrapper.expand_tabs = True
+    wrapper.replace_whitespace = True
+    wrapper.drop_whitespace = True
+    wrapper.width = docstring_width
+    wrapper.initial_indent = wrapper.subsequent_indent = ''
+
+    result = ''
+    in_code_segment = False
+    for x in re.split(r'(```)', s):
+        if x == '```':
+            if not in_code_segment:
+                result += '```\n'
+            else:
+                result += '\n```\n\n'
+            in_code_segment = not in_code_segment
+        elif in_code_segment:
+            result += x.strip()
+        else:
+            for y in re.split(r'(?: *\n *){2,}', x):
+                wrapped = wrapper.fill(re.sub(r'\s+', ' ', y).strip())
+                if len(wrapped) > 0 and wrapped[0] == '$':
+                    result += wrapped[1:] + '\n'
+                    wrapper.initial_indent = \
+                        wrapper.subsequent_indent = ' ' * 4
+                else:
+                    if len(wrapped) > 0:
+                        result += wrapped + '\n\n'
+                    wrapper.initial_indent = wrapper.subsequent_indent = ''
+    return result.rstrip().lstrip('\n')
+
+
+def extract(filename, node, prefix, output):
+    if not (node.location.file is None or
+            os.path.samefile(d(node.location.file.name), filename)):
+        return 0
+    if node.kind in RECURSE_LIST:
+        sub_prefix = prefix
+        if node.kind not in PREFIX_BLACKLIST:
+            if len(sub_prefix) > 0:
+                sub_prefix += '_'
+            sub_prefix += d(node.spelling)
+        for i in node.get_children():
+            extract(filename, i, sub_prefix, output)
+    if node.kind in PRINT_LIST:
+        comment = d(node.raw_comment) if node.raw_comment is not None else ''
+        comment = process_comment(comment)
+        sub_prefix = prefix
+        if len(sub_prefix) > 0:
+            sub_prefix += '_'
+        if len(node.spelling) > 0:
+            name = sanitize_name(sub_prefix + d(node.spelling))
+            output.append((name, filename, comment))
+
+
+class CacheManager:
+    def __init__(self, cache_file="docstring_cache.json", build_dir="."):
+        self.cache_file = os.path.join(build_dir, cache_file)
+        self.cache = self._load_cache()
+
+    def _load_cache(self):
+        """Load the cache from the JSON file."""
+        if os.path.exists(self.cache_file):
+            with open(self.cache_file, "r") as f:
+                return json.load(f)
+        return {}
+
+    def save_cache(self):
+        """Save the cache to the JSON file."""
+        os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
+        with open(self.cache_file, "w") as f:
+            json.dump(self.cache, f, indent=4)
+
+    def get_cached_data(self, filename):
+        """Get cached data for a file."""
+        return self.cache.get(filename, None)
+
+    def update_cache(self, filename, file_hash, docstrings):
+        """Update the cache for a file."""
+        self.cache[filename] = {"hash": file_hash, "docstrings": docstrings}
+
+    def is_file_changed(self, filename, file_hash):
+        """Check if the file has changed based on its hash."""
+        cached_data = self.get_cached_data(filename)
+        if not cached_data:
+            return True  # File is new
+        return cached_data["hash"] != file_hash
+
+
+class ExtractionThread(Thread):
+    def __init__(self, filename, parameters, output, tracker, output_lock, cache_manager, file_hash):
+        Thread.__init__(self)
+        self.filename = filename
+        self.parameters = parameters
+        self.output = output
+        self.tracker = tracker
+        self.output_lock = output_lock
+        self.cache_manager = cache_manager
+        self.file_hash = file_hash
+        job_semaphore.acquire()
+
+    def run(self):
+        global errors_detected
+        try:
+            # Log file processing start
+            self.tracker.update(f"Processing: {self.filename}")
+
+            # Process the file
+            file_output = []
+            index = cindex.Index.create()
+            tu = index.parse(self.filename, args=self.parameters)
+            extract(self.filename, tu.cursor, '', file_output)
+
+            # Update the output and cache
+            with self.output_lock:
+                self.output.extend(file_output)
+                self.cache_manager.update_cache(self.filename, self.file_hash, file_output)
+
+        except BaseException as e:
+            errors_detected = True
+            print(f"\nError processing {self.filename}: {e}", file=sys.stderr)
+        finally:
+            # Release the semaphore and clear the console line
+            job_semaphore.release()
+            with self.tracker.lock:
+                sys.stdout.write("\r" + " " * 80 + "\r")  # Clear the line
+                sys.stdout.flush()
+
+
+def read_args(args):
+    parameters = []
+    filenames = []
+    if "-x" not in args:
+        parameters.extend(['-x', 'c++'])
+    if not any(it.startswith("-std=") for it in args):
+        parameters.append('-std=c++11')
+    parameters.append('-Wno-pragma-once-outside-header')
+
+    if platform.system() == 'Darwin':
+        dev_path = '/Applications/Xcode.app/Contents/Developer/'
+        homebrew_llvm_dir = "/opt/homebrew/opt/llvm/lib/"
+        sdk_dir = dev_path + 'Platforms/MacOSX.platform/Developer/SDKs'
+        libclang = os.path.join(homebrew_llvm_dir, "libclang-cpp.dylib")
+
+        if os.path.exists(libclang):
+            cindex.Config.set_library_path(os.path.dirname(libclang))
+
+        if os.path.exists(sdk_dir):
+            sysroot_dir = os.path.join(sdk_dir, next(os.walk(sdk_dir))[1][0])
+            parameters.append('-isysroot')
+            parameters.append(sysroot_dir)
+    elif platform.system() == 'Windows':
+        if 'LIBCLANG_PATH' in os.environ:
+            library_file = os.environ['LIBCLANG_PATH']
+            if os.path.isfile(library_file):
+                cindex.Config.set_library_file(library_file)
+            else:
+                raise FileNotFoundError("Failed to find libclang.dll! "
+                                        "Set the LIBCLANG_PATH environment variable to provide a path to it.")
+        else:
+            library_file = ctypes.util.find_library('libclang.dll')
+            if library_file is not None:
+                cindex.Config.set_library_file(library_file)
+    elif platform.system() == 'Linux':
+        # LLVM switched to a monolithical setup that includes everything under
+        # /usr/lib/llvm{version_number}/. We glob for the library and select
+        # the highest version
+        def folder_version(d):
+            return [int(ver) for ver in re.findall(r'(?<!lib)(?<!\d)\d+', d)]
+
+        llvm_dir = max((
+            path
+            for libdir in ['lib64', 'lib', 'lib32']
+            for path in glob('/usr/%s/llvm-*' % libdir)
+            if os.path.exists(os.path.join(path, 'lib', 'libclang.so.1'))
+        ), default=None, key=folder_version)
+
+        # Ability to override LLVM/libclang paths
+        if 'LLVM_DIR_PATH' in os.environ:
+            llvm_dir = os.environ['LLVM_DIR_PATH']
+        elif llvm_dir is None:
+            raise FileNotFoundError(
+                "Failed to find a LLVM installation providing the file "
+                "/usr/lib{32,64}/llvm-{VER}/lib/libclang.so.1. Make sure that "
+                "you have installed the packages libclang1-{VER} and "
+                "libc++-{VER}-dev, where {VER} refers to the desired "
+                "Clang/LLVM version (e.g. 11). You may alternatively override "
+                "the automatic search by specifying the LIBLLVM_DIR_PATH "
+                "(for the LLVM base directory) and/or LIBCLANG_PATH (if "
+                "libclang is located at a nonstandard location) environment "
+                "variables.")
+
+        if 'LIBCLANG_PATH' in os.environ:
+            libclang_dir = os.environ['LIBCLANG_PATH']
+        else:
+            libclang_dir = os.path.join(llvm_dir, 'lib', 'libclang.so.1')
+
+        cindex.Config.set_library_file(libclang_dir)
+        cpp_dirs = [ ]
+
+        if '-stdlib=libc++' not in args:
+            cpp_dirs.append(max(
+                glob('/usr/include/c++/*'
+            ), default=None, key=folder_version))
+
+            cpp_dirs.append(max(
+                glob('/usr/include/%s-linux-gnu/c++/*' % platform.machine()
+            ), default=None, key=folder_version))
+        else:
+            cpp_dirs.append(os.path.join(llvm_dir, 'include', 'c++', 'v1'))
+
+        if 'CLANG_INCLUDE_DIR' in os.environ:
+            cpp_dirs.append(os.environ['CLANG_INCLUDE_DIR'])
+        else:
+            cpp_dirs.append(max(
+                glob(os.path.join(llvm_dir, 'lib', 'clang', '*', 'include')
+            ), default=None, key=folder_version))
+
+        cpp_dirs.append('/usr/include/%s-linux-gnu' % platform.machine())
+        cpp_dirs.append('/usr/include')
+
+        # Capability to specify additional include directories manually
+        if 'CPP_INCLUDE_DIRS' in os.environ:
+            cpp_dirs.extend([cpp_dir for cpp_dir in os.environ['CPP_INCLUDE_DIRS'].split()
+                             if os.path.exists(cpp_dir)])
+
+        for cpp_dir in cpp_dirs:
+            if cpp_dir is None:
+                continue
+            parameters.extend(['-isystem', cpp_dir])
+
+    for item in args:
+        if item.startswith('-'):
+            parameters.append(item)
+        else:
+            filenames.append(item)
+
+    if len(filenames) == 0:
+        raise NoFilenamesError("args parameter did not contain any filenames")
+
+    return parameters, filenames
+
+
+def extract_all(args, cache_manager):
+    parameters, filenames = read_args(args)
+    output = []
+    tracker = FileTracker(total=len(filenames) + 1)  # Total number of files to process
+
+    # A lock to synchronize access to shared resources
+    output_lock = Semaphore(1)
+
+    threads = []
+    for filename in filenames:
+        # Compute the current hash of the file
+        file_hash = hash_file_content(filename)
+
+        # Check if the file has changed
+        if not cache_manager.is_file_changed(filename, file_hash):
+            # Load cached docstrings for unchanged files
+            cached_data = cache_manager.get_cached_data(filename)
+            output.extend(cached_data["docstrings"])
+            tracker.skip()
+            continue
+
+        # Create a thread to process the file
+        thr = ExtractionThread(filename, parameters, output, tracker, output_lock, cache_manager, file_hash)
+        threads.append(thr)
+        thr.start()
+
+    # Wait for all threads to complete
+    for thr in threads:
+        thr.join()
+
+    tracker.update("Finished processing files")
+
+    # Finalize the tracker display
+    tracker.finish()
+
+    # Save the updated cache
+    cache_manager.save_cache()
+
+    return output
+
+
+def hash_file_content(file_path):
+    """Compute the SHA256 hash of a file's content."""
+    if not os.path.exists(file_path):
+        return None
+    with open(file_path, 'rb') as f:
+        return hashlib.sha256(f.read()).hexdigest()
+
+def write_header(comments, out_file=sys.stdout):
+    print('''/*
+  This file contains docstrings for use in the Python bindings.
+  Do not edit! They were automatically extracted by pybind11_mkdoc.
+ */
+
+#define __EXPAND(x)                                      x
+#define __COUNT(_1, _2, _3, _4, _5, _6, _7, COUNT, ...)  COUNT
+#define __VA_SIZE(...)                                   __EXPAND(__COUNT(__VA_ARGS__, 7, 6, 5, 4, 3, 2, 1, 0))
+#define __CAT1(a, b)                                     a ## b
+#define __CAT2(a, b)                                     __CAT1(a, b)
+#define __DOC1(n1)                                       __doc_##n1
+#define __DOC2(n1, n2)                                   __doc_##n1##_##n2
+#define __DOC3(n1, n2, n3)                               __doc_##n1##_##n2##_##n3
+#define __DOC4(n1, n2, n3, n4)                           __doc_##n1##_##n2##_##n3##_##n4
+#define __DOC5(n1, n2, n3, n4, n5)                       __doc_##n1##_##n2##_##n3##_##n4##_##n5
+#define __DOC6(n1, n2, n3, n4, n5, n6)                   __doc_##n1##_##n2##_##n3##_##n4##_##n5##_##n6
+#define __DOC7(n1, n2, n3, n4, n5, n6, n7)               __doc_##n1##_##n2##_##n3##_##n4##_##n5##_##n6##_##n7
+#define DOC(...)                                         __EXPAND(__EXPAND(__CAT2(__DOC, __VA_SIZE(__VA_ARGS__)))(__VA_ARGS__))
+
+#if defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+''', file=out_file)
+
+
+    name_ctr = 1
+    name_prev = None
+    for name, _, comment in list(sorted(comments, key=lambda x: (x[0], x[1]))):
+        if name == name_prev:
+            name_ctr += 1
+            name = name + "_%i" % name_ctr
+        else:
+            name_prev = name
+            name_ctr = 1
+        print('\nstatic const char *%s =%sR"doc(%s)doc";' %
+              (name, '\n' if '\n' in comment else ' ', comment), file=out_file)
+
+    print('''
+#if defined(__GNUG__)
+#pragma GCC diagnostic pop
+#endif
+''', file=out_file)
+
+
+def write_header_with_hash_check(comments, output_path, width):
+    """Write the docstrings header file only if the content has changed."""
+    # Generate the new header content
+    temp_output = StringIO()
+    write_header(comments, temp_output)
+    new_content = temp_output.getvalue()
+
+    # Compute the new hash
+    new_hash = hashlib.sha256(new_content.encode('utf-8')).hexdigest()
+
+    # Compare with the current file's hash
+    current_hash = hash_file_content(output_path)
+
+    if current_hash == new_hash:
+        print(f"Docstrings are unchanged; skipping update for {output_path}")
+        return False  # Indicates no update was performed
+
+    # Write the new content to the file
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.write(new_content)
+    print(f"Docstrings generated and saved to {output_path}")
+    return True  # Indicates an update was performed
+
+
+def mkdoc(args, width, output=None, build_dir="."):
+    if width is not None:
+        global docstring_width
+        docstring_width = int(width)
+    
+    cache_manager = CacheManager(build_dir=build_dir)
+    comments = extract_all(args, cache_manager=cache_manager)
+    
+    if errors_detected:
+        return
+    
+    if output:
+        write_header_with_hash_check(comments, output, width)
+    else:
+        write_header(comments)
