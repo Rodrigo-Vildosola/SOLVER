@@ -48,7 +48,7 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto flattened = Postfix::flattenPostfix(postfix, functions);
 
     // Now do a simplification pass
-    auto simplified = Postfix::simplifyPostfix(flattened, functions);
+    auto simplified = Postfix::fullySimplifyPostfix(flattened, functions);
 
     if (debug) {
         std::cout << "Flattened postfix: ";

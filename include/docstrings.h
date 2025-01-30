@@ -65,6 +65,8 @@ static const char *__doc_Postfix_evaluatePostfix = R"doc()doc";
 
 static const char *__doc_Postfix_flattenPostfix = R"doc()doc";
 
+static const char *__doc_Postfix_fullySimplifyPostfix = R"doc()doc";
+
 static const char *__doc_Postfix_getFunctionArgCount =
 R"doc(Retrieves the expected argument count for a given function.
 
@@ -151,18 +153,22 @@ Parameter ``tokens``:
 Returns:
     A queue of tokens in postfix notation.)doc";
 
-static const char *__doc_Postfix_simplifyPostfix =
-R"doc(Simplifies a flattened postfix expression by constant folding and basic
-algebraic identities.
+static const char *__doc_Postfix_singlePassSimplify =
+R"doc(Performs a single pass of local folding/simplification on a fully flattened
+postfix expression.
 
 Parameter ``postfix``:
-    A fully flattened postfix token sequence (no FUNCTION tokens).
+    The input postfix tokens (flattened).
+
+Parameter ``functions``:
+    The map of function names to Function definitions (for predefined funcs).
+
+Parameter ``changed``:
+    Set to true if any folding/simplification occurred during this pass, false
+    otherwise.
 
 Returns:
-    A simplified postfix token sequence.
-
-Throws:
-    SolverException If the postfix is malformed (e.g., insufficient operands).)doc";
+    A (possibly) simplified postfix sequence after one pass.)doc";
 
 static const char *__doc_Postfix_trySimplifyBinary =
 R"doc(Attempts to simplify a binary operation (leftExpr op rightExpr) using local

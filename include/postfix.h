@@ -19,14 +19,18 @@ namespace Postfix {
 
     std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const std::unordered_map<std::string, Function>& functions);
 
+    std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
+
+
     /**
-     * @brief Simplifies a flattened postfix expression by constant folding and basic algebraic identities.
+     * @brief Performs a single pass of local folding/simplification on a fully flattened postfix expression.
      * 
-     * @param postfix A fully flattened postfix token sequence (no FUNCTION tokens).
-     * @return A simplified postfix token sequence.
-     * @throws SolverException If the postfix is malformed (e.g., insufficient operands).
+     * @param postfix The input postfix tokens (flattened).
+     * @param functions The map of function names to Function definitions (for predefined funcs).
+     * @param changed Set to true if any folding/simplification occurred during this pass, false otherwise.
+     * @return A (possibly) simplified postfix sequence after one pass.
      */
-    std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
+    std::vector<Token> singlePassSimplify(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions, bool &changed);
 
 
     /**
@@ -37,10 +41,10 @@ namespace Postfix {
      * @param opToken   The operator token (e.g. +, -, *, /, ^).
      * @return A new postfix token vector that represents the simplified expression.
      */
-    std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const std::vector<Token> &rightExpr, const Token &opToken);
+    std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const std::vector<Token> &rightExpr, const Token &opToken, bool &changed);
 
 
-    std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &argExprs, const Token &funcToken, const std::unordered_map<std::string, Function> &functions);
+    std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &argExprs, const Token &funcToken, const std::unordered_map<std::string, Function> &functions, bool &changed);
 
 
     /**

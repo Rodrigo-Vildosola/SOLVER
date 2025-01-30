@@ -340,7 +340,24 @@ std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const 
 
 #pragma region Postfix simplification
 
-std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
+std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions)
+{
+    // We'll do a loop that calls singlePassSimplify repeatedly
+    // until we detect no changes or we reach an iteration limit.
+    std::vector<Token> current = postfix;
+    bool changed = true;
+    const int MAX_ITERATIONS = 50; // arbitrary safe-guard
+
+    for (int i = 0; i < MAX_ITERATIONS && changed; ++i) {
+        std::vector<Token> next = singlePassSimplify(current, functions, changed);
+        current = std::move(next);
+    }
+
+    return current;
+}
+
+std::vector<Token> singlePassSimplify(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions, bool &changed) {
+    changed = false;
     std::stack<std::vector<Token>> stack;
 
     for (const Token &token : postfix)
@@ -349,42 +366,41 @@ std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std:
             // Push as a single-token vector
             stack.push({ token });
         } else if (token.type == OPERATOR) {
-            // Binary operator => need two sub-expressions
             if (stack.size() < 2) {
                 throw SolverException(
                     "Not enough operands for operator '" + token.value + "' during simplification.");
             }
-            auto rightExpr = stack.top(); stack.pop();
-            auto leftExpr  = stack.top(); stack.pop();
+            auto rightExpr = stack.top(); 
+            stack.pop();
+            auto leftExpr  = stack.top(); 
+            stack.pop();
 
-            // Attempt local simplification for binary operators
-            std::vector<Token> simplified = trySimplifyBinary(leftExpr, rightExpr, token);
+            // Attempt local simplification
+            std::vector<Token> simplified = trySimplifyBinary(leftExpr, rightExpr, token, changed);
             stack.push(std::move(simplified));
         } else if (token.type == FUNCTION) {
-                        // A predefined function (like sin, cos, exp, etc.) 
-            // We must look it up in 'functions' to see how many arguments it requires.
+            // Lookup function info
             auto it = functions.find(token.value);
             if (it == functions.end()) {
                 throw SolverException("Unknown function '" + token.value + "' during simplification.");
             }
-
             const Function &func = it->second;
-            const size_t argCount = func.argCount;
+            size_t argCount = func.argCount;
 
-            // Pop argCount sub-expressions
             if (stack.size() < argCount) {
-                throw SolverException("Not enough arguments for function '" + token.value + "' during simplification.");
+                throw SolverException(
+                    "Not enough arguments for function '" + token.value + "' during simplification.");
             }
 
-            // Collect sub-expressions in reverse
+            // Gather arguments
             std::vector<std::vector<Token>> argExprs(argCount);
             for (size_t i = 0; i < argCount; i++) {
                 argExprs[argCount - i - 1] = stack.top();
                 stack.pop();
             }
 
-            // Attempt to fold if all arguments are single-number
-            std::vector<Token> simplified = trySimplifyFunction(argExprs, token, functions);
+            // Attempt function-level folding
+            std::vector<Token> simplified = trySimplifyFunction(argExprs, token, functions, changed);
             stack.push(std::move(simplified));
         } else {
             // If your flattened postfix truly has no FUNCTION, PAREN, etc.,
@@ -403,115 +419,32 @@ std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std:
 }
 
 
-std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const std::vector<Token> &rightExpr, const Token &opToken) {
+std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const std::vector<Token> &rightExpr, const Token &opToken, bool &changed) {
     // If both are single-number expressions, constant fold
-    if (isNumber(leftExpr) && isNumber(rightExpr))
-    {
+    if (isNumber(leftExpr) && isNumber(rightExpr)) {
+        changed = true;  // We are folding something
         double lhs = asNumber(leftExpr);
         double rhs = asNumber(rightExpr);
 
-        // Perform the operation
-        double foldedVal = 0.0;
         if (opToken.value == "+") {
-            foldedVal = lhs + rhs;
-        } else if (opToken.value == "-") {
-            foldedVal = lhs - rhs;
-        } else if (opToken.value == "*") {
-            foldedVal = lhs * rhs;
-        } else if (opToken.value == "/") {
-            if (rhs == 0.0) {
-                // We won't handle symbolic "∞"; raise error or skip
+            return { {NUMBER, std::to_string(lhs + rhs)} };
+        }
+        if (opToken.value == "-") {
+            return { {NUMBER, std::to_string(lhs - rhs)} };
+        }
+        if (opToken.value == "*") {
+            return { {NUMBER, std::to_string(lhs * rhs)} };
+        }
+        if (opToken.value == "/") {
+            if (std::fabs(rhs) < 1e-14) {
                 throw SolverException("Division by zero in constant folding.");
             }
-            foldedVal = lhs / rhs;
-        } else if (opToken.value == "^") {
-            foldedVal = std::pow(lhs, rhs);
-        } else {
-            // Operator not recognized
-            throw SolverException("Unknown operator in constant folding: " + opToken.value);
+            return { {NUMBER, std::to_string(lhs / rhs)} };
         }
-
-        // Return as single NUMBER token
-        return { Token{ NUMBER, std::to_string(foldedVal) } };
-    }
-
-    // If not both numbers, check for single-token patterns like x+0 => x, 1*x => x, etc.
-    // We'll define a few local helper lambdas:
-
-    auto isZero = [&](const std::vector<Token> &expr) {
-        return isNumber(expr) && (std::fabs(asNumber(expr)) < 1e-14); // near zero
-    };
-    auto isOne = [&](const std::vector<Token> &expr) {
-        return isNumber(expr) && (std::fabs(asNumber(expr) - 1.0) < 1e-14);
-    };
-    auto singleToken = [&](const std::vector<Token> &expr) -> bool {
-        return expr.size() == 1;
-    };
-
-    // For convenience, if leftExpr or rightExpr is a single token, let's store it
-    // for quick checks or re-insertion:
-    const bool leftSingle  = singleToken(leftExpr);
-    const bool rightSingle = singleToken(rightExpr);
-
-    // Check basic rules: 
-    if (opToken.value == "+") {
-        // x + 0 => x   or   0 + x => x
-        if (rightSingle && isZero(rightExpr)) {
-            return leftExpr;
+        if (opToken.value == "^") {
+            return { {NUMBER, std::to_string(std::pow(lhs, rhs))} };
         }
-        if (leftSingle && isZero(leftExpr)) {
-            return rightExpr;
-        }
-    }
-    else if (opToken.value == "-") {
-        // x - 0 => x
-        if (rightSingle && isZero(rightExpr)) {
-            return leftExpr;
-        }
-    }
-    else if (opToken.value == "*") {
-        // x * 0 => 0
-        if (rightSingle && isZero(rightExpr)) {
-            return rightExpr; // '0'
-        }
-        if (leftSingle && isZero(leftExpr)) {
-            return leftExpr; // '0'
-        }
-        // x * 1 => x
-        if (rightSingle && isOne(rightExpr)) {
-            return leftExpr;
-        }
-        if (leftSingle && isOne(leftExpr)) {
-            return rightExpr;
-        }
-    }
-    else if (opToken.value == "/") {
-        // x / 1 => x
-        if (rightSingle && isOne(rightExpr)) {
-            return leftExpr;
-        }
-        // 0 / x => 0 (if x != 0)
-        if (leftSingle && isZero(leftExpr)) {
-            // We won't check for x=0 (that'd be 0/0 undefined).
-            return leftExpr; // '0'
-        }
-    }
-    // For '^', we could add rules like x^0 => 1, x^1 => x, 1^x => 1, 0^x => 0 for x>0, etc.
-    else if (opToken.value == "^") {
-        // x^0 => 1
-        if (rightSingle && isZero(rightExpr)) {
-            return { Token{ NUMBER, "1" } };
-        }
-        // x^1 => x
-        if (rightSingle && isOne(rightExpr)) {
-            return leftExpr;
-        }
-        // 1^x => 1
-        if (leftSingle && isOne(leftExpr)) {
-            return leftExpr; // '1'
-        }
-        // 0^x => 0 if x>0. We won't handle x<=0 because that's undefined or ∞.
-        // etc.
+        throw SolverException("Unknown operator in constant folding: " + opToken.value);
     }
 
     // If none of the local simplifications matched, just combine them
@@ -523,58 +456,54 @@ std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const s
 }
 
 
-std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &argExprs, const Token &funcToken, const std::unordered_map<std::string, Function> &functions) {
-    // Retrieve the function
+std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &argExprs, const Token &funcToken, const std::unordered_map<std::string, Function> &functions, bool &changed) {
     auto it = functions.find(funcToken.value);
     if (it == functions.end()) {
-        throw SolverException("Unknown function '" + funcToken.value + "' in trySimplifyFunction().");
+        throw SolverException("Unknown function: " + funcToken.value);
     }
-
     const Function &func = it->second;
+
     if (!func.isPredefined) {
-        // If this truly is a user-defined function, we wouldn't be here if you've 
-        // already flattened them out. So handle or error accordingly.
-        throw SolverException("trySimplifyFunction encountered a user-defined function unexpectedly.");
+        // Shouldn't happen if everything is flattened, but just in case
+        throw SolverException("User-defined function encountered in trySimplifyFunction().");
     }
 
-    // Check if all arguments are single-number tokens
-    bool allNumbers = true;
-    for (const auto &arg : argExprs) {
+    // Check if all arguments are single-number tokens => we can constant fold
+    bool allNumeric = true;
+    for (auto &arg : argExprs) {
         if (!isNumber(arg)) {
-            allNumbers = false;
+            allNumeric = false;
             break;
         }
     }
 
-    if (allNumbers) {
-        // We can constant-fold the function call
+    if (allNumeric) {
+        changed = true;
         std::vector<double> numericArgs;
         numericArgs.reserve(argExprs.size());
         for (auto &arg : argExprs) {
             numericArgs.push_back(asNumber(arg));
         }
 
-        // Evaluate the predefined callback with these numeric args
-        double resultVal = 0.0;
+        // Evaluate the callback
+        double foldedVal;
         try {
-            resultVal = func.callback(numericArgs);
+            foldedVal = func.callback(numericArgs);  
         } catch (const std::exception &e) {
-            throw SolverException("Error constant-folding function '" + funcToken.value + "': " + e.what());
+            throw SolverException("Error constant-folding function '"
+                                  + funcToken.value + "': " + e.what());
         }
 
-        // Return a single numeric token
-        return { Token{ NUMBER, std::to_string(resultVal) } };
+        return { { NUMBER, std::to_string(foldedVal) } };
     }
-    else {
-        // Not all numeric => reassemble into normal postfix sub-expression
-        // arg1-Postfix arg2-Postfix ... argN-Postfix function
-        std::vector<Token> combined;
-        for (const auto &arg : argExprs) {
-            combined.insert(combined.end(), arg.begin(), arg.end());
-        }
-        combined.push_back(funcToken);
-        return combined;
+
+    // If not all numeric => reassemble
+    std::vector<Token> combined;
+    for (auto &arg : argExprs) {
+        combined.insert(combined.end(), arg.begin(), arg.end());
     }
+    combined.push_back(funcToken);
+    return combined;
 }
 
 
