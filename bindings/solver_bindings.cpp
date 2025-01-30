@@ -48,15 +48,13 @@ void bind_solver(py::module_ &m) {
              py::arg("debug") = false,
              DOC(Solver, evaluateForRange))
 
-        // For registering a predefined function in Python,
-        // you would need to handle conversion of a Python callable to the C++ callback.
-        // If you don't need that, you can simply omit or limit this binding.
-        // .def("registerPredefinedFunction",
-        //      &Solver::registerPredefinedFunction,
-        //      py::arg("name"),
-        //      py::arg("callback"),   // This would be a std::function<double(...)> or similar
-        //      py::arg("argCount"),
-        //      DOC(Solver, registerPredefinedFunction))
+        .def("evaluate_ranges",
+             &Solver::evaluateForRanges,
+             py::arg("variables"),
+             py::arg("valuesSets"),
+             py::arg("expression"),
+             py::arg("debug") = false,
+             DOC(Solver, evaluateForRanges))
 
         .def("declare_function",
              &Solver::declareFunction,

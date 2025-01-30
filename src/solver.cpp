@@ -103,6 +103,76 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
     return results;
 }
 
+
+std::vector<double> Solver::evaluateForRanges(const std::vector<std::string>& variables, const std::vector<std::vector<double>>& valuesSets, const std::string& expression, bool debug) {
+    PROFILE_FUNCTION()
+
+    // Basic validation:
+    if (variables.size() != valuesSets.size()) {
+        throw SolverException("Mismatch in number of variables vs. value ranges.");
+    }
+    for (auto& var : variables) {
+        if (!Validator::isValidName(var)) {
+            throw SolverException("Invalid variable name '" + var + "'.");
+        }
+    }
+
+    // Parse expression only once for efficiency
+    setCurrentExpression(expression, debug);
+
+    // Compute the total number of combinations in the cartesian product
+    // E.g., if x has 3 values and y has 2, totalCombinations = 3 * 2 = 6.
+    size_t totalCombinations = 1;
+    for (const auto& vals : valuesSets) {
+        totalCombinations *= vals.size();
+    }
+
+    // Prepare output vector
+    std::vector<double> results;
+    results.reserve(totalCombinations);
+
+    // If there's only one variable, we can do a simple loop.
+    // Otherwise, we'll do an iterative cartesian product approach.
+    // We'll track an index array, one index per variable.
+    const size_t nVars = variables.size();
+    std::vector<size_t> indices(nVars, 0);  // current position in each valuesSets[i]
+
+    // We'll iterate from combination #0 to combination #(totalCombinations-1).
+    // For each iteration, assign symbolTable values and evaluate.
+    for (size_t count = 0; count < totalCombinations; ++count) {
+        // Assign each variable to its current index's value
+        for (size_t i = 0; i < nVars; ++i) {
+            symbolTable.declareVariable(variables[i], valuesSets[i][indices[i]], true);
+        }
+
+        // Evaluate and capture the result
+        try {
+            double val = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
+            results.push_back(val);
+        } catch (const SolverException& e) {
+            // On error, store NaN to keep indices consistent
+            std::cerr << "Error evaluating expression for combination "
+                      << (count+1) << " of " << totalCombinations << ": "
+                      << e.what() << std::endl;
+            results.push_back(std::nan(""));
+        }
+
+        // Increment the 'indices' in a multi-digit manner (the last variable changes fastest)
+        for (int varIndex = static_cast<int>(nVars) - 1; varIndex >= 0; --varIndex) {
+            indices[varIndex]++;
+            if (indices[varIndex] < valuesSets[varIndex].size()) {
+                // We successfully incremented without overflow; break
+                break;
+            } else {
+                // Reset this index to 0 and carry over to the next variable
+                indices[varIndex] = 0;
+            }
+        }
+    }
+
+    return results;
+}
+
 #pragma endregion
 
 #pragma region Functions
