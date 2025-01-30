@@ -397,7 +397,9 @@ outcomes from scratch.)doc";
 
 static const char *__doc_Solver_currentAST = R"doc(The parsed (and flattened) AST tokens corresponding to currentExpression.)doc";
 
-static const char *__doc_Solver_currentExpression = R"doc(The most recent expression string passed to setCurrentExpression().)doc";
+static const char *__doc_Solver_currentExpressionAST = R"doc(The most recent expression string passed to setCurrentExpression().)doc";
+
+static const char *__doc_Solver_currentExpressionPostfix = R"doc(The most recent expression string passed to setCurrentExpression().)doc";
 
 static const char *__doc_Solver_currentPostfix = R"doc(The parsed (and flattened) postfix tokens corresponding to currentExpression.)doc";
 
@@ -472,7 +474,7 @@ Throws:
     SolverException If there is a parsing error, missing function, or other
     runtime error.)doc";
 
-static const char *__doc_Solver_evaluateASTPipeline =
+static const char *__doc_Solver_evaluateAST =
 R"doc(Evaluate an expression using the AST pipeline.
 
 This either reuses an existing AST if `expression` is the same as last time, or

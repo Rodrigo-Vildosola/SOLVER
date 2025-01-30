@@ -41,10 +41,10 @@ void bind_solver(py::module_ &m) {
              DOC(Solver, evaluate))
 
         .def("evaluate_ast",
-             &Solver::evaluateASTPipeline, 
+             &Solver::evaluateAST, 
              py::arg("expression"),
              py::arg("debug") = false,
-             DOC(Solver, evaluateASTPipeline))
+             DOC(Solver, evaluateAST))
 
         
         .def("evaluate_range",

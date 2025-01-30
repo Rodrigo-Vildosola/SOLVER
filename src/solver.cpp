@@ -41,7 +41,8 @@ void Solver::declareVariable(const std::string& name, double value) {
     invalidateCaches();
 }
 
-#pragma region Evaluation
+#pragma region Parsing
+
 
 std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto tokens   = Tokenizer::tokenize(expression);
@@ -83,6 +84,10 @@ ASTNode* Solver::parseAST(const std::string& expression, bool debug) {
     return simplified; 
 }
 
+#pragma endregion
+
+#pragma region Evaluation
+
 double Solver::evaluate(const std::string& expression, bool debug) {
     PROFILE_FUNCTION()
     setCurrentExpression(expression, debug);
@@ -102,6 +107,36 @@ double Solver::evaluate(const std::string& expression, bool debug) {
 
     return result;
 }
+
+double Solver::evaluateAST(const std::string &expression, bool debug)
+{
+    PROFILE_FUNCTION();
+    setCurrentExpressionAST(expression, debug);
+
+    std::size_t cacheKey = generateCacheKey(expression, {});
+    if (cacheEnabled) {
+        if (double* cachedResult = expressionCache.get(cacheKey)) {
+            // std::cout << "AST cache hit!" << std::endl;
+            return *cachedResult;  // Return cached result if found
+        }
+    }
+
+    if (!currentAST) {
+        throw SolverException("Cannot evaluate AST pipeline: currentAST is null.");
+    }
+
+    // Evaluate the final AST
+    double result = 0.0;
+    try {
+        result = AST::evaluateAST(currentAST, symbolTable, functions);
+    }
+    catch (const SolverException &e) {
+        throw; // or handle differently
+    }
+
+    return result;
+}
+
 
 std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
     PROFILE_FUNCTION()
@@ -252,12 +287,12 @@ std::unordered_map<std::string, double> Solver::listVariables() const {
 
 void Solver::setCurrentExpression(const std::string& expression, bool debug) {
     // Check if the expression is the same and the currentPostfix is not empty
-    if (expression == currentExpression && !currentPostfix.empty()) {
+    if (expression == currentExpressionPostfix && !currentPostfix.empty()) {
         return;
     }
 
     // Otherwise, parse the new expression into postfix
-    currentExpression = expression;
+    currentExpressionPostfix = expression;
     currentPostfix = parse(expression, debug); 
 
     if (debug) {
@@ -266,12 +301,12 @@ void Solver::setCurrentExpression(const std::string& expression, bool debug) {
 }
 
 void Solver::setCurrentExpressionAST(const std::string &expression, bool debug) {
-    if (expression == currentExpression && currentAST != nullptr && !debug) {
+    if (expression == currentExpressionAST && currentAST != nullptr) {
         return; // no need to rebuild
     }
 
     // Store the expression
-    currentExpression = expression;
+    currentExpressionAST = expression;
 
     // If we had an old AST, free it
     if (currentAST) {
@@ -293,32 +328,6 @@ void Solver::setCurrentExpressionAST(const std::string &expression, bool debug) 
         // rethrow 
         throw;
     }
-}
-
-double Solver::evaluateASTPipeline(const std::string &expression, bool debug)
-{
-    PROFILE_FUNCTION();
-
-    // Possibly use the cache if you'd like. For brevity, let's skip caching here.
-    // If you do want caching, you'd store the result in an LRUCache<someKey, double> after building an identifier key.
-
-    // Ensure currentAST is built
-    setCurrentExpressionAST(expression, debug);
-
-    if (!currentAST) {
-        throw SolverException("Cannot evaluate AST pipeline: currentAST is null.");
-    }
-
-    // Evaluate the final AST
-    double result = 0.0;
-    try {
-        result = AST::evaluateAST(currentAST, symbolTable, functions);
-    }
-    catch (const SolverException &e) {
-        throw; // or handle differently
-    }
-
-    return result;
 }
 
 

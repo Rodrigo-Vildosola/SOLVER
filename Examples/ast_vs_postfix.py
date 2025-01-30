@@ -20,6 +20,8 @@ def main():
     # Create solver instance
     solver = Solver()
 
+    solver.use_cache(False)
+
     try:
         # Declare constants
         solver.declare_constant("pi", np.pi)
@@ -66,7 +68,7 @@ def main():
          "expected_result": 25.0},
         {"description": "Evaluate complex expression", 
          "expression": "3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3", 
-         "expected_result": 3.0001},
+         "expected_result": 3.000122},
         {"description": "Evaluate sin(pi/2)", 
          "expression": "sin(pi/2)", 
          "expected_result": 1},
@@ -83,7 +85,7 @@ def main():
 
     # We'll do multiple runs to get average timings
     num_runs = 5
-    repetitions_per_expression = 1
+    repetitions_per_expression = 100000
 
     postfix_times = []
     ast_times = []

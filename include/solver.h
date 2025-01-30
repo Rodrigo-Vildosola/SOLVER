@@ -231,7 +231,7 @@ public:
      * @return The numeric evaluation result.
      * @throws SolverException on parse errors, unknown symbols, etc.
      */
-    double evaluateASTPipeline(const std::string &expression, bool debug = false);
+    double evaluateAST(const std::string &expression, bool debug = false);
 
     /**
      * @brief Retrieves the most recently set expression string.
@@ -240,7 +240,7 @@ public:
      * 
      * @return The current expression string.
      */
-    std::string getCurrentExpression() const { return currentExpression; }
+    std::string getCurrentExpression() const { return currentExpressionPostfix; }
 
 private:
     /**
@@ -327,7 +327,10 @@ private:
     SymbolTable symbolTable;
 
     /// The most recent expression string passed to setCurrentExpression().
-    std::string currentExpression;
+    std::string currentExpressionPostfix;
+
+    /// The most recent expression string passed to setCurrentExpression().
+    std::string currentExpressionAST;
 
     /// The parsed (and flattened) postfix tokens corresponding to currentExpression.
     std::vector<Token> currentPostfix;
