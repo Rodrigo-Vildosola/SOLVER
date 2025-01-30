@@ -49,9 +49,14 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto flattened = Postfix::flattenPostfix(postfix, functions);
     auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
 
-    ASTNode * root = buildASTFromPostfix(inlined, functions);
+    ASTNode * root = AST::buildASTFromPostfix(inlined, functions);
 
-    printAST(root);
+    AST::printAST(root);
+
+    ASTNode * simp = Simplification::simplifyAST(root, functions);
+    std::cout << "\n\nSimplified: \n";
+
+    AST::printAST(simp);
 
     // Now do a simplification pass
     auto simplified = Simplification::fullySimplifyPostfix(inlined, functions);

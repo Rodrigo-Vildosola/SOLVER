@@ -77,9 +77,9 @@ def run_test_case(solver: Solver, test_case: TestCase, logger: logging.Logger):
     try:
         for var, value in test_case.setup_variables.items():
             if var in ['x', 'y']: 
-                solver.declareVariable(var, value)
+                solver.declare_variable(var, value)
             else:
-                solver.declareConstant(var, value)
+                solver.declare_constant(var, value)
 
         result = solver.evaluate(test_case.expression, test_case.debug)
 

@@ -46,6 +46,42 @@ size=argCount.)doc";
 
 static const char *__doc_ASTNode_token = R"doc(The token for this node (e.g., {OPERATOR, "+"} or {VARIABLE, "x"}).)doc";
 
+static const char *__doc_AST_buildASTFromPostfix =
+R"doc(Builds an AST from a flattened postfix expression.
+
+Parameter ``postfix``:
+    The flattened postfix tokens (no user-defined FUNCTION tokens remain).
+
+Parameter ``functions``:
+    Map of function name to Function struct (for predefined functions).
+
+Returns:
+    A pointer to the root ASTNode of the constructed tree. Caller is responsible
+    for deleting it.
+
+Throws:
+    SolverException if there's a mismatch in the stack usage, unknown function,
+    etc.)doc";
+
+static const char *__doc_AST_printAST =
+R"doc(Public-facing function to pretty-print the AST from its root.
+
+Parameter ``root``:
+    Pointer to the root ASTNode of the tree.)doc";
+
+static const char *__doc_AST_printASTRecursive =
+R"doc(Recursively prints the AST in a tree-like format to stdout.
+
+Parameter ``node``:
+    Pointer to the current AST node.
+
+Parameter ``prefix``:
+    A string used to indent child nodes (managed automatically in recursion).
+
+Parameter ``isLast``:
+    Indicates whether this node is the last child of its parent (for drawing └
+    or ├).)doc";
+
 static const char *__doc_Function = R"doc()doc";
 
 static const char *__doc_Function_Function = R"doc()doc";
@@ -249,6 +285,20 @@ Parameter ``symbolTable``:
 Returns:
     A new vector of tokens where any constant references have been inlined as
     numbers.)doc";
+
+static const char *__doc_Simplification_simplifyAST =
+R"doc(Recursively simplifies the AST in place, applying constant folding and basic
+algebraic identities.
+
+Parameter ``node``:
+    The current AST node to simplify (may be modified in place).
+
+Parameter ``functions``:
+    A map of predefined functions (for function folding).
+
+Returns:
+    The (possibly replaced) pointer to the simplified AST node. If a node is
+    replaced, the old pointer is deleted.)doc";
 
 static const char *__doc_Simplification_singlePassSimplify =
 R"doc(Performs a single pass of local folding/simplification on a fully flattened
@@ -736,43 +786,7 @@ R"doc(Validate the syntax of the given expression.
 Parameter ``expression``:
     The expression to validate.)doc";
 
-static const char *__doc_buildASTFromPostfix =
-R"doc(Builds an AST from a flattened postfix expression.
-
-Parameter ``postfix``:
-    The flattened postfix tokens (no user-defined FUNCTION tokens remain).
-
-Parameter ``functions``:
-    Map of function name to Function struct (for predefined functions).
-
-Returns:
-    A pointer to the root ASTNode of the constructed tree. Caller is responsible
-    for deleting it.
-
-Throws:
-    SolverException if there's a mismatch in the stack usage, unknown function,
-    etc.)doc";
-
 static const char *__doc_postfixToInfix = R"doc()doc";
-
-static const char *__doc_printAST =
-R"doc(Public-facing function to pretty-print the AST from its root.
-
-Parameter ``root``:
-    Pointer to the root ASTNode of the tree.)doc";
-
-static const char *__doc_printASTRecursive =
-R"doc(Recursively prints the AST in a tree-like format to stdout.
-
-Parameter ``node``:
-    Pointer to the current AST node.
-
-Parameter ``prefix``:
-    A string used to indent child nodes (managed automatically in recursion).
-
-Parameter ``isLast``:
-    Indicates whether this node is the last child of its parent (for drawing └
-    or ├).)doc";
 
 static const char *__doc_printInfix = R"doc()doc";
 

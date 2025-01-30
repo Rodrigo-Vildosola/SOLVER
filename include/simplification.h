@@ -5,6 +5,7 @@
 #include "function.h"
 #include "exception.h"
 #include "symbol_table.h"
+#include "ast.h"
 
 
 namespace Simplification {
@@ -60,5 +61,15 @@ namespace Simplification {
 
     std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &argExprs, const Token &funcToken, const std::unordered_map<std::string, Function> &functions, bool &changed);
 
+    /**
+     * @brief Recursively simplifies the AST in place, applying constant folding
+     *        and basic algebraic identities.
+     *
+     * @param node       The current AST node to simplify (may be modified in place).
+     * @param functions  A map of predefined functions (for function folding).
+     * @return The (possibly replaced) pointer to the simplified AST node. If a node is replaced,
+     *         the old pointer is deleted. 
+     */
+    ASTNode* simplifyAST(ASTNode* node, const std::unordered_map<std::string, Function> &functions);
 
 }

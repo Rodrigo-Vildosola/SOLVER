@@ -33,7 +33,7 @@ def add_benchmark(expression, description, custom_solver_expr, sympy_expr, numex
         "range_values": range_values
     })
 
-def compare_performance(benchmarks, num_trials=10000, range_trials=100):
+def compare_performance(benchmarks, num_trials=100000, range_trials=100):
     performance_results = []
 
     for bench in benchmarks:

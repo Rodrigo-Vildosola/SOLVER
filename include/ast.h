@@ -41,30 +41,35 @@ struct ASTNode
     }
 };
 
-/**
- * @brief Builds an AST from a flattened postfix expression.
- *
- * @param postfix   The flattened postfix tokens (no user-defined FUNCTION tokens remain).
- * @param functions Map of function name to Function struct (for predefined functions).
- * @return A pointer to the root ASTNode of the constructed tree. Caller is responsible for deleting it.
- * @throws SolverException if there's a mismatch in the stack usage, unknown function, etc.
- */
-ASTNode* buildASTFromPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
+
+namespace AST {
+
+    /**
+     * @brief Builds an AST from a flattened postfix expression.
+     *
+     * @param postfix   The flattened postfix tokens (no user-defined FUNCTION tokens remain).
+     * @param functions Map of function name to Function struct (for predefined functions).
+     * @return A pointer to the root ASTNode of the constructed tree. Caller is responsible for deleting it.
+     * @throws SolverException if there's a mismatch in the stack usage, unknown function, etc.
+     */
+    ASTNode* buildASTFromPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
 
 
-/**
- * @brief Recursively prints the AST in a tree-like format to stdout.
- * 
- * @param node    Pointer to the current AST node.
- * @param prefix  A string used to indent child nodes (managed automatically in recursion).
- * @param isLast  Indicates whether this node is the last child of its parent (for drawing └ or ├).
- */
-static void printASTRecursive(const ASTNode* node, const std::string& prefix, bool isLast);
+    /**
+     * @brief Recursively prints the AST in a tree-like format to stdout.
+     * 
+     * @param node    Pointer to the current AST node.
+     * @param prefix  A string used to indent child nodes (managed automatically in recursion).
+     * @param isLast  Indicates whether this node is the last child of its parent (for drawing └ or ├).
+     */
+    static void printASTRecursive(const ASTNode* node, const std::string& prefix, bool isLast);
 
 
-/**
- * @brief Public-facing function to pretty-print the AST from its root.
- * 
- * @param root Pointer to the root ASTNode of the tree.
- */
-void printAST(const ASTNode* root);
+    /**
+     * @brief Public-facing function to pretty-print the AST from its root.
+     * 
+     * @param root Pointer to the root ASTNode of the tree.
+     */
+    void printAST(const ASTNode* root);
+
+}

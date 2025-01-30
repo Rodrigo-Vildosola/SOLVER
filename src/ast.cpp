@@ -2,6 +2,7 @@
 #include "ast.h"
 #include "exception.h" // SolverException, if needed
 
+namespace AST {
 
 ASTNode* buildASTFromPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions)
 {
@@ -133,4 +134,6 @@ static void printASTRecursive(const ASTNode* node, const std::string& prefix, bo
 void printAST(const ASTNode* root)
 {
     printASTRecursive(root, "", true);
+}
+
 }

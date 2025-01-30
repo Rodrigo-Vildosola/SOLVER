@@ -218,4 +218,217 @@ std::vector<Token> replaceConstantSymbols(const std::vector<Token> &postfix, con
 #pragma endregion
 
 
+#pragma region AST simplification
+
+// Forward declarations for local helper routines
+static bool isNumberNode(const ASTNode* node);
+static double getNumberValue(const ASTNode* node);
+static ASTNode* makeNumberNode(double value);
+static ASTNode* simplifyOperatorNode(ASTNode* node);
+static ASTNode* simplifyFunctionNode(ASTNode* node, const std::unordered_map<std::string, Function> &functions);
+
+
+ASTNode* simplifyAST(ASTNode* node, const std::unordered_map<std::string, Function> &functions)
+{
+    if (!node) return nullptr;
+
+    // First, simplify each child
+    for (ASTNode*& child : node->children) {
+        child = simplifyAST(child, functions);
+    }
+
+    // Now, apply local simplifications based on node->token.type
+    switch (node->token.type) {
+    case OPERATOR:
+        return simplifyOperatorNode(node);
+
+    case FUNCTION:
+        return simplifyFunctionNode(node, functions);
+
+    default:
+        // NUMBER or VARIABLE have no further local folds here
+        return node;
+    }
+}
+
+
+static ASTNode* simplifyOperatorNode(ASTNode* node)
+{
+    if (!node) return nullptr;
+
+    // Expect exactly 2 children for a binary operator
+    if (node->children.size() != 2) {
+        // Might be an error or a unary operator if you support that
+        return node;
+    }
+
+    ASTNode* left  = node->children[0];
+    ASTNode* right = node->children[1];
+    const std::string &op = node->token.value;
+
+    // 1) Check if both children are NUMBER => constant fold
+    if (isNumberNode(left) && isNumberNode(right))
+    {
+        double lhs = getNumberValue(left);
+        double rhs = getNumberValue(right);
+
+        double result = 0.0;
+        if (op == "+")      result = lhs + rhs;
+        else if (op == "-") result = lhs - rhs;
+        else if (op == "*") result = lhs * rhs;
+        else if (op == "/") {
+            if (std::fabs(rhs) < 1e-14) {
+                // We can throw or skip
+                throw SolverException("Division by zero in AST folding.");
+            }
+            result = lhs / rhs;
+        }
+        else if (op == "^") {
+            result = std::pow(lhs, rhs);
+        }
+        else {
+            return node; // unknown operator, skip
+        }
+
+        // We built a new leaf with the folded result
+        ASTNode* folded = makeNumberNode(result);
+        delete node; // deletes leftChild and rightChild too
+        return folded;
+    }
+
+    // 2) If not both numbers, optional algebraic identities:
+    //    (some examples)
+    // x + 0 => x
+    // x - 0 => x
+    // x * 1 => x
+    // x * 0 => 0
+    // 0 / x => 0   (if x != 0)
+    // ...
+    // For instance:
+
+    if (op == "+") {
+        // check if right is a number 0 => remove it
+        if (isNumberNode(right) && std::fabs(getNumberValue(right)) < 1e-14) {
+            // x + 0 => x
+            ASTNode* leftover = left;
+            node->children.clear(); // detach children
+            delete node;            // also deletes right
+            return leftover;
+        }
+        // check if left is a number 0 => remove it
+        if (isNumberNode(left) && std::fabs(getNumberValue(left)) < 1e-14) {
+            // 0 + x => x
+            ASTNode* leftover = right;
+            node->children.clear();
+            delete node; // also deletes left
+            return leftover;
+        }
+    }
+    else if (op == "*") {
+        // x * 0 => 0
+        if (isNumberNode(right) && std::fabs(getNumberValue(right)) < 1e-14) {
+            // 0
+            ASTNode* zeroNode = makeNumberNode(0.0);
+            delete node; // deletes left & right
+            return zeroNode;
+        }
+        // 0 * x => 0
+        if (isNumberNode(left) && std::fabs(getNumberValue(left)) < 1e-14) {
+            ASTNode* zeroNode = makeNumberNode(0.0);
+            delete node;
+            return zeroNode;
+        }
+        // x * 1 => x
+        if (isNumberNode(right) && std::fabs(getNumberValue(right) - 1.0) < 1e-14) {
+            ASTNode* leftover = left;
+            node->children.clear();
+            delete node; // also deletes right
+            return leftover;
+        }
+        // 1 * x => x
+        if (isNumberNode(left) && std::fabs(getNumberValue(left) - 1.0) < 1e-14) {
+            ASTNode* leftover = right;
+            node->children.clear();
+            delete node;
+            return leftover;
+        }
+    }
+    // ... you could add more rules as needed
+
+    // If none apply, return original node
+    return node;
+}
+
+
+static ASTNode* simplifyFunctionNode(ASTNode* node, const std::unordered_map<std::string, Function> &functions)
+{
+    if (!node) return nullptr;
+
+    // Look up the function
+    auto it = functions.find(node->token.value);
+    if (it == functions.end()) {
+        // Should not happen if properly flattened
+        return node;
+    }
+    const Function &func = it->second;
+    // The node->children.size() should match func.argCount, presumably
+
+    // Check if all children are numeric
+    bool allNumbers = true;
+    for (auto* child : node->children) {
+        if (!isNumberNode(child)) {
+            allNumbers = false;
+            break;
+        }
+    }
+    if (!allNumbers) {
+        // Can't fold further
+        return node;
+    }
+
+    // If all numeric, gather them
+    std::vector<double> args;
+    args.reserve(node->children.size());
+    for (auto* child : node->children) {
+        args.push_back(getNumberValue(child));
+    }
+
+    // Evaluate the function callback
+    double resultVal = 0.0;
+    try {
+        resultVal = func.callback(args);
+    } catch (const std::exception &e) {
+        throw SolverException("Error folding function '" + node->token.value + "': " + e.what());
+    }
+
+    // Replace node with a single numeric leaf
+    ASTNode* folded = makeNumberNode(resultVal);
+    delete node; // cleans up old children
+    return folded;
+}
+
+
+static bool isNumberNode(const ASTNode* node)
+{
+    return node && node->token.type == NUMBER;
+}
+
+static double getNumberValue(const ASTNode* node)
+{
+    // Assume isNumberNode(node) == true
+    return std::stod(node->token.value);
+}
+
+static ASTNode* makeNumberNode(double value)
+{
+    // Create a node with type NUMBER and the string representation of 'value'
+    Token t;
+    t.type  = NUMBER;
+    t.value = std::to_string(value);
+
+    return new ASTNode(t);
+}
+
+#pragma endregion
+
 }
