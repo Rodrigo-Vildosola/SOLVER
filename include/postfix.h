@@ -19,6 +19,37 @@ namespace Postfix {
 
     std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const std::unordered_map<std::string, Function>& functions);
 
+    /**
+     * @brief Simplifies a flattened postfix expression by constant folding and basic algebraic identities.
+     * 
+     * @param postfix A fully flattened postfix token sequence (no FUNCTION tokens).
+     * @return A simplified postfix token sequence.
+     * @throws SolverException If the postfix is malformed (e.g., insufficient operands).
+     */
+    std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix);
+
+
+    /**
+     * @brief Attempts to simplify a binary operation (leftExpr op rightExpr) using local rules.
+     * 
+     * @param leftExpr  Postfix tokens for the left operand (often a single token).
+     * @param rightExpr Postfix tokens for the right operand (often a single token).
+     * @param opToken   The operator token (e.g. +, -, *, /, ^).
+     * @return A new postfix token vector that represents the simplified expression.
+     */
+    std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const std::vector<Token> &rightExpr, const Token &opToken);
+
+
+    /**
+     * @brief Converts a single-token numeric expression into a double.
+     *        Assumes isNumber(tokens) == true.
+     */
+    static double asNumber(const std::vector<Token> &tokens);
+
+    /**
+     * @brief Checks if a postfix sub-expression is exactly one numeric token (e.g. ["3.14"]).
+     */
+    static bool isNumber(const std::vector<Token> &tokens);
 
     /**
      * @brief Manages the operator stack according to precedence and associativity rules.

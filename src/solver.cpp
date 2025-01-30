@@ -43,17 +43,21 @@ void Solver::declareVariable(const std::string& name, double value) {
 #pragma region Evaluation
 
 std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
-    PROFILE_FUNCTION()
-    auto tokens = Tokenizer::tokenize(expression);
-    auto postfix = Postfix::shuntingYard(tokens);
-    auto flatened = Postfix::flattenPostfix(postfix, functions);
+    auto tokens   = Tokenizer::tokenize(expression);
+    auto postfix  = Postfix::shuntingYard(tokens);
+    auto flattened = Postfix::flattenPostfix(postfix, functions);
+
+    // Now do a simplification pass
+    auto simplified = Postfix::simplifyPostfix(flattened);
 
     if (debug) {
-        std::cout << "Parsed expression into postfix notation: ";
-        printPostfix(flatened);
+        std::cout << "Flattened postfix: ";
+        printPostfix(flattened);
+        std::cout << "Simplified postfix: ";
+        printPostfix(simplified);
     }
 
-    return flatened;
+    return simplified; 
 }
 
 double Solver::evaluate(const std::string& expression, bool debug) {

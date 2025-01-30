@@ -57,6 +57,10 @@ static const char *__doc_LRUCache_maxSize = R"doc()doc";
 
 static const char *__doc_LRUCache_put = R"doc()doc";
 
+static const char *__doc_Postfix_asNumber =
+R"doc(Converts a single-token numeric expression into a double. Assumes
+isNumber(tokens) == true.)doc";
+
 static const char *__doc_Postfix_evaluatePostfix = R"doc()doc";
 
 static const char *__doc_Postfix_flattenPostfix = R"doc()doc";
@@ -123,6 +127,8 @@ Parameter ``op``:
 Returns:
     True if the operator is left-associative, false otherwise.)doc";
 
+static const char *__doc_Postfix_isNumber = R"doc(Checks if a postfix sub-expression is exactly one numeric token (e.g. ["3.14"]).)doc";
+
 static const char *__doc_Postfix_processOperatorStack =
 R"doc(Manages the operator stack according to precedence and associativity rules.
 
@@ -144,6 +150,35 @@ Parameter ``tokens``:
 
 Returns:
     A queue of tokens in postfix notation.)doc";
+
+static const char *__doc_Postfix_simplifyPostfix =
+R"doc(Simplifies a flattened postfix expression by constant folding and basic
+algebraic identities.
+
+Parameter ``postfix``:
+    A fully flattened postfix token sequence (no FUNCTION tokens).
+
+Returns:
+    A simplified postfix token sequence.
+
+Throws:
+    SolverException If the postfix is malformed (e.g., insufficient operands).)doc";
+
+static const char *__doc_Postfix_trySimplify =
+R"doc(Attempts to simplify a binary operation (leftExpr op rightExpr) using local
+rules.
+
+Parameter ``leftExpr``:
+    Postfix tokens for the left operand (often a single token).
+
+Parameter ``rightExpr``:
+    Postfix tokens for the right operand (often a single token).
+
+Parameter ``opToken``:
+    The operator token (e.g. +, -, *, /, ^).
+
+Returns:
+    A new postfix token vector that represents the simplified expression.)doc";
 
 static const char *__doc_Profiler_InstrumentationSession = R"doc()doc";
 

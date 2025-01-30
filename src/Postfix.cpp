@@ -338,4 +338,185 @@ std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const 
 
 #pragma endregion
 
+#pragma region Postfix simplification
+
+std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix) {
+    std::stack<std::vector<Token>> stack;
+
+    for (const Token &token : postfix)
+    {
+        if (token.type == NUMBER || token.type == VARIABLE)
+        {
+            // Push as a single-token vector
+            stack.push({ token });
+        }
+        else if (token.type == OPERATOR)
+        {
+            // Binary operator => need two sub-expressions
+            if (stack.size() < 2)
+            {
+                throw SolverException("Not enough operands for operator '" + token.value + "' during simplification.");
+            }
+            auto rightExpr = stack.top(); stack.pop();
+            auto leftExpr  = stack.top(); stack.pop();
+
+            // Attempt local simplification
+            std::vector<Token> simplified = trySimplify(leftExpr, rightExpr, token);
+
+            // Push the result (could be a single token or a full sub-expression)
+            stack.push(std::move(simplified));
+        }
+        else
+        {
+            // If your flattened postfix truly has no FUNCTION, PAREN, etc.,
+            // any other token type is unexpected at this stage.
+            throw SolverException("Unexpected token type in flattened postfix: " + token.value);
+        }
+    }
+
+    // There should be exactly one sub-expression on the stack if postfix is valid
+    if (stack.size() != 1)
+    {
+        throw SolverException("Postfix simplification error: leftover expressions in stack.");
+    }
+
+    return stack.top();
+}
+
+std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const std::vector<Token> &rightExpr, const Token &opToken) {
+    // If both are single-number expressions, constant fold
+    if (isNumber(leftExpr) && isNumber(rightExpr))
+    {
+        double lhs = asNumber(leftExpr);
+        double rhs = asNumber(rightExpr);
+
+        // Perform the operation
+        double foldedVal = 0.0;
+        if (opToken.value == "+") {
+            foldedVal = lhs + rhs;
+        } else if (opToken.value == "-") {
+            foldedVal = lhs - rhs;
+        } else if (opToken.value == "*") {
+            foldedVal = lhs * rhs;
+        } else if (opToken.value == "/") {
+            if (rhs == 0.0) {
+                // We won't handle symbolic "∞"; raise error or skip
+                throw SolverException("Division by zero in constant folding.");
+            }
+            foldedVal = lhs / rhs;
+        } else if (opToken.value == "^") {
+            foldedVal = std::pow(lhs, rhs);
+        } else {
+            // Operator not recognized
+            throw SolverException("Unknown operator in constant folding: " + opToken.value);
+        }
+
+        // Return as single NUMBER token
+        return { Token{ NUMBER, std::to_string(foldedVal) } };
+    }
+
+    // If not both numbers, check for single-token patterns like x+0 => x, 1*x => x, etc.
+    // We'll define a few local helper lambdas:
+
+    auto isZero = [&](const std::vector<Token> &expr) {
+        return isNumber(expr) && (std::fabs(asNumber(expr)) < 1e-14); // near zero
+    };
+    auto isOne = [&](const std::vector<Token> &expr) {
+        return isNumber(expr) && (std::fabs(asNumber(expr) - 1.0) < 1e-14);
+    };
+    auto singleToken = [&](const std::vector<Token> &expr) -> bool {
+        return expr.size() == 1;
+    };
+
+    // For convenience, if leftExpr or rightExpr is a single token, let's store it
+    // for quick checks or re-insertion:
+    const bool leftSingle  = singleToken(leftExpr);
+    const bool rightSingle = singleToken(rightExpr);
+
+    // Check basic rules: 
+    if (opToken.value == "+") {
+        // x + 0 => x   or   0 + x => x
+        if (rightSingle && isZero(rightExpr)) {
+            return leftExpr;
+        }
+        if (leftSingle && isZero(leftExpr)) {
+            return rightExpr;
+        }
+    }
+    else if (opToken.value == "-") {
+        // x - 0 => x
+        if (rightSingle && isZero(rightExpr)) {
+            return leftExpr;
+        }
+    }
+    else if (opToken.value == "*") {
+        // x * 0 => 0
+        if (rightSingle && isZero(rightExpr)) {
+            return rightExpr; // '0'
+        }
+        if (leftSingle && isZero(leftExpr)) {
+            return leftExpr; // '0'
+        }
+        // x * 1 => x
+        if (rightSingle && isOne(rightExpr)) {
+            return leftExpr;
+        }
+        if (leftSingle && isOne(leftExpr)) {
+            return rightExpr;
+        }
+    }
+    else if (opToken.value == "/") {
+        // x / 1 => x
+        if (rightSingle && isOne(rightExpr)) {
+            return leftExpr;
+        }
+        // 0 / x => 0 (if x != 0)
+        if (leftSingle && isZero(leftExpr)) {
+            // We won't check for x=0 (that'd be 0/0 undefined).
+            return leftExpr; // '0'
+        }
+    }
+    // For '^', we could add rules like x^0 => 1, x^1 => x, 1^x => 1, 0^x => 0 for x>0, etc.
+    else if (opToken.value == "^") {
+        // x^0 => 1
+        if (rightSingle && isZero(rightExpr)) {
+            return { Token{ NUMBER, "1" } };
+        }
+        // x^1 => x
+        if (rightSingle && isOne(rightExpr)) {
+            return leftExpr;
+        }
+        // 1^x => 1
+        if (leftSingle && isOne(leftExpr)) {
+            return leftExpr; // '1'
+        }
+        // 0^x => 0 if x>0. We won't handle x<=0 because that's undefined or ∞.
+        // etc.
+    }
+
+    // If none of the local simplifications matched, just combine them
+    // into a single postfix expression: leftExpr + rightExpr + opToken
+    std::vector<Token> combined = leftExpr;
+    combined.insert(combined.end(), rightExpr.begin(), rightExpr.end());
+    combined.push_back(opToken);
+    return combined;
+}
+
+
+//------------------------------------------------------------------------------
+// Helper Functions
+//------------------------------------------------------------------------------
+
+static bool isNumber(const std::vector<Token> &tokens)
+{
+    return (tokens.size() == 1 && tokens[0].type == NUMBER);
+}
+
+static double asNumber(const std::vector<Token> &tokens)
+{
+    return std::stod(tokens[0].value);
+}
+
+#pragma endregion
+
 }
