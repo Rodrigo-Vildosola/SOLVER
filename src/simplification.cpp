@@ -4,14 +4,14 @@ namespace Simplification {
 
 #pragma region Postfix simplification
 
-inline std::string toStringLongDouble(long double value, int precision = 30) {
-    std::ostringstream oss;
-    // Choose the format and precision you want:
-    oss << std::fixed << std::setprecision(precision) << value;
-    return oss.str();
-}
+// inline std::string toStringLongDouble(NUMBER_TYPE value, int precision = 30) {
+//     std::ostringstream oss;
+//     // Choose the format and precision you want:
+//     oss << std::fixed << std::setprecision(precision) << value;
+//     return oss.str();
+// }
 
-static long double asNumber(const std::vector<Token> &tokens);
+static NUMBER_TYPE asNumber(const std::vector<Token> &tokens);
 static bool isNumber(const std::vector<Token> &tokens);
 
 std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
@@ -97,26 +97,26 @@ std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const s
     // If both are single-number expressions, constant fold
     if (isNumber(leftExpr) && isNumber(rightExpr)) {
         changed = true;  // We are folding something
-        long double lhs = asNumber(leftExpr);
-        long double rhs = asNumber(rightExpr);
+        NUMBER_TYPE lhs = asNumber(leftExpr);
+        NUMBER_TYPE rhs = asNumber(rightExpr);
 
         if (opToken.value == "+") {
-            return { {NUMBER, toStringLongDouble(lhs + rhs)} };
+            return { {NUMBER, numberToString(lhs + rhs)} };
         }
         if (opToken.value == "-") {
-            return { {NUMBER, toStringLongDouble(lhs - rhs)} };
+            return { {NUMBER, numberToString(lhs - rhs)} };
         }
         if (opToken.value == "*") {
-            return { {NUMBER, toStringLongDouble(lhs * rhs)} };
+            return { {NUMBER, numberToString(lhs * rhs)} };
         }
         if (opToken.value == "/") {
             if (std::fabs(rhs) < 1e-14) {
                 throw SolverException("Division by zero in constant folding.");
             }
-            return { {NUMBER, toStringLongDouble(lhs / rhs)} };
+            return { {NUMBER, numberToString(lhs / rhs)} };
         }
         if (opToken.value == "^") {
-            return { {NUMBER, toStringLongDouble(std::pow(lhs, rhs))} };
+            return { {NUMBER, numberToString(std::pow(lhs, rhs))} };
         }
         throw SolverException("Unknown operator in constant folding: " + opToken.value);
     }
@@ -153,14 +153,14 @@ std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &ar
 
     if (allNumeric) {
         changed = true;
-        std::vector<long double> numericArgs;
+        std::vector<NUMBER_TYPE> numericArgs;
         numericArgs.reserve(argExprs.size());
         for (auto &arg : argExprs) {
             numericArgs.push_back(asNumber(arg));
         }
 
         // Evaluate the callback
-        long double foldedVal;
+        NUMBER_TYPE foldedVal;
         try {
             foldedVal = func.callback(numericArgs);  
         } catch (const std::exception &e) {
@@ -168,7 +168,7 @@ std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &ar
                                   + funcToken.value + "': " + e.what());
         }
 
-        return { { NUMBER, toStringLongDouble(foldedVal) } };
+        return { { NUMBER, numberToString(foldedVal) } };
     }
 
     // If not all numeric => reassemble
@@ -190,7 +190,7 @@ static bool isNumber(const std::vector<Token> &tokens)
     return (tokens.size() == 1 && tokens[0].type == NUMBER);
 }
 
-static long double asNumber(const std::vector<Token> &tokens)
+static NUMBER_TYPE asNumber(const std::vector<Token> &tokens)
 {
     return std::stold(tokens[0].value);
 }
@@ -206,10 +206,10 @@ std::vector<Token> replaceConstantSymbols(const std::vector<Token> &postfix, con
         // convert it to a NUMBER token
         if (tk.type == VARIABLE && symbolTable.isConstant(tk.value))
         {
-            long double constVal = symbolTable.lookupSymbol(tk.value);
+            NUMBER_TYPE constVal = symbolTable.lookupSymbol(tk.value);
             Token newToken;
             newToken.type  = NUMBER;
-            newToken.value = toStringLongDouble(constVal);
+            newToken.value = numberToString(constVal);
             replaced.push_back(std::move(newToken));
         }
         else
@@ -229,8 +229,8 @@ std::vector<Token> replaceConstantSymbols(const std::vector<Token> &postfix, con
 
 // Forward declarations for local helper routines
 static bool isNumberNode(const ASTNode* node);
-static long double getNumberValue(const ASTNode* node);
-static ASTNode* makeNumberNode(long double value);
+static NUMBER_TYPE getNumberValue(const ASTNode* node);
+static ASTNode* makeNumberNode(NUMBER_TYPE value);
 static ASTNode* simplifyOperatorNode(ASTNode* node);
 static ASTNode* simplifyFunctionNode(ASTNode* node, const std::unordered_map<std::string, Function> &functions);
 
@@ -276,10 +276,10 @@ static ASTNode* simplifyOperatorNode(ASTNode* node)
     // 1) Check if both children are NUMBER => constant fold
     if (isNumberNode(left) && isNumberNode(right))
     {
-        long double lhs = getNumberValue(left);
-        long double rhs = getNumberValue(right);
+        NUMBER_TYPE lhs = getNumberValue(left);
+        NUMBER_TYPE rhs = getNumberValue(right);
 
-        long double result = 0.0;
+        NUMBER_TYPE result = 0.0;
         if (op == "+")      result = lhs + rhs;
         else if (op == "-") result = lhs - rhs;
         else if (op == "*") result = lhs * rhs;
@@ -394,14 +394,14 @@ static ASTNode* simplifyFunctionNode(ASTNode* node, const std::unordered_map<std
     }
 
     // If all numeric, gather them
-    std::vector<long double> args;
+    std::vector<NUMBER_TYPE> args;
     args.reserve(node->children.size());
     for (auto* child : node->children) {
         args.push_back(getNumberValue(child));
     }
 
     // Evaluate the function callback
-    long double resultVal = 0.0;
+    NUMBER_TYPE resultVal = 0.0;
     try {
         resultVal = func.callback(args);
     } catch (const std::exception &e) {
@@ -420,18 +420,18 @@ static bool isNumberNode(const ASTNode* node)
     return node && node->token.type == NUMBER;
 }
 
-static long double getNumberValue(const ASTNode* node)
+static NUMBER_TYPE getNumberValue(const ASTNode* node)
 {
     // Assume isNumberNode(node) == true
     return std::stold(node->token.value);
 }
 
-static ASTNode* makeNumberNode(long double value)
+static ASTNode* makeNumberNode(NUMBER_TYPE value)
 {
     // Create a node with type NUMBER and the string representation of 'value'
     Token t;
     t.type  = NUMBER;
-    t.value = toStringLongDouble(value);
+    t.value = numberToString(value);
 
     return new ASTNode(t);
 }

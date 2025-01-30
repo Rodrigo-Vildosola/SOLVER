@@ -24,3 +24,4 @@
 #include <Python.h>
 
 #include "utils/profiler.h"
+#include "config.h"

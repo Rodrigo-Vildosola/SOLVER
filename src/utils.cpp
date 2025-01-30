@@ -6,49 +6,49 @@
 // Register standard math functions
 void Solver::registerBuiltInFunctions() {
     PROFILE_FUNCTION()
-    registerPredefinedFunction("neg", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("neg", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return -args[0];
     }, 1);
 
-    registerPredefinedFunction("sin", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("sin", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::sinl(args[0]);
     }, 1);
 
-    registerPredefinedFunction("cos", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("cos", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::cosl(args[0]);
     }, 1);
 
-    registerPredefinedFunction("tan", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("tan", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::tanl(args[0]);
     }, 1);
 
-    registerPredefinedFunction("exp", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("exp", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::expl(args[0]);
     }, 1);
 
     // Natural logarithm function (ln)
-    registerPredefinedFunction("ln", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("ln", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::logl(args[0]);
     }, 1);
 
     // Logarithm with specified base
-    registerPredefinedFunction("log", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("log", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::logl(args[0]) / std::logl(args[1]); // log base args[1] of args[0]
     }, 2);
 
-    registerPredefinedFunction("sqrt", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("sqrt", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::sqrtl(args[0]);
     }, 1);
 
-    registerPredefinedFunction("abs", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("abs", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::abs(args[0]);
     }, 1);
 
-    registerPredefinedFunction("max", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("max", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::max(args[0], args[1]);
     }, 2);
 
-    registerPredefinedFunction("min", [](const std::vector<long double>& args) -> long double {
+    registerPredefinedFunction("min", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
         return std::min(args[0], args[1]);
     }, 2);
 
@@ -77,12 +77,12 @@ void Solver::validateFunctionDependencies(const std::string& expression, const s
 
 
 
-std::size_t Solver::generateCacheKey(const std::string& base, const std::vector<long double>& args) {
+std::size_t Solver::generateCacheKey(const std::string& base, const std::vector<NUMBER_TYPE>& args) {
     std::size_t hash = std::hash<std::string>{}(base);
 
     // Hash the function or expression arguments
     for (const auto& arg : args) {
-        hash ^= std::hash<long double>{}(arg) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<NUMBER_TYPE>{}(arg) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
     }
 
     return hash;  // Return the hashed key as an integer instead of converting to string

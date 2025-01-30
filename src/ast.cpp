@@ -90,7 +90,7 @@ ASTNode* buildASTFromPostfix(const std::vector<Token> &postfix, const std::unord
     return root;
 }
 
-long double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions)
+NUMBER_TYPE evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions)
 {
     if (!node) {
         // You could throw or return 0.0 if you expect never to have null in a valid AST.
@@ -115,8 +115,8 @@ long double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, con
         if (node->children.size() != 2) {
             throw SolverException("Invalid AST: operator node with != 2 children.");
         }
-        long double leftVal  = evaluateAST(node->children[0], symbolTable, functions);
-        long double rightVal = evaluateAST(node->children[1], symbolTable, functions);
+        NUMBER_TYPE leftVal  = evaluateAST(node->children[0], symbolTable, functions);
+        NUMBER_TYPE rightVal = evaluateAST(node->children[1], symbolTable, functions);
 
         const std::string& op = node->token.value;
         if      (op == "+") return leftVal + rightVal;
@@ -145,15 +145,15 @@ long double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, con
         const Function& func = it->second;
 
         // Evaluate each argument
-        std::vector<long double> argVals;
+        std::vector<NUMBER_TYPE> argVals;
         argVals.reserve(node->children.size());
         for (auto* child : node->children) {
-            long double val = evaluateAST(child, symbolTable, functions);
+            NUMBER_TYPE val = evaluateAST(child, symbolTable, functions);
             argVals.push_back(val);
         }
 
         // Call the predefined function callback
-        long double result = 0.0;
+        NUMBER_TYPE result = 0.0;
         try {
             result = func.callback(argVals);
         }

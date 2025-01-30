@@ -55,17 +55,6 @@ namespace AST {
      */
     ASTNode* buildASTFromPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
 
-
-    /**
-     * @brief Recursively prints the AST in a tree-like format to stdout.
-     * 
-     * @param node    Pointer to the current AST node.
-     * @param prefix  A string used to indent child nodes (managed automatically in recursion).
-     * @param isLast  Indicates whether this node is the last child of its parent (for drawing └ or ├).
-     */
-    static void printASTRecursive(const ASTNode* node, const std::string& prefix, bool isLast);
-
-
     /**
      * @brief Public-facing function to pretty-print the AST from its root.
      * 
@@ -83,6 +72,6 @@ namespace AST {
      * @throws SolverException If an unknown operator or function is encountered, 
      *         or if division by zero occurs, etc.
      */
-    long double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions);
+    NUMBER_TYPE evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions);
 
 }

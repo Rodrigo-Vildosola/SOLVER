@@ -88,19 +88,6 @@ R"doc(Public-facing function to pretty-print the AST from its root.
 Parameter ``root``:
     Pointer to the root ASTNode of the tree.)doc";
 
-static const char *__doc_AST_printASTRecursive =
-R"doc(Recursively prints the AST in a tree-like format to stdout.
-
-Parameter ``node``:
-    Pointer to the current AST node.
-
-Parameter ``prefix``:
-    A string used to indent child nodes (managed automatically in recursion).
-
-Parameter ``isLast``:
-    Indicates whether this node is the last child of its parent (for drawing └
-    or ├).)doc";
-
 static const char *__doc_Function = R"doc()doc";
 
 static const char *__doc_Function_Function = R"doc()doc";
@@ -854,6 +841,8 @@ R"doc(Validate the syntax of the given expression.
 
 Parameter ``expression``:
     The expression to validate.)doc";
+
+static const char *__doc_numberToString = R"doc()doc";
 
 static const char *__doc_postfixToInfix = R"doc()doc";
 

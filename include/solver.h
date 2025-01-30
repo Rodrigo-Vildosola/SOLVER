@@ -59,7 +59,7 @@ public:
      * @param name The name of the constant (e.g., "pi").
      * @param value The numeric value of the constant (e.g., 3.14159).
      */
-    void declareConstant(const std::string& name, long double value);
+    void declareConstant(const std::string& name, NUMBER_TYPE value);
 
     /**
      * @brief Declares (or re-declares) a variable in the symbol table.
@@ -71,7 +71,7 @@ public:
      * @param name The name of the variable (e.g., "x").
      * @param value The numeric value to assign to the variable.
      */
-    void declareVariable(const std::string& name, long double value);
+    void declareVariable(const std::string& name, NUMBER_TYPE value);
 
     /**
      * @brief Evaluates a mathematical expression and returns its numeric result.
@@ -85,7 +85,7 @@ public:
      * @return The computed value of the expression.
      * @throws SolverException If there is a parsing error, missing function, or other runtime error.
      */
-    long double evaluate(const std::string& expression, bool debug = false);
+    NUMBER_TYPE evaluate(const std::string& expression, bool debug = false);
 
     /**
      * @brief Evaluates a mathematical expression for each value in a range of inputs for one variable.
@@ -101,8 +101,8 @@ public:
      * @return A vector of computed results, with one result per value in \p values.
      * @throws SolverException If \p variable is invalid or if an error occurs during evaluation.
      */
-    std::vector<long double> evaluateForRange(const std::string& variable,
-                                         const std::vector<long double>& values,
+    std::vector<NUMBER_TYPE> evaluateForRange(const std::string& variable,
+                                         const std::vector<NUMBER_TYPE>& values,
                                          const std::string& expression,
                                          bool debug = false);
 
@@ -124,8 +124,8 @@ public:
      * @return A flat vector of results (size = product of the lengths of each range in \p valuesSets).
      * @throws SolverException If a variable name is invalid, or expression parsing fails, etc.
      */
-    std::vector<long double> evaluateForRanges(const std::vector<std::string>& variables,
-                                          const std::vector<std::vector<long double>>& valuesSets,
+    std::vector<NUMBER_TYPE> evaluateForRanges(const std::vector<std::string>& variables,
+                                          const std::vector<std::vector<NUMBER_TYPE>>& valuesSets,
                                           const std::string& expression,
                                           bool debug);
 
@@ -185,7 +185,7 @@ public:
      * 
      * @return An unordered_map from constant name to double value.
      */
-    std::unordered_map<std::string, long double> listConstants() const;
+    std::unordered_map<std::string, NUMBER_TYPE> listConstants() const;
 
     /**
      * @brief Lists all declared variables.
@@ -195,7 +195,7 @@ public:
      * 
      * @return An unordered_map from variable name to double value.
      */
-    std::unordered_map<std::string, long double> listVariables() const;
+    std::unordered_map<std::string, NUMBER_TYPE> listVariables() const;
 
     /**
      * @brief Sets the expression to be evaluated and parses it into a postfix representation.
@@ -231,7 +231,7 @@ public:
      * @return The numeric evaluation result.
      * @throws SolverException on parse errors, unknown symbols, etc.
      */
-    long double evaluateAST(const std::string &expression, bool debug = false);
+    NUMBER_TYPE evaluateAST(const std::string &expression, bool debug = false);
 
     /**
      * @brief Retrieves the most recently set expression string.
@@ -289,7 +289,7 @@ private:
      * @param args A list of argument values used when evaluating that expression.
      * @return A std::size_t representing a unique hash key.
      */
-    std::size_t generateCacheKey(const std::string& base, const std::vector<long double>& args);
+    std::size_t generateCacheKey(const std::string& base, const std::vector<NUMBER_TYPE>& args);
 
     /**
      * @brief Invalidates solver caches if caching is enabled.
@@ -318,7 +318,7 @@ private:
     std::unordered_map<std::string, Function> functions;
 
     /// An LRU cache for storing evaluated expression results by hashed keys.
-    LRUCache<std::size_t, long double> expressionCache;
+    LRUCache<std::size_t, NUMBER_TYPE> expressionCache;
 
     /// Flag indicating whether expression caching is currently active.
     bool cacheEnabled = true;

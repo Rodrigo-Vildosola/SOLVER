@@ -10,28 +10,28 @@ enum class SymbolType {
 };
 
 struct SymbolEntry {
-    long double value;
+    NUMBER_TYPE value;
     SymbolType type;
 
     SymbolEntry() : value(0.0), type(SymbolType::VARIABLE) {}  // Default constructor with initial values
-    SymbolEntry(long double val, SymbolType t) : value(val), type(t) {}
+    SymbolEntry(NUMBER_TYPE val, SymbolType t) : value(val), type(t) {}
 };
 
 
 class SymbolTable {
 public:
     // Methods to declare constants and variables
-    void declareConstant(const std::string& name, long double value);
-    void declareVariable(const std::string& name, long double value, long double skipCheck = false);
+    void declareConstant(const std::string& name, NUMBER_TYPE value);
+    void declareVariable(const std::string& name, NUMBER_TYPE value, NUMBER_TYPE skipCheck = false);
     // Lookup for a symbol (constant or variable)
-    long double lookupSymbol(const std::string& name) const;
+    NUMBER_TYPE lookupSymbol(const std::string& name) const;
 
     void clearVariables();
-    void restoreVariables(const std::unordered_map<std::string, long double>& savedVariables);
+    void restoreVariables(const std::unordered_map<std::string, NUMBER_TYPE>& savedVariables);
 
-    std::unordered_map<std::string,long double> getConstants() const;
+    std::unordered_map<std::string,NUMBER_TYPE> getConstants() const;
 
-    std::unordered_map<std::string,long double> getVariables() const;
+    std::unordered_map<std::string,NUMBER_TYPE> getVariables() const;
 
     std::unordered_map<std::string, SymbolEntry> getEntries() const;
 

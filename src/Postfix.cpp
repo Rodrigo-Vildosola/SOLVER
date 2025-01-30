@@ -107,9 +107,9 @@ std::vector<Token> shuntingYard(const std::vector<Token>& tokens) {
 
 #pragma region Postfix Evaluation
 
-long double evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions) {
+NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions) {
     PROFILE_FUNCTION()
-    std::stack<long double> stack;
+    std::stack<NUMBER_TYPE> stack;
 
     for (const auto& token : postfixQueue) {
         if (token.type == NUMBER) {
@@ -121,8 +121,8 @@ long double evaluatePostfix(const std::vector<Token>& postfixQueue, const Symbol
                 throw SolverException("Not enough operands for operator '" + token.value + "'");
             }
 
-            long double right = stack.top(); stack.pop();
-            long double left = stack.top(); stack.pop();
+            NUMBER_TYPE right = stack.top(); stack.pop();
+            NUMBER_TYPE left = stack.top(); stack.pop();
 
             if (token.value == "+") stack.push(left + right);
             else if (token.value == "-") stack.push(left - right);
@@ -145,7 +145,7 @@ long double evaluatePostfix(const std::vector<Token>& postfixQueue, const Symbol
                 throw SolverException("Not enough arguments for function '" + token.value + "'");
             }
 
-            std::vector<long double> args(argCount);
+            std::vector<NUMBER_TYPE> args(argCount);
             for (size_t i = 0; i < argCount; ++i) {
                 args[argCount - i - 1] = stack.top();
                 stack.pop();
