@@ -1,0 +1,32 @@
+{
+    "$schema": "./tools/build_config.schema.json",
+  
+    "library_name": "solver",
+    "author": "Rodrigo Vildosola",
+    "description": "Python and C++ math expression solver and parsing library",
+    "url": "https://github.com/Rodrigo-Vildosola/SOLVER",
+  
+    "version_file": "VERSION",
+    "readme_file": "README.md",
+  
+    "install_requires": ["cmake", "clang"],
+    "classifiers": [
+      "Programming Language :: Python :: 3",
+      "License :: OSI Approved :: MIT License",
+      "Operating System :: OS Independent"
+    ],
+    "python_requires": ">=3.8",
+    "zip_safe": false,
+  
+    "build_directory": ".build",
+  
+    "extra_directories": [
+      "examples",
+      "tests"
+    ],
+  
+    "tests_directory": "tests",
+    "headers_directory": "include",
+    "docstrings_file": "docstrings.h"
+  }
+  

@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/include/*",
+                "${workspaceFolder}/external/pybind11/include/*",
+                "/Library/Frameworks/Python.framework/Versions/3.13/include/python3.13"
+            ],
+            "defines": [
+                "LIB_VERSION",
+                "MODULE_NAME"
+            ],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c23",
+            "intelliSenseMode": "macos-clang-arm64"
+        }
+    ],
+    "version": 4
+}

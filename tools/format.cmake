@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(${LIB_NAME} LANGUAGES CXX)
+project(Autopysta LANGUAGES CXX)
 
 # Enable compile commands for better IDE integration
 # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -20,44 +20,38 @@ file(READ "${CMAKE_SOURCE_DIR}/VERSION" VERSION_CONTENTS)
 string(STRIP "${VERSION_CONTENTS}" VERSION_CONTENTS)
 message(STATUS "Project Version: ${VERSION_CONTENTS}")
 
-message(STATUS "LIB_NAME: ${LIB_NAME}")
-message(STATUS "HEADERS_DIR: ${HEADERS_DIR}")
-message(STATUS "MODULE_NAME: ${MODULE_NAME}")
-
 # Add a compile definition for the version
-add_compile_definitions(LIB_VERSION="${VERSION_CONTENTS}")
-add_compile_definitions(MODULE_NAME=${MODULE_NAME})
+add_compile_definitions(AUTOPYSTA_VERSION="${VERSION_CONTENTS}")
 
-file(GLOB_RECURSE LIB_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
-file(GLOB_RECURSE LIB_HEADERS "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.h" "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.hpp")
+file(GLOB_RECURSE AUTOPYSTA_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE AUTOPYSTA_HEADERS "${CMAKE_SOURCE_DIR}/include/*.h" "${CMAKE_SOURCE_DIR}/include/*.hpp")
 file(GLOB_RECURSE BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/*.cpp")
 
 # Add include directories (Python and project-specific headers)
-message(STATUS "THIS: ${CMAKE_SOURCE_DIR}/${HEADERS_DIR}")
-include_directories(${Python3_INCLUDE_DIRS} "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}")
+include_directories(${Python3_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include)
 include_directories(${PYBIND11_DIR})  # Include pybind11 headers
 
-add_library(${LIB_NAME} STATIC ${LIB_SRC})
+add_library(autopysta STATIC ${AUTOPYSTA_SRC})
 
 # Create a shared library for Python bindings
-add_library(${MODULE_NAME} SHARED ${BINDING_SRC})
+add_library(_autopysta SHARED ${BINDING_SRC})
 
 
-target_link_libraries(${MODULE_NAME} PRIVATE ${LIB_NAME})
-target_link_libraries(${LIB_NAME} ${Python3_LIBRARIES})
+target_link_libraries(_autopysta PRIVATE autopysta)
+target_link_libraries(autopysta ${Python3_LIBRARIES})
 
 # Rename the shared library to match the Python module name
-set_target_properties(${MODULE_NAME} PROPERTIES PREFIX "" SUFFIX ".so")
+set_target_properties(_autopysta PROPERTIES PREFIX "" SUFFIX ".so")
 
 # Compiler-specific options (GCC/Clang/MSVC)
 if (MSVC)
-    target_compile_options(${LIB_NAME} PRIVATE 
+    target_compile_options(autopysta PRIVATE 
         /W3 /EHsc /WX- 
         /D_CRT_SECURE_NO_WARNINGS
     )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Use compatible flags for GCC and Clang
-    target_compile_options(${LIB_NAME} PRIVATE 
+    target_compile_options(autopysta PRIVATE 
         -Wall -Wundef -Wpedantic -Wextra 
         -Wuninitialized -Winit-self 
         -Wno-missing-field-initializers
@@ -77,21 +71,21 @@ endif()
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 # Add clang-format target
-# find_program(CLANG_FORMAT_EXECUTABLE clang-format)
-# if (CLANG_FORMAT_EXECUTABLE)
-#     add_custom_target(
-#         clang-format ALL
-#         COMMAND ${CLANG_FORMAT_EXECUTABLE} 
-#         -i 
-#         -style=file 
-#         ${AUTOPYSTA_SRC} ${AUTOPYSTA_HEADERS}
-#         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#         COMMENT "Formatting source and header files with clang-format"
-#         VERBATIM
-#     )
-# else()
-#     message(WARNING "clang-format not found. Skipping formatting.")
-# endif()
+find_program(CLANG_FORMAT_EXECUTABLE clang-format)
+if (CLANG_FORMAT_EXECUTABLE)
+    add_custom_target(
+        clang-format ALL
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} 
+        -i 
+        -style=file 
+        ${AUTOPYSTA_SRC} ${AUTOPYSTA_HEADERS}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Formatting source and header files with clang-format"
+        VERBATIM
+    )
+else()
+    message(WARNING "clang-format not found. Skipping formatting.")
+endif()
 
-# message(STATUS "Project configuration complete.")
+message(STATUS "Project configuration complete.")
 
