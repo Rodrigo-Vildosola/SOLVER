@@ -80,15 +80,9 @@ static const char *__doc_LRUCache_maxSize = R"doc()doc";
 
 static const char *__doc_LRUCache_put = R"doc()doc";
 
-static const char *__doc_Postfix_asNumber =
-R"doc(Converts a single-token numeric expression into a double. Assumes
-isNumber(tokens) == true.)doc";
-
 static const char *__doc_Postfix_evaluatePostfix = R"doc()doc";
 
 static const char *__doc_Postfix_flattenPostfix = R"doc()doc";
-
-static const char *__doc_Postfix_fullySimplifyPostfix = R"doc()doc";
 
 static const char *__doc_Postfix_getFunctionArgCount =
 R"doc(Retrieves the expected argument count for a given function.
@@ -152,8 +146,6 @@ Parameter ``op``:
 Returns:
     True if the operator is left-associative, false otherwise.)doc";
 
-static const char *__doc_Postfix_isNumber = R"doc(Checks if a postfix sub-expression is exactly one numeric token (e.g. ["3.14"]).)doc";
-
 static const char *__doc_Postfix_processOperatorStack =
 R"doc(Manages the operator stack according to precedence and associativity rules.
 
@@ -175,41 +167,6 @@ Parameter ``tokens``:
 
 Returns:
     A queue of tokens in postfix notation.)doc";
-
-static const char *__doc_Postfix_singlePassSimplify =
-R"doc(Performs a single pass of local folding/simplification on a fully flattened
-postfix expression.
-
-Parameter ``postfix``:
-    The input postfix tokens (flattened).
-
-Parameter ``functions``:
-    The map of function names to Function definitions (for predefined funcs).
-
-Parameter ``changed``:
-    Set to true if any folding/simplification occurred during this pass, false
-    otherwise.
-
-Returns:
-    A (possibly) simplified postfix sequence after one pass.)doc";
-
-static const char *__doc_Postfix_trySimplifyBinary =
-R"doc(Attempts to simplify a binary operation (leftExpr op rightExpr) using local
-rules.
-
-Parameter ``leftExpr``:
-    Postfix tokens for the left operand (often a single token).
-
-Parameter ``rightExpr``:
-    Postfix tokens for the right operand (often a single token).
-
-Parameter ``opToken``:
-    The operator token (e.g. +, -, *, /, ^).
-
-Returns:
-    A new postfix token vector that represents the simplified expression.)doc";
-
-static const char *__doc_Postfix_trySimplifyFunction = R"doc()doc";
 
 static const char *__doc_Profiler_InstrumentationSession = R"doc()doc";
 
@@ -272,6 +229,61 @@ static const char *__doc_Profiler_Utils_CleanedString = R"doc()doc";
 static const char *__doc_Profiler_Utils_CleanedString_data = R"doc()doc";
 
 static const char *__doc_Profiler_Utils_cleanup_output_string = R"doc()doc";
+
+static const char *__doc_Simplification_fullySimplifyPostfix = R"doc()doc";
+
+static const char *__doc_Simplification_replaceConstantSymbols =
+R"doc(Replaces tokens that refer to constants with NUMBER tokens in a postfix
+sequence.
+
+If a token is of type VARIABLE but the symbol table indicates it is actually a
+constant, we convert that token’s type to NUMBER and set its value to the
+constant’s numeric string.
+
+Parameter ``postfix``:
+    The flattened postfix tokens (after flattenPostfix).
+
+Parameter ``symbolTable``:
+    The symbol table (holds variables and constants).
+
+Returns:
+    A new vector of tokens where any constant references have been inlined as
+    numbers.)doc";
+
+static const char *__doc_Simplification_singlePassSimplify =
+R"doc(Performs a single pass of local folding/simplification on a fully flattened
+postfix expression.
+
+Parameter ``postfix``:
+    The input postfix tokens (flattened).
+
+Parameter ``functions``:
+    The map of function names to Function definitions (for predefined funcs).
+
+Parameter ``changed``:
+    Set to true if any folding/simplification occurred during this pass, false
+    otherwise.
+
+Returns:
+    A (possibly) simplified postfix sequence after one pass.)doc";
+
+static const char *__doc_Simplification_trySimplifyBinary =
+R"doc(Attempts to simplify a binary operation (leftExpr op rightExpr) using local
+rules.
+
+Parameter ``leftExpr``:
+    Postfix tokens for the left operand (often a single token).
+
+Parameter ``rightExpr``:
+    Postfix tokens for the right operand (often a single token).
+
+Parameter ``opToken``:
+    The operator token (e.g. +, -, *, /, ^).
+
+Returns:
+    A new postfix token vector that represents the simplified expression.)doc";
+
+static const char *__doc_Simplification_trySimplifyFunction = R"doc()doc";
 
 static const char *__doc_Solver =
 R"doc(A class for evaluating mathematical expressions, managing variables, constants,

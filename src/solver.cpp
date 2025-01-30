@@ -47,17 +47,18 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto tokens   = Tokenizer::tokenize(expression);
     auto postfix  = Postfix::shuntingYard(tokens);
     auto flattened = Postfix::flattenPostfix(postfix, functions);
+    auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
 
-    ASTNode * root = buildASTFromPostfix(flattened, functions);
+    ASTNode * root = buildASTFromPostfix(inlined, functions);
 
     printAST(root);
 
     // Now do a simplification pass
-    auto simplified = Simplification::fullySimplifyPostfix(flattened, functions);
+    auto simplified = Simplification::fullySimplifyPostfix(inlined, functions);
 
     if (debug) {
         std::cout << "Flattened postfix: ";
-        printPostfix(flattened);
+        printPostfix(inlined);
         std::cout << "Simplified postfix: ";
         printPostfix(simplified);
     }

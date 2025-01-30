@@ -9,6 +9,29 @@
 
 namespace Simplification {
 
+    /**
+     * @brief Replaces tokens that refer to constants with NUMBER tokens in a postfix sequence.
+     *
+     * If a token is of type VARIABLE but the symbol table indicates it is actually a constant,
+     * we convert that token’s type to NUMBER and set its value to the constant’s numeric string.
+     *
+     * @param postfix      The flattened postfix tokens (after flattenPostfix).
+     * @param symbolTable  The symbol table (holds variables and constants).
+     * @return A new vector of tokens where any constant references have been inlined as numbers.
+     */
+    std::vector<Token> replaceConstantSymbols(const std::vector<Token> &postfix, const SymbolTable &symbolTable);
+
+    // /**
+    //  * @brief Converts a single-token numeric expression into a double.
+    //  *        Assumes isNumber(tokens) == true.
+    //  */
+    // static double asNumber(const std::vector<Token> &tokens);
+
+    // /**
+    //  * @brief Checks if a postfix sub-expression is exactly one numeric token (e.g. ["3.14"]).
+    //  */
+    // static bool isNumber(const std::vector<Token> &tokens);
+
 
     std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
 

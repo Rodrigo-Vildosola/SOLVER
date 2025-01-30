@@ -20,17 +20,6 @@ namespace Postfix {
     std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const std::unordered_map<std::string, Function>& functions);
 
     /**
-     * @brief Converts a single-token numeric expression into a double.
-     *        Assumes isNumber(tokens) == true.
-     */
-    static double asNumber(const std::vector<Token> &tokens);
-
-    /**
-     * @brief Checks if a postfix sub-expression is exactly one numeric token (e.g. ["3.14"]).
-     */
-    static bool isNumber(const std::vector<Token> &tokens);
-
-    /**
      * @brief Manages the operator stack according to precedence and associativity rules.
      * @param token The current operator token.
      * @param operatorStack Stack of operators.

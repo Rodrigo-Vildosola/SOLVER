@@ -4,6 +4,9 @@ namespace Simplification {
 
 #pragma region Postfix simplification
 
+static double asNumber(const std::vector<Token> &tokens);
+static bool isNumber(const std::vector<Token> &tokens);
+
 std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
     // We'll do a loop that calls singlePassSimplify repeatedly
     // until we detect no changes or we reach an iteration limit.
@@ -183,6 +186,33 @@ static bool isNumber(const std::vector<Token> &tokens)
 static double asNumber(const std::vector<Token> &tokens)
 {
     return std::stod(tokens[0].value);
+}
+
+
+std::vector<Token> replaceConstantSymbols(const std::vector<Token> &postfix, const SymbolTable &symbolTable) {
+    std::vector<Token> replaced;
+    replaced.reserve(postfix.size()); // minor optimization
+
+    for (const auto &tk : postfix)
+    {
+        // If it's a would-be "VARIABLE" but is actually a constant in the table,
+        // convert it to a NUMBER token
+        if (tk.type == VARIABLE && symbolTable.isConstant(tk.value))
+        {
+            double constVal = symbolTable.lookupSymbol(tk.value);
+            Token newToken;
+            newToken.type  = NUMBER;
+            newToken.value = std::to_string(constVal);
+            replaced.push_back(std::move(newToken));
+        }
+        else
+        {
+            // Otherwise, just keep the original token
+            replaced.push_back(tk);
+        }
+    }
+
+    return replaced;
 }
 
 #pragma endregion

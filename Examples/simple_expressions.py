@@ -59,6 +59,8 @@ def run_examples():
         {"description": "Evaluate sin(pi/2)", "expression": "sin(pi/2)", "expected_result": 1},
         {"description": "Evaluate f(g(2, 2) + sin(pi/2))", "expression": "f(g(2, 2) + sin(pi/2))", "expected_result": 100},
         {"description": "Evaluate x + 2 * 4 + 3", "expression": "x + 2 * 4 + 3", "expected_result": 21},
+        {"description": "Evaluate pi * 5", "expression": "pi * 5", "expected_result": np.pi * 5},
+
 
     ]
 
