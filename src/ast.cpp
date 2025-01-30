@@ -102,7 +102,7 @@ NUMBER_TYPE evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, con
     case NUMBER:
     {
         // Leaf node with a numeric value
-        return std::stold(node->token.value);
+        return stringToNumber(node->token.value);
     }
     case VARIABLE:
     {

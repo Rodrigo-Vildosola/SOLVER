@@ -850,6 +850,8 @@ static const char *__doc_printInfix = R"doc()doc";
 
 static const char *__doc_printPostfix = R"doc()doc";
 
+static const char *__doc_printPrecisionInfo = R"doc()doc";
+
 static const char *__doc_printTokens = R"doc()doc";
 
 static const char *__doc_printTokens_2 =
@@ -857,6 +859,8 @@ R"doc(Print the tokens with their types for debugging purposes.
 
 Parameter ``tokens``:
     A vector of Token objects representing the expression.)doc";
+
+static const char *__doc_stringToNumber = R"doc()doc";
 
 static const char *__doc_tokenTypeToString = R"doc()doc";
 

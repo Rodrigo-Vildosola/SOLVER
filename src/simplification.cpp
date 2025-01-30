@@ -192,7 +192,7 @@ static bool isNumber(const std::vector<Token> &tokens)
 
 static NUMBER_TYPE asNumber(const std::vector<Token> &tokens)
 {
-    return std::stold(tokens[0].value);
+    return stringToNumber(tokens[0].value);
 }
 
 
@@ -423,7 +423,7 @@ static bool isNumberNode(const ASTNode* node)
 static NUMBER_TYPE getNumberValue(const ASTNode* node)
 {
     // Assume isNumberNode(node) == true
-    return std::stold(node->token.value);
+    return stringToNumber(node->token.value);
 }
 
 static ASTNode* makeNumberNode(NUMBER_TYPE value)
