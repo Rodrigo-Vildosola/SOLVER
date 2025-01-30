@@ -15,7 +15,7 @@ namespace Postfix {
      */
     std::vector<Token> shuntingYard(const std::vector<Token>& tokens);
 
-    double evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions);
+    long double evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions);
 
     std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const std::unordered_map<std::string, Function>& functions);
 

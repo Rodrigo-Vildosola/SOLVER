@@ -29,13 +29,13 @@ void Solver::clearCache() {
     expressionCache.clear();
 }
 
-void Solver::declareConstant(const std::string& name, double value) {
+void Solver::declareConstant(const std::string& name, long double value) {
     PROFILE_FUNCTION()
     symbolTable.declareConstant(name, value);
     invalidateCaches();
 }
 
-void Solver::declareVariable(const std::string& name, double value) {
+void Solver::declareVariable(const std::string& name, long double value) {
     PROFILE_FUNCTION()
     symbolTable.declareVariable(name, value);
     invalidateCaches();
@@ -92,18 +92,18 @@ ASTNode* Solver::parseAST(const std::string& expression, bool debug) {
 
 #pragma region Evaluation
 
-double Solver::evaluate(const std::string& expression, bool debug) {
+long double Solver::evaluate(const std::string& expression, bool debug) {
     PROFILE_FUNCTION()
     setCurrentExpression(expression, debug);
 
     std::size_t cacheKey = generateCacheKey(expression, {});
     if (cacheEnabled) {
-        if (double* cachedResult = expressionCache.get(cacheKey)) {
+        if (long double* cachedResult = expressionCache.get(cacheKey)) {
             return *cachedResult;  // Return cached result if found
         }
     }
 
-    double result = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
+    long double result = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
 
     if (cacheEnabled) {
         expressionCache.put(cacheKey, result);  // Cache the result
@@ -112,14 +112,14 @@ double Solver::evaluate(const std::string& expression, bool debug) {
     return result;
 }
 
-double Solver::evaluateAST(const std::string &expression, bool debug)
+long double Solver::evaluateAST(const std::string &expression, bool debug)
 {
     PROFILE_FUNCTION();
     setCurrentExpressionAST(expression, debug);
 
     std::size_t cacheKey = generateCacheKey(expression, {});
     if (cacheEnabled) {
-        if (double* cachedResult = expressionCache.get(cacheKey)) {
+        if (long double* cachedResult = expressionCache.get(cacheKey)) {
             // std::cout << "AST cache hit!" << std::endl;
             return *cachedResult;  // Return cached result if found
         }
@@ -130,7 +130,7 @@ double Solver::evaluateAST(const std::string &expression, bool debug)
     }
 
     // Evaluate the final AST
-    double result = 0.0;
+    long double result = 0.0;
     try {
         result = AST::evaluateAST(currentAST, symbolTable, functions);
     }
@@ -142,23 +142,23 @@ double Solver::evaluateAST(const std::string &expression, bool debug)
 }
 
 
-std::vector<double> Solver::evaluateForRange(const std::string& variable, const std::vector<double>& values, const std::string& expression, bool debug) {
+std::vector<long double> Solver::evaluateForRange(const std::string& variable, const std::vector<long double>& values, const std::string& expression, bool debug) {
     PROFILE_FUNCTION()
     setCurrentExpression(expression, debug);
 
-    std::vector<double> results;
+    std::vector<long double> results;
     results.reserve(values.size());
 
     if (!Validator::isValidName(variable)) {
         throw SolverException("Invalid variable name '" + variable + "'.");
     }
 
-    for (double value : values) {
+    for (long double value : values) {
         PROFILE_SCOPE("EvaluateRangeLoop");
         symbolTable.declareVariable(variable, value, true);
 
         try {
-            double result = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
+            long double result = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
             results.push_back(result);
         } catch (const SolverException& e) {
             std::cerr << "Error evaluating expression for " << variable << " = " << value << ": " << e.what() << std::endl;
@@ -170,7 +170,7 @@ std::vector<double> Solver::evaluateForRange(const std::string& variable, const 
 }
 
 
-std::vector<double> Solver::evaluateForRanges(const std::vector<std::string>& variables, const std::vector<std::vector<double>>& valuesSets, const std::string& expression, bool debug) {
+std::vector<long double> Solver::evaluateForRanges(const std::vector<std::string>& variables, const std::vector<std::vector<long double>>& valuesSets, const std::string& expression, bool debug) {
     PROFILE_FUNCTION()
 
     // Basic validation:
@@ -194,7 +194,7 @@ std::vector<double> Solver::evaluateForRanges(const std::vector<std::string>& va
     }
 
     // Prepare output vector
-    std::vector<double> results;
+    std::vector<long double> results;
     results.reserve(totalCombinations);
 
     // If there's only one variable, we can do a simple loop.
@@ -213,7 +213,7 @@ std::vector<double> Solver::evaluateForRanges(const std::vector<std::string>& va
 
         // Evaluate and capture the result
         try {
-            double val = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
+            long double val = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
             results.push_back(val);
         } catch (const SolverException& e) {
             // On error, store NaN to keep indices consistent
@@ -280,12 +280,12 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
 #pragma region Helpers
 
 // Return the list of constants
-std::unordered_map<std::string, double> Solver::listConstants() const {
+std::unordered_map<std::string, long double> Solver::listConstants() const {
     return symbolTable.getConstants();
 }
 
 // Return the list of variables
-std::unordered_map<std::string, double> Solver::listVariables() const {
+std::unordered_map<std::string, long double> Solver::listVariables() const {
     return symbolTable.getVariables();
 }
 

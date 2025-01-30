@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "token.h"
 
-using FunctionCallback = std::function<double(const std::vector<double>&)>;
+using FunctionCallback = std::function<long double(const std::vector<long double>&)>;
 
 struct Function {
     FunctionCallback callback;              // For predefined functions

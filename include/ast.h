@@ -83,6 +83,6 @@ namespace AST {
      * @throws SolverException If an unknown operator or function is encountered, 
      *         or if division by zero occurs, etc.
      */
-    double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions);
+    long double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions);
 
 }

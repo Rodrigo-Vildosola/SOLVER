@@ -2,7 +2,7 @@
 #include "validator.h"
 
 // Declare a constant, ensuring no variable with the same name exists and the name is valid
-void SymbolTable::declareConstant(const std::string& name, double value) {
+void SymbolTable::declareConstant(const std::string& name, long double value) {
     PROFILE_FUNCTION()
     if (!Validator::isValidName(name)) {
         throw SolverException("Invalid constant name '" + name + "'.");
@@ -17,7 +17,7 @@ void SymbolTable::declareConstant(const std::string& name, double value) {
 
 
 // Declare a variable, ensuring no constant with the same name exists and the name is valid
-void SymbolTable::declareVariable(const std::string& name, double value, double skipCheck) {
+void SymbolTable::declareVariable(const std::string& name, long double value, long double skipCheck) {
     PROFILE_FUNCTION()
     if (!skipCheck && !Validator::isValidName(name)) {
         throw SolverException("Invalid variable name '" + name + "'.");
@@ -37,7 +37,7 @@ void SymbolTable::declareVariable(const std::string& name, double value, double 
 
 
 // Lookup a symbol in the table (checks both variables and constants)
-double SymbolTable::lookupSymbol(const std::string& name) const {
+long double SymbolTable::lookupSymbol(const std::string& name) const {
     PROFILE_SCOPE("Symbol Lookup");
     if (cachedSymbolName == name) {
         return cachedSymbolEntry.value; 
@@ -71,7 +71,7 @@ void SymbolTable::clearVariables() {
 
 
 // Restore the variables from a saved copy
-void SymbolTable::restoreVariables(const std::unordered_map<std::string, double>& savedVariables) {
+void SymbolTable::restoreVariables(const std::unordered_map<std::string, long double>& savedVariables) {
     // Invalidate cache when restoring variables
     cachedSymbolName.clear();  // Clear cached name to invalidate the cache
 
@@ -96,8 +96,8 @@ bool SymbolTable::isVariable(const std::string& name) const {
 
 
 // Return a copy of the current constants (for listing purposes)
-std::unordered_map<std::string, double> SymbolTable::getConstants() const {
-    std::unordered_map<std::string, double> constants;
+std::unordered_map<std::string, long double> SymbolTable::getConstants() const {
+    std::unordered_map<std::string, long double> constants;
     for (const auto& [name, entry] : entries) {
         if (entry.type == SymbolType::CONSTANT) {
             constants[name] = entry.value;
@@ -107,8 +107,8 @@ std::unordered_map<std::string, double> SymbolTable::getConstants() const {
 }
 
 // Return a copy of the current variables (for listing purposes)
-std::unordered_map<std::string, double> SymbolTable::getVariables() const {
-    std::unordered_map<std::string, double> variables;
+std::unordered_map<std::string, long double> SymbolTable::getVariables() const {
+    std::unordered_map<std::string, long double> variables;
     for (const auto& [name, entry] : entries) {
         if (entry.type == SymbolType::VARIABLE) {
             variables[name] = entry.value;

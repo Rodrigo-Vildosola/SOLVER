@@ -90,7 +90,7 @@ ASTNode* buildASTFromPostfix(const std::vector<Token> &postfix, const std::unord
     return root;
 }
 
-double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions)
+long double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions)
 {
     if (!node) {
         // You could throw or return 0.0 if you expect never to have null in a valid AST.
@@ -102,7 +102,7 @@ double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const st
     case NUMBER:
     {
         // Leaf node with a numeric value
-        return std::stod(node->token.value);
+        return std::stold(node->token.value);
     }
     case VARIABLE:
     {
@@ -115,8 +115,8 @@ double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const st
         if (node->children.size() != 2) {
             throw SolverException("Invalid AST: operator node with != 2 children.");
         }
-        double leftVal  = evaluateAST(node->children[0], symbolTable, functions);
-        double rightVal = evaluateAST(node->children[1], symbolTable, functions);
+        long double leftVal  = evaluateAST(node->children[0], symbolTable, functions);
+        long double rightVal = evaluateAST(node->children[1], symbolTable, functions);
 
         const std::string& op = node->token.value;
         if      (op == "+") return leftVal + rightVal;
@@ -145,15 +145,15 @@ double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const st
         const Function& func = it->second;
 
         // Evaluate each argument
-        std::vector<double> argVals;
+        std::vector<long double> argVals;
         argVals.reserve(node->children.size());
         for (auto* child : node->children) {
-            double val = evaluateAST(child, symbolTable, functions);
+            long double val = evaluateAST(child, symbolTable, functions);
             argVals.push_back(val);
         }
 
         // Call the predefined function callback
-        double result = 0.0;
+        long double result = 0.0;
         try {
             result = func.callback(argVals);
         }
