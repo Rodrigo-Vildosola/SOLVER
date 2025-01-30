@@ -1,0 +1,5 @@
+numpy
+matplotlib
+clang
+setuptools
+cmake
