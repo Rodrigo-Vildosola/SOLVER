@@ -90,7 +90,83 @@ ASTNode* buildASTFromPostfix(const std::vector<Token> &postfix, const std::unord
     return root;
 }
 
+double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions)
+{
+    if (!node) {
+        // You could throw or return 0.0 if you expect never to have null in a valid AST.
+        throw SolverException("Invalid AST: encountered a null node during evaluation.");
+    }
 
+    switch (node->token.type)
+    {
+    case NUMBER:
+    {
+        // Leaf node with a numeric value
+        return std::stod(node->token.value);
+    }
+    case VARIABLE:
+    {
+        // Leaf node referencing a variable; look it up in the symbol table
+        return symbolTable.lookupSymbol(node->token.value);
+    }
+    case OPERATOR:
+    {
+        // We expect exactly 2 children for a binary operator
+        if (node->children.size() != 2) {
+            throw SolverException("Invalid AST: operator node with != 2 children.");
+        }
+        double leftVal  = evaluateAST(node->children[0], symbolTable, functions);
+        double rightVal = evaluateAST(node->children[1], symbolTable, functions);
+
+        const std::string& op = node->token.value;
+        if      (op == "+") return leftVal + rightVal;
+        else if (op == "-") return leftVal - rightVal;
+        else if (op == "*") return leftVal * rightVal;
+        else if (op == "/") {
+            if (std::fabs(rightVal) < 1e-14) {
+                throw SolverException("Division by zero error in AST evaluation.");
+            }
+            return leftVal / rightVal;
+        }
+        else if (op == "^") {
+            return std::pow(leftVal, rightVal);
+        }
+        else {
+            throw SolverException("Unknown operator '" + op + "' in AST evaluation.");
+        }
+    }
+    case FUNCTION:
+    {
+        // For a predefined function node, evaluate all children
+        auto it = functions.find(node->token.value);
+        if (it == functions.end()) {
+            throw SolverException("Unknown function '" + node->token.value + "' in AST evaluation.");
+        }
+        const Function& func = it->second;
+
+        // Evaluate each argument
+        std::vector<double> argVals;
+        argVals.reserve(node->children.size());
+        for (auto* child : node->children) {
+            double val = evaluateAST(child, symbolTable, functions);
+            argVals.push_back(val);
+        }
+
+        // Call the predefined function callback
+        double result = 0.0;
+        try {
+            result = func.callback(argVals);
+        }
+        catch (const std::exception &e) {
+            throw SolverException("Error calling function '" + node->token.value + "': " + e.what());
+        }
+
+        return result;
+    }
+    default:
+        throw SolverException("Unsupported token type in AST evaluation: " + node->token.value);
+    }
+}
 
 static void printASTRecursive(const ASTNode* node, const std::string& prefix, bool isLast)
 {

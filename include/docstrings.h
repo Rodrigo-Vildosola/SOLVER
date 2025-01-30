@@ -63,6 +63,25 @@ Throws:
     SolverException if there's a mismatch in the stack usage, unknown function,
     etc.)doc";
 
+static const char *__doc_AST_evaluateAST =
+R"doc(Recursively evaluates a simplified AST.
+
+Parameter ``node``:
+    Pointer to the root AST node (must not be null).
+
+Parameter ``symbolTable``:
+    The symbol table for looking up variables.
+
+Parameter ``functions``:
+    Map of predefined functions (for FUNCTION nodes).
+
+Returns:
+    The numeric result of evaluating the AST.
+
+Throws:
+    SolverException If an unknown operator or function is encountered, or if
+    division by zero occurs, etc.)doc";
+
 static const char *__doc_AST_printAST =
 R"doc(Public-facing function to pretty-print the AST from its root.
 
@@ -376,6 +395,8 @@ This is a direct way to force the solver to discard all cached results. After
 calling, the next evaluations will re-parse and re-compute the expression
 outcomes from scratch.)doc";
 
+static const char *__doc_Solver_currentAST = R"doc(The parsed (and flattened) AST tokens corresponding to currentExpression.)doc";
+
 static const char *__doc_Solver_currentExpression = R"doc(The most recent expression string passed to setCurrentExpression().)doc";
 
 static const char *__doc_Solver_currentPostfix = R"doc(The parsed (and flattened) postfix tokens corresponding to currentExpression.)doc";
@@ -450,6 +471,25 @@ Returns:
 Throws:
     SolverException If there is a parsing error, missing function, or other
     runtime error.)doc";
+
+static const char *__doc_Solver_evaluateASTPipeline =
+R"doc(Evaluate an expression using the AST pipeline.
+
+This either reuses an existing AST if `expression` is the same as last time, or
+builds (and optionally simplifies) a new AST. Then calls AST::evaluateAST() or a
+similar function to get the numeric result.
+
+Parameter ``expression``:
+    The mathematical expression string.
+
+Parameter ``debug``:
+    Whether to print debugging info.
+
+Returns:
+    The numeric evaluation result.
+
+Throws:
+    SolverException on parse errors, unknown symbols, etc.)doc";
 
 static const char *__doc_Solver_evaluateForRange =
 R"doc(Evaluates a mathematical expression for each value in a range of inputs for one
@@ -585,6 +625,25 @@ Returns:
 Throws:
     SolverException If a syntax error or unknown function is encountered.)doc";
 
+static const char *__doc_Solver_parseAST =
+R"doc(Parses a mathematical expression from string to postfix.
+
+The process includes tokenizing, converting tokens to postfix notation, and
+flattening (inlining any user-defined functions). If ``debug`` is set, it may
+print intermediate steps.
+
+Parameter ``expression``:
+    The input mathematical expression (in infix).
+
+Parameter ``debug``:
+    If true, prints debug information about the tokenization/postfix steps.
+
+Returns:
+    A vector of Tokens representing the flattened postfix form.
+
+Throws:
+    SolverException If a syntax error or unknown function is encountered.)doc";
+
 static const char *__doc_Solver_printFunctionExpressions =
 R"doc(Prints expressions (postfix or inlined) for all registered functions to stdout.
 
@@ -632,6 +691,14 @@ Parameter ``expression``:
 
 Parameter ``debug``:
     If true, prints out the final postfix and related debug info.)doc";
+
+static const char *__doc_Solver_setCurrentExpressionAST =
+R"doc(Sets the current expression for AST-based evaluation (builds or re-builds an
+AST).
+
+This is similar to setCurrentExpression() but constructs an AST pipeline instead
+of storing postfix tokens. If the expression is identical to the previously
+stored one (and the AST is valid), we skip re-building unless debug is true.)doc";
 
 static const char *__doc_Solver_setUseCache =
 R"doc(Toggles whether the solver uses its LRU cache.

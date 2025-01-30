@@ -35,6 +35,10 @@ public:
      */
     ~Solver() {
         PROFILE_END_SESSION();
+        if (currentAST) {
+            delete currentAST;
+            currentAST = nullptr;
+        }
     }
 
     /**
@@ -207,6 +211,29 @@ public:
     void setCurrentExpression(const std::string &expression, bool debug);
 
     /**
+     * @brief Sets the current expression for AST-based evaluation (builds or re-builds an AST).
+     *
+     * This is similar to setCurrentExpression() but constructs an AST pipeline
+     * instead of storing postfix tokens. If the expression is identical to the
+     * previously stored one (and the AST is valid), we skip re-building unless debug is true.
+     */
+    void setCurrentExpressionAST(const std::string &expression, bool debug = false);
+
+    /**
+     * @brief Evaluate an expression using the AST pipeline.
+     * 
+     * This either reuses an existing AST if `expression` is the same as last time,
+     * or builds (and optionally simplifies) a new AST. Then calls AST::evaluateAST() 
+     * or a similar function to get the numeric result.
+     * 
+     * @param expression The mathematical expression string.
+     * @param debug Whether to print debugging info.
+     * @return The numeric evaluation result.
+     * @throws SolverException on parse errors, unknown symbols, etc.
+     */
+    double evaluateASTPipeline(const std::string &expression, bool debug = false);
+
+    /**
      * @brief Retrieves the most recently set expression string.
      * 
      * This is simply the raw expression as last passed to setCurrentExpression().
@@ -237,6 +264,20 @@ private:
      * @throws SolverException If a syntax error or unknown function is encountered.
      */
     std::vector<Token> parse(const std::string &expression, bool debug = false);
+
+    /**
+     * @brief Parses a mathematical expression from string to postfix.
+     * 
+     * The process includes tokenizing, converting tokens to postfix notation,
+     * and flattening (inlining any user-defined functions). If \p debug is set,
+     * it may print intermediate steps.
+     * 
+     * @param expression The input mathematical expression (in infix).
+     * @param debug If true, prints debug information about the tokenization/postfix steps.
+     * @return A vector of Tokens representing the flattened postfix form.
+     * @throws SolverException If a syntax error or unknown function is encountered.
+     */
+    ASTNode* parseAST(const std::string &expression, bool debug = false);
 
     /**
      * @brief Generates an integer cache key based on an expression string and argument values.
@@ -290,4 +331,7 @@ private:
 
     /// The parsed (and flattened) postfix tokens corresponding to currentExpression.
     std::vector<Token> currentPostfix;
+
+    /// The parsed (and flattened) AST tokens corresponding to currentExpression.
+    ASTNode* currentAST;
 };

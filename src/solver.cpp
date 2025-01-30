@@ -49,15 +49,6 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto flattened = Postfix::flattenPostfix(postfix, functions);
     auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
 
-    ASTNode * root = AST::buildASTFromPostfix(inlined, functions);
-
-    AST::printAST(root);
-
-    ASTNode * simp = Simplification::simplifyAST(root, functions);
-    std::cout << "\n\nSimplified: \n";
-
-    AST::printAST(simp);
-
     // Now do a simplification pass
     auto simplified = Simplification::fullySimplifyPostfix(inlined, functions);
 
@@ -67,6 +58,27 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
         std::cout << "Simplified postfix: ";
         printPostfix(simplified);
     }
+
+    return simplified; 
+}
+
+ASTNode* Solver::parseAST(const std::string& expression, bool debug) {
+    auto tokens   = Tokenizer::tokenize(expression);
+    auto postfix  = Postfix::shuntingYard(tokens);
+    auto flattened = Postfix::flattenPostfix(postfix, functions);
+    auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
+
+    ASTNode * root = AST::buildASTFromPostfix(inlined, functions);
+
+    ASTNode * simplified = Simplification::simplifyAST(root, functions);
+
+    if (debug) {
+        std::cout << "Flattened AST: ";
+        AST::printAST(root);
+        std::cout << "Simplified AST: ";
+        AST::printAST(simplified);
+    }
+
 
     return simplified; 
 }
@@ -251,6 +263,62 @@ void Solver::setCurrentExpression(const std::string& expression, bool debug) {
     if (debug) {
         std::cout << "Current expression set to: " << expression << std::endl;
     }
+}
+
+void Solver::setCurrentExpressionAST(const std::string &expression, bool debug) {
+    if (expression == currentExpression && currentAST != nullptr && !debug) {
+        return; // no need to rebuild
+    }
+
+    // Store the expression
+    currentExpression = expression;
+
+    // If we had an old AST, free it
+    if (currentAST) {
+        delete currentAST;
+        currentAST = nullptr;
+    }
+
+    try {
+        // store it
+        currentAST = parseAST(expression, debug); // 'root' is no longer valid after the simplification returns the new root
+
+    }
+    catch (const SolverException &e) {
+        // If there's an error, ensure we don't leave a partial AST
+        if (currentAST) {
+            delete currentAST;
+            currentAST = nullptr;
+        }
+        // rethrow 
+        throw;
+    }
+}
+
+double Solver::evaluateASTPipeline(const std::string &expression, bool debug)
+{
+    PROFILE_FUNCTION();
+
+    // Possibly use the cache if you'd like. For brevity, let's skip caching here.
+    // If you do want caching, you'd store the result in an LRUCache<someKey, double> after building an identifier key.
+
+    // Ensure currentAST is built
+    setCurrentExpressionAST(expression, debug);
+
+    if (!currentAST) {
+        throw SolverException("Cannot evaluate AST pipeline: currentAST is null.");
+    }
+
+    // Evaluate the final AST
+    double result = 0.0;
+    try {
+        result = AST::evaluateAST(currentAST, symbolTable, functions);
+    }
+    catch (const SolverException &e) {
+        throw; // or handle differently
+    }
+
+    return result;
 }
 
 

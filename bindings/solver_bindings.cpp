@@ -14,7 +14,7 @@ void bind_solver(py::module_ &m) {
     py::class_<Solver>(m, "Solver", DOC(Solver))
         // Constructor
         .def(py::init<size_t>(), 
-             py::arg("exprCacheSize") = 100,
+             py::arg("cache_size") = 100,
              DOC(Solver, Solver))  // If docstrings are defined for constructor
 
         // Expose methods
@@ -40,6 +40,13 @@ void bind_solver(py::module_ &m) {
              py::arg("debug") = false,
              DOC(Solver, evaluate))
 
+        .def("evaluate_ast",
+             &Solver::evaluateASTPipeline, 
+             py::arg("expression"),
+             py::arg("debug") = false,
+             DOC(Solver, evaluateASTPipeline))
+
+        
         .def("evaluate_range",
              &Solver::evaluateForRange,
              py::arg("variable"),
@@ -85,6 +92,12 @@ void bind_solver(py::module_ &m) {
              py::arg("expression"),
              py::arg("debug") = false,
              DOC(Solver, setCurrentExpression))
+
+        .def("set_current_expression_ast",
+             &Solver::setCurrentExpressionAST,
+             py::arg("expression"),
+             py::arg("debug") = false,
+             DOC(Solver, setCurrentExpressionAST))
 
         .def("get_current_expression", 
              &Solver::getCurrentExpression, 

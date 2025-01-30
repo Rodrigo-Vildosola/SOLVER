@@ -16,7 +16,7 @@ class Solver:
     @staticmethod
     def _pybind11_conduit_v1_(*args, **kwargs):
         ...
-    def __init__(self, exprCacheSize: int = 100) -> None:
+    def __init__(self, cache_size: int = 100) -> None:
         """
         Constructs a Solver instance and registers built-in functions.
         
@@ -109,6 +109,26 @@ class Solver:
         Throws:
             SolverException If there is a parsing error, missing function, or other
             runtime error.
+        """
+    def evaluate_ast(self, expression: str, debug: bool = False) -> float:
+        """
+        Evaluate an expression using the AST pipeline.
+        
+        This either reuses an existing AST if `expression` is the same as last time, or
+        builds (and optionally simplifies) a new AST. Then calls AST::evaluateAST() or a
+        similar function to get the numeric result.
+        
+        Parameter ``expression``:
+            The mathematical expression string.
+        
+        Parameter ``debug``:
+            Whether to print debugging info.
+        
+        Returns:
+            The numeric evaluation result.
+        
+        Throws:
+            SolverException on parse errors, unknown symbols, etc.
         """
     def evaluate_range(self, variable: str, values: list[float], expression: str, debug: bool = False) -> list[float]:
         """
@@ -225,6 +245,15 @@ class Solver:
         
         Parameter ``debug``:
             If true, prints out the final postfix and related debug info.
+        """
+    def set_current_expression_ast(self, expression: str, debug: bool = False) -> None:
+        """
+        Sets the current expression for AST-based evaluation (builds or re-builds an
+        AST).
+        
+        This is similar to setCurrentExpression() but constructs an AST pipeline instead
+        of storing postfix tokens. If the expression is identical to the previously
+        stored one (and the AST is valid), we skip re-building unless debug is true.
         """
     def use_cache(self, useCache: bool) -> None:
         """

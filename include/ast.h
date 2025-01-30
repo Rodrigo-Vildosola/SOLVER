@@ -5,6 +5,7 @@
 #include <vector>
 #include "token.h"
 #include "function.h"
+#include "symbol_table.h"
 
 /**
  * @struct ASTNode
@@ -71,5 +72,17 @@ namespace AST {
      * @param root Pointer to the root ASTNode of the tree.
      */
     void printAST(const ASTNode* root);
+
+    /**
+     * @brief Recursively evaluates a simplified AST.
+     *
+     * @param node         Pointer to the root AST node (must not be null).
+     * @param symbolTable  The symbol table for looking up variables.
+     * @param functions    Map of predefined functions (for FUNCTION nodes).
+     * @return The numeric result of evaluating the AST.
+     * @throws SolverException If an unknown operator or function is encountered, 
+     *         or if division by zero occurs, etc.
+     */
+    double evaluateAST(const ASTNode* node, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions);
 
 }
