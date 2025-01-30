@@ -126,20 +126,3 @@ inline void printPostfix(const std::vector<Token>& tokens) {
  * @param tokens A vector of Token objects representing the expression.
  */
 void printTokens(const std::vector<Token>& tokens);
-
-
-/**
- * @brief Print a boxed header with colored output for debug mode.
- * 
- * @param title The title of the header to be displayed.
- */
-void printBoxedHeader(const std::string& title, size_t boxWidth = 0);
-
-/**
- * @brief Print a boxed content block for displaying debug information.
- * 
- * This method creates a dynamic box based on the length of the content.
- * 
- * @param content The content to be displayed inside the box.
- */
-void printBoxedContent(const std::string& content, size_t boxWidth = 0);

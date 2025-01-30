@@ -4,6 +4,7 @@
 #include "validator.h"
 #include "debug.h"
 #include "tokenizer.h"
+#include "ast.h"
 
 Solver::Solver(size_t exprCacheSize)
     : expressionCache(exprCacheSize) {
@@ -46,6 +47,10 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto tokens   = Tokenizer::tokenize(expression);
     auto postfix  = Postfix::shuntingYard(tokens);
     auto flattened = Postfix::flattenPostfix(postfix, functions);
+
+    ASTNode * root = buildASTFromPostfix(flattened, functions);
+
+    printAST(root);
 
     // Now do a simplification pass
     auto simplified = Postfix::fullySimplifyPostfix(flattened, functions);

@@ -23,6 +23,29 @@
 #endif
 
 
+static const char *__doc_ASTNode =
+R"doc(A node in the abstract syntax tree (AST) built from a flattened postfix
+expression.
+
+Each node holds: - A Token (NUMBER, VARIABLE, OPERATOR, or FUNCTION). - A list
+of children (for operators, typically 2 children; for a function, 'argCount'
+children).
+
+Note: This uses raw pointers for children; you will need to manage memory
+(delete) manually.)doc";
+
+static const char *__doc_ASTNode_ASTNode =
+R"doc(Constructor that initializes the node with a Token.
+
+Parameter ``t``:
+    The Token to store in this ASTNode.)doc";
+
+static const char *__doc_ASTNode_children =
+R"doc(Child pointers. For binary operators, typically size=2. For a function,
+size=argCount.)doc";
+
+static const char *__doc_ASTNode_token = R"doc(The token for this node (e.g., {OPERATOR, "+"} or {VARIABLE, "x"}).)doc";
+
 static const char *__doc_Function = R"doc()doc";
 
 static const char *__doc_Function_Function = R"doc()doc";
@@ -701,21 +724,43 @@ R"doc(Validate the syntax of the given expression.
 Parameter ``expression``:
     The expression to validate.)doc";
 
+static const char *__doc_buildASTFromPostfix =
+R"doc(Builds an AST from a flattened postfix expression.
+
+Parameter ``postfix``:
+    The flattened postfix tokens (no user-defined FUNCTION tokens remain).
+
+Parameter ``functions``:
+    Map of function name to Function struct (for predefined functions).
+
+Returns:
+    A pointer to the root ASTNode of the constructed tree. Caller is responsible
+    for deleting it.
+
+Throws:
+    SolverException if there's a mismatch in the stack usage, unknown function,
+    etc.)doc";
+
 static const char *__doc_postfixToInfix = R"doc()doc";
 
-static const char *__doc_printBoxedContent =
-R"doc(Print a boxed content block for displaying debug information.
+static const char *__doc_printAST =
+R"doc(Public-facing function to pretty-print the AST from its root.
 
-This method creates a dynamic box based on the length of the content.
+Parameter ``root``:
+    Pointer to the root ASTNode of the tree.)doc";
 
-Parameter ``content``:
-    The content to be displayed inside the box.)doc";
+static const char *__doc_printASTRecursive =
+R"doc(Recursively prints the AST in a tree-like format to stdout.
 
-static const char *__doc_printBoxedHeader =
-R"doc(Print a boxed header with colored output for debug mode.
+Parameter ``node``:
+    Pointer to the current AST node.
 
-Parameter ``title``:
-    The title of the header to be displayed.)doc";
+Parameter ``prefix``:
+    A string used to indent child nodes (managed automatically in recursion).
+
+Parameter ``isLast``:
+    Indicates whether this node is the last child of its parent (for drawing └
+    or ├).)doc";
 
 static const char *__doc_printInfix = R"doc()doc";
 

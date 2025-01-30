@@ -338,10 +338,13 @@ std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const 
 
 #pragma endregion
 
+#pragma region AST Conversion
+
+#pragma endregion
+
 #pragma region Postfix simplification
 
-std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions)
-{
+std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
     // We'll do a loop that calls singlePassSimplify repeatedly
     // until we detect no changes or we reach an iteration limit.
     std::vector<Token> current = postfix;
@@ -355,6 +358,7 @@ std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const
 
     return current;
 }
+
 
 std::vector<Token> singlePassSimplify(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions, bool &changed) {
     changed = false;
