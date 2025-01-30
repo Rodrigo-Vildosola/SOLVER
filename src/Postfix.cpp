@@ -340,34 +340,53 @@ std::vector<Token> flattenPostfix(const std::vector<Token>& postfixQueue, const 
 
 #pragma region Postfix simplification
 
-std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix) {
+std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
     std::stack<std::vector<Token>> stack;
 
     for (const Token &token : postfix)
     {
-        if (token.type == NUMBER || token.type == VARIABLE)
-        {
+        if (token.type == NUMBER || token.type == VARIABLE) {
             // Push as a single-token vector
             stack.push({ token });
-        }
-        else if (token.type == OPERATOR)
-        {
+        } else if (token.type == OPERATOR) {
             // Binary operator => need two sub-expressions
-            if (stack.size() < 2)
-            {
-                throw SolverException("Not enough operands for operator '" + token.value + "' during simplification.");
+            if (stack.size() < 2) {
+                throw SolverException(
+                    "Not enough operands for operator '" + token.value + "' during simplification.");
             }
             auto rightExpr = stack.top(); stack.pop();
             auto leftExpr  = stack.top(); stack.pop();
 
-            // Attempt local simplification
-            std::vector<Token> simplified = trySimplify(leftExpr, rightExpr, token);
-
-            // Push the result (could be a single token or a full sub-expression)
+            // Attempt local simplification for binary operators
+            std::vector<Token> simplified = trySimplifyBinary(leftExpr, rightExpr, token);
             stack.push(std::move(simplified));
-        }
-        else
-        {
+        } else if (token.type == FUNCTION) {
+                        // A predefined function (like sin, cos, exp, etc.) 
+            // We must look it up in 'functions' to see how many arguments it requires.
+            auto it = functions.find(token.value);
+            if (it == functions.end()) {
+                throw SolverException("Unknown function '" + token.value + "' during simplification.");
+            }
+
+            const Function &func = it->second;
+            const size_t argCount = func.argCount;
+
+            // Pop argCount sub-expressions
+            if (stack.size() < argCount) {
+                throw SolverException("Not enough arguments for function '" + token.value + "' during simplification.");
+            }
+
+            // Collect sub-expressions in reverse
+            std::vector<std::vector<Token>> argExprs(argCount);
+            for (size_t i = 0; i < argCount; i++) {
+                argExprs[argCount - i - 1] = stack.top();
+                stack.pop();
+            }
+
+            // Attempt to fold if all arguments are single-number
+            std::vector<Token> simplified = trySimplifyFunction(argExprs, token, functions);
+            stack.push(std::move(simplified));
+        } else {
             // If your flattened postfix truly has no FUNCTION, PAREN, etc.,
             // any other token type is unexpected at this stage.
             throw SolverException("Unexpected token type in flattened postfix: " + token.value);
@@ -382,6 +401,7 @@ std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix) {
 
     return stack.top();
 }
+
 
 std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const std::vector<Token> &rightExpr, const Token &opToken) {
     // If both are single-number expressions, constant fold
@@ -500,6 +520,61 @@ std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const s
     combined.insert(combined.end(), rightExpr.begin(), rightExpr.end());
     combined.push_back(opToken);
     return combined;
+}
+
+
+std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &argExprs, const Token &funcToken, const std::unordered_map<std::string, Function> &functions) {
+    // Retrieve the function
+    auto it = functions.find(funcToken.value);
+    if (it == functions.end()) {
+        throw SolverException("Unknown function '" + funcToken.value + "' in trySimplifyFunction().");
+    }
+
+    const Function &func = it->second;
+    if (!func.isPredefined) {
+        // If this truly is a user-defined function, we wouldn't be here if you've 
+        // already flattened them out. So handle or error accordingly.
+        throw SolverException("trySimplifyFunction encountered a user-defined function unexpectedly.");
+    }
+
+    // Check if all arguments are single-number tokens
+    bool allNumbers = true;
+    for (const auto &arg : argExprs) {
+        if (!isNumber(arg)) {
+            allNumbers = false;
+            break;
+        }
+    }
+
+    if (allNumbers) {
+        // We can constant-fold the function call
+        std::vector<double> numericArgs;
+        numericArgs.reserve(argExprs.size());
+        for (auto &arg : argExprs) {
+            numericArgs.push_back(asNumber(arg));
+        }
+
+        // Evaluate the predefined callback with these numeric args
+        double resultVal = 0.0;
+        try {
+            resultVal = func.callback(numericArgs);
+        } catch (const std::exception &e) {
+            throw SolverException("Error constant-folding function '" + funcToken.value + "': " + e.what());
+        }
+
+        // Return a single numeric token
+        return { Token{ NUMBER, std::to_string(resultVal) } };
+    }
+    else {
+        // Not all numeric => reassemble into normal postfix sub-expression
+        // arg1-Postfix arg2-Postfix ... argN-Postfix function
+        std::vector<Token> combined;
+        for (const auto &arg : argExprs) {
+            combined.insert(combined.end(), arg.begin(), arg.end());
+        }
+        combined.push_back(funcToken);
+        return combined;
+    }
 }
 
 

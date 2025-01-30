@@ -164,7 +164,7 @@ Returns:
 Throws:
     SolverException If the postfix is malformed (e.g., insufficient operands).)doc";
 
-static const char *__doc_Postfix_trySimplify =
+static const char *__doc_Postfix_trySimplifyBinary =
 R"doc(Attempts to simplify a binary operation (leftExpr op rightExpr) using local
 rules.
 
@@ -179,6 +179,8 @@ Parameter ``opToken``:
 
 Returns:
     A new postfix token vector that represents the simplified expression.)doc";
+
+static const char *__doc_Postfix_trySimplifyFunction = R"doc()doc";
 
 static const char *__doc_Profiler_InstrumentationSession = R"doc()doc";
 

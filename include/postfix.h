@@ -26,7 +26,7 @@ namespace Postfix {
      * @return A simplified postfix token sequence.
      * @throws SolverException If the postfix is malformed (e.g., insufficient operands).
      */
-    std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix);
+    std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
 
 
     /**
@@ -38,6 +38,9 @@ namespace Postfix {
      * @return A new postfix token vector that represents the simplified expression.
      */
     std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const std::vector<Token> &rightExpr, const Token &opToken);
+
+
+    std::vector<Token> trySimplifyFunction(const std::vector<std::vector<Token>> &argExprs, const Token &funcToken, const std::unordered_map<std::string, Function> &functions);
 
 
     /**

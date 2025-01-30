@@ -34,9 +34,8 @@ def run_examples():
         solver.declare_constant("c", 5)
 
 
-        solver.declareVariable("x", 10)
+        solver.declare_variable("x", 10)
 
-        # Declare user-defined functions
         solver.declare_function("f", ["x"], "x^2 + 2*x + 1")
         solver.declare_function("g", ["x", "y"], "x * y + x + y")
         solver.declare_function("h", ["x"], "f(g(x, x))")
@@ -59,6 +58,7 @@ def run_examples():
         {"description": "Evaluate 3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3", "expression": "3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3", "expected_result": 3.0001},
         {"description": "Evaluate sin(pi/2)", "expression": "sin(pi/2)", "expected_result": 1},
         {"description": "Evaluate f(g(2, 2) + sin(pi/2))", "expression": "f(g(2, 2) + sin(pi/2))", "expected_result": 100},
+        {"description": "Evaluate x + 2 * 4 + 3", "expression": "x + 2 * 4 + 3", "expected_result": 21},
 
     ]
 
