@@ -17,7 +17,7 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.12]
+        python-version: [3.13]
 
     steps:
       - name: Checkout code
@@ -34,24 +34,23 @@ jobs:
         run: |
           echo "Installing dependencies on Linux..."
           sudo apt-get update
-          sudo apt-get install -y cmake swig
+          sudo apt-get install -y cmake
           
           echo "Setting up virtual environment..."
           python3 -m venv .venv
           source .venv/bin/activate
-          pip install numpy matplotlib colorama
+          pip install numpy matplotlib clang cmake setuptools
 
       # Installation step for macOS
       - name: Install dependencies on macOS
         if: runner.os == 'macOS'
         run: |
           echo "Installing dependencies on macOS..."
-          brew install swig
 
           echo "Setting up virtual environment..."
           python3 -m venv .venv
           source .venv/bin/activate
-          pip install numpy matplotlib colorama
+          pip install numpy matplotlib clang cmake setuptools
 
       # Installation step for Windows
       - name: Install dependencies on Windows
@@ -60,39 +59,37 @@ jobs:
           echo "Installing dependencies on Windows..."
           python -m venv .venv
           .venv\Scripts\activate
-          pip install numpy matplotlib colorama
+          pip install numpy matplotlib clang cmake setuptools
 
       # Build and test step for Linux
-      - name: Build and Test on Linux
+      - name: Build on Linux
         if: runner.os == 'Linux'
         run: |
           echo "Running build on Linux..."
-          chmod +x build.sh
-          ./build.sh build
+          python setup.py build
           
           echo "Running tests on Linux..."
-          ./build.sh tests
+          python setup.py test
 
       # Build and test step for macOS
       - name: Build and Test on macOS
         if: runner.os == 'macOS'
         run: |
           echo "Running build on macOS..."
-          chmod +x build.sh
-          ./build.sh build
+          python setup.py build
 
           echo "Running tests on macOS..."
-          ./build.sh tests
+          python setup.py test
 
       # Build and test step for Windows
       - name: Build and Test on Windows
         if: runner.os == 'Windows'
         run: |
           echo "Running build on Windows..."
-          cmd /c build.bat build
+          python setup.py build
 
           echo "Running tests on Windows..."
-          cmd /c build.bat tests
+          python setup.py test
 
       # Ensure test failure stops the job
       - name: Fail on test failure
