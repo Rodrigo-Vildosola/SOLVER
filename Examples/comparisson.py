@@ -131,7 +131,7 @@ def main():
         expected = ex.get("expected_result", None)  # Might be None if too large or domain error
 
         def test_postfix():
-            val = solver.evaluate(expr, False)
+            val = solver.evaluate(expr, True)
             return val
 
         def test_ast():

@@ -47,6 +47,10 @@ void Solver::declareVariable(const std::string& name, double value) {
 std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto tokens   = Tokenizer::tokenize(expression);
     auto postfix  = Postfix::shuntingYard(tokens);
+    if (debug) {
+        std::cout << "Original postfix: ";
+        printPostfix(postfix);
+    }
     auto flattened = Postfix::flattenPostfix(postfix, functions);
     auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
 

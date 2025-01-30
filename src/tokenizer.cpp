@@ -98,9 +98,20 @@ void Tokenizer::handleOperatorToken(const std::string& match, std::vector<Token>
 }
 
 bool Tokenizer::isUnaryContext(const Token& lastToken) {
-    PROFILE_FUNCTION() // Profile the isUnaryContext function
-    return lastToken.type == OPERATOR || 
-           lastToken.type == PAREN || 
-           lastToken.type == SEPARATOR || 
-           lastToken.value == "neg";
+    // If last token is an operator, separator, or '(' => next '-' is unary
+    if (lastToken.type == OPERATOR || lastToken.type == SEPARATOR)
+        return true;
+
+    // If last token is '(' => next '-' is unary
+    if (lastToken.type == PAREN && lastToken.value == "(")
+        return true;
+
+    // ALLOW chaining multiple unary minus:
+    // If the last token is FUNCTION and value=="neg", we are still in a
+    // context needing an operand, so another '-' is also unary.
+    if (lastToken.type == FUNCTION && lastToken.value == "neg")
+        return true;
+
+    return false;
 }
+
