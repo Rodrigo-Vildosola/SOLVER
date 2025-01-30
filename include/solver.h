@@ -5,6 +5,7 @@
 #include "symbol_table.h"
 #include "function.h"
 #include "LRU_cache.h"
+#include "simplification.h"
 
 /**
  * @class Solver
