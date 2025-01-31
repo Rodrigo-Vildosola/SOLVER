@@ -1,17 +1,51 @@
-# .clang-format
 ---
-IndentWidth:   4        # Use 4 spaces for indentation
-UseTab:        Never    # Use spaces instead of tabs
-BreakBeforeBraces: Attach   # Keep braces on the same line for functions/classes
-AccessModifierOffset: -4    # No indent for public:, private:, protected:
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
-AlignTrailingComments: true
-ReflowComments: true
-AllowShortFunctionsOnASingleLine: Empty # Allow empty functions to be on a single line
-SortIncludes: false  # Preserve include order
+BasedOnStyle: GNU
 
-# Formatting for specific constructs
-PointerAlignment: Left  # int* ptr; instead of int *ptr;
-SpaceBeforeParens: ControlStatements # if (...) not if(...)
+# Indentation settings
+IndentWidth: 4  # Use 4 spaces for indentation
+ContinuationIndentWidth: 4  # Indentation for continued lines
+
+# Short statements formatting
+AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+# Uncommenting these will sometimes attach `if () {}` or `for () {}` to the next statement.
+# AllowShortIfStatementsOnASingleLine: true
+# AllowShortLoopsOnASingleLine: true
+
+# Function return types
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+
+# Brace styles
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass:      true
+  AfterControlStatement: true
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterExternBlock: true
+  BeforeCatch:     true
+  BeforeElse:      true
+  IndentBraces:    true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+# Code style adjustments
+Cpp11BracedListStyle: true
 KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: All
+
+# Penalties and alignments
+PenaltyExcessCharacter: 100
+PenaltyReturnTypeOnItsOwnLine: 1
+PointerAlignment: Left  # Change to Left if you prefer `int* ptr;` over `int *ptr;`
+SortIncludes: false
+SpaceBeforeParens: Never
+SpacesInContainerLiterals: false
+Standard: Cpp23  # Use modern C++23 standard
