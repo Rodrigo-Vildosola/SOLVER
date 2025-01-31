@@ -78,7 +78,6 @@ class CustomFormat(Command):
     def finalize_options(self):
         pass
 
-
     def run(self):
         # Check if clang-format is installed
         clang_format_path = shutil.which("clang-format")

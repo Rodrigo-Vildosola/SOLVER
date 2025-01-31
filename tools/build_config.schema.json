@@ -65,6 +65,12 @@
         "description": "Directory for C++ headers (optional).",
         "default": "include"
       },
+      "source_directory": {
+        "type": "string",
+        "description": "Directory for C++ source files (optional).",
+        "default": "src"
+      },
+
       "docstrings_file": {
         "type": "string",
         "description": "Filename for docstrings (optional).",

@@ -76,22 +76,6 @@ endif()
 # Output the shared library to the build directory
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-# Add clang-format target
-find_program(CLANG_FORMAT_EXECUTABLE clang-format)
-if (CLANG_FORMAT_EXECUTABLE)
-    add_custom_target(
-        clang-format ALL
-        COMMAND ${CLANG_FORMAT_EXECUTABLE} 
-        -i 
-        -style=file 
-        ${LIB_SRC} ${LIB_HEADERS}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMENT "Formatting source and header files with clang-format"
-        VERBATIM
-    )
-else()
-    message(WARNING "clang-format not found. Skipping formatting.")
-endif()
 
 message(STATUS "Project configuration complete.")
 

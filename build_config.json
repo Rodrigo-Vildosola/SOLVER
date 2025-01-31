@@ -27,6 +27,7 @@
   
     "tests_directory": "tests",
     "headers_directory": "include",
+    "source_directory": "src",
     "docstrings_file": "docstrings.h"
   }
   
