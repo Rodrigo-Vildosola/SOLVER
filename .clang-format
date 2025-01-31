@@ -48,4 +48,3 @@ PointerAlignment: Left  # Change to Left if you prefer `int* ptr;` over `int *pt
 SortIncludes: false
 SpaceBeforeParens: Never
 SpacesInContainerLiterals: false
-Standard: Cpp23  # Use modern C++23 standard
