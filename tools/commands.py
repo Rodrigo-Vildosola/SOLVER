@@ -124,10 +124,10 @@ class CustomBuildExt(build_ext):
         cmake_args.append(f"-DHEADERS_DIR={self.config.headers_directory}")
 
         # Source directory from config
-        source_dir = os.path.abspath(self.config.source_directory)
+        root_dir = os.path.abspath(self.config.root_directory)
 
         cli_print("Configuring CMake...", level="info")
-        subprocess.check_call(["cmake", source_dir] + cmake_args, cwd=self.build_temp)
+        subprocess.check_call(["cmake", root_dir] + cmake_args, cwd=self.build_temp)
         cli_print("CMake configuration completed.", level="info")
 
     def build_cmake(self):

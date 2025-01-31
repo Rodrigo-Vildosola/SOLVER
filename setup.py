@@ -70,6 +70,51 @@ class CustomPublish(Command):
         else:
             print("No .pypirc found. Skipping upload.")
 
+class CustomFormat(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+
+
+    def run(self):
+        # Check if clang-format is installed
+        clang_format_path = shutil.which("clang-format")
+        if not clang_format_path:
+            raise RuntimeError("clang-format is not installed or not found in PATH.")
+
+        print(f"Using clang-format: {clang_format_path}")
+
+        # Collect all .cpp and .c files from source directory
+        source_files = []
+        if os.path.exists(config.source_directory):
+            source_files = glob.glob(f"{config.source_directory}/**/*.cpp", recursive=True) + \
+                           glob.glob(f"{config.source_directory}/**/*.c", recursive=True)
+
+        # Collect all .h and .hpp files from headers directory
+        header_files = []
+        if os.path.exists(config.headers_directory):
+            header_files = glob.glob(f"{config.headers_directory}/**/*.h", recursive=True) + \
+                           glob.glob(f"{config.headers_directory}/**/*.hpp", recursive=True)
+
+        # Merge all files to format
+        all_files = source_files + header_files
+
+        if not all_files:
+            print("No source or header files found to format.")
+            return
+
+        print(f"Formatting {len(all_files)} files...")
+
+        # Run clang-format on each file
+        for file in all_files:
+            print(f"Formatting: {file}")
+            subprocess.run([clang_format_path, "-i", file], check=True)
+
+        print("Code formatting complete.")
+
 def command_factory(base_cls, config):
     class CommandSubclass(base_cls):
         def __init__(self, dist):
@@ -95,7 +140,8 @@ setup(
         'build': command_factory(CustomBuild, config),
         'test': command_factory(CustomTestRunner, config),
         'clean': CustomClean,
-        'publish': CustomPublish
+        'publish': CustomPublish,
+        'format': CustomFormat
     },
 
     install_requires=config.install_requires,

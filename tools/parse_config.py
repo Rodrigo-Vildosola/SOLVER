@@ -24,9 +24,10 @@ class BuildConfig:
     extra_directories: List[str] = field(default_factory=list)
     tests_directory: Optional[str] = None
     headers_directory: str = "include"
+    source_directory: str = "str"
     docstrings_file: str = "docstrings.h"
 
-    source_directory: str = "."
+    root_directory: str = "."
 
 
     @staticmethod
