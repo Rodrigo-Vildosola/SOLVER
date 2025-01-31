@@ -1,0 +1,17 @@
+# .clang-format
+---
+IndentWidth:   4        # Use 4 spaces for indentation
+UseTab:        Never    # Use spaces instead of tabs
+BreakBeforeBraces: Attach   # Keep braces on the same line for functions/classes
+AccessModifierOffset: -4    # No indent for public:, private:, protected:
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignTrailingComments: true
+ReflowComments: true
+AllowShortFunctionsOnASingleLine: Empty # Allow empty functions to be on a single line
+SortIncludes: false  # Preserve include order
+
+# Formatting for specific constructs
+PointerAlignment: Left  # int* ptr; instead of int *ptr;
+SpaceBeforeParens: ControlStatements # if (...) not if(...)
+KeepEmptyLinesAtTheStartOfBlocks: false
