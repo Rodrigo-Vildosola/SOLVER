@@ -20,7 +20,11 @@ EvalFunc compilePostfix(const std::vector<Token>& tokens, const std::unordered_m
             // Create a lambda that looks up the variable in the environment.
             std::string varName = token.value;
             funcStack.push([varName](const Env &env) -> NUMBER_TYPE {
-                return env.at(varName); // Throws if missing.
+                auto it = env.find(varName);
+                if (it == env.end()) {
+                    throw SolverException("Variable '" + varName + "' not found in environment.");
+                }
+                return it->second;
             });
         }
         else if (token.type == OPERATOR) {
