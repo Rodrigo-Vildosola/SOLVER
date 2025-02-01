@@ -195,18 +195,22 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRanges(const std::vector<std::string
     std::vector<NUMBER_TYPE> results;
     results.reserve(totalCombinations);
 
-    // If there's only one variable, we can do a simple loop.
-    // Otherwise, we'll do an iterative cartesian product approach.
-    // We'll track an index array, one index per variable.
+    // Get direct pointers to all variables (auto-create if missing)
     const size_t nVars = variables.size();
-    std::vector<size_t> indices(nVars, 0);  // current position in each valuesSets[i]
+    std::vector<NUMBER_TYPE*> varPtrs(nVars);
+    for (size_t i = 0; i < nVars; ++i) {
+        varPtrs[i] = symbolTable.getVariablePtr(variables[i]);
+    }
+
+    // Indices for tracking cartesian product iteration
+    std::vector<size_t> indices(nVars, 0);
 
     // We'll iterate from combination #0 to combination #(totalCombinations-1).
     // For each iteration, assign symbolTable values and evaluate.
     for (size_t count = 0; count < totalCombinations; ++count) {
         // Assign each variable to its current index's value
         for (size_t i = 0; i < nVars; ++i) {
-            symbolTable.declareVariable(variables[i], valuesSets[i][indices[i]], true);
+            *varPtrs[i] = valuesSets[i][indices[i]]; // Direct memory write
         }
 
         // Evaluate and capture the result

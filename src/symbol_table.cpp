@@ -40,11 +40,14 @@ void SymbolTable::declareVariable(const std::string& name, NUMBER_TYPE value, bo
     cachedSymbolName.clear();
 }
 
-// Fast direct access to a variable's value (unsafe but fast)
+// Fast direct access to a variable's value (auto-creates variable if missing)
 NUMBER_TYPE* SymbolTable::getVariablePtr(const std::string& name) {
     auto it = variableIndex.find(name);
     if (it == variableIndex.end()) {
-        throw SolverException("Variable not declared: " + name);
+        // Variable does not exist, create it with default value (0.0)
+        variableIndex[name] = variables.size();
+        variables.emplace_back(0.0, SymbolType::VARIABLE);
+        return &variables.back().value;
     }
     return &variables[it->second].value;
 }

@@ -109,55 +109,89 @@ std::vector<Token> shuntingYard(const std::vector<Token>& tokens) {
 
 NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions) {
     PROFILE_FUNCTION()
-    std::stack<NUMBER_TYPE> stack;
+    // Preallocate a vector to serve as our evaluation stack.
+    // Its maximum size is the number of tokens (this is an overestimate but safe).
+    std::vector<NUMBER_TYPE> stack;
+    stack.reserve(postfixQueue.size());
 
     for (const auto& token : postfixQueue) {
-        if (token.type == NUMBER) {
-            stack.push(std::stold(token.value));
-        } else if (token.type == VARIABLE) {
-            stack.push(symbolTable.lookupSymbol(token.value));
-        } else if (token.type == OPERATOR) {
-            if (stack.size() < 2) {
-                throw SolverException("Not enough operands for operator '" + token.value + "'");
+        switch (token.type) {
+            case NUMBER: {
+                // Assume token holds a precomputed numeric value (or convert once)
+                // If not, you still call std::stold(token.value)
+                NUMBER_TYPE num = std::stold(token.value);
+                stack.push_back(num);
+                break;
             }
-
-            NUMBER_TYPE right = stack.top(); stack.pop();
-            NUMBER_TYPE left = stack.top(); stack.pop();
-
-            if (token.value == "+") stack.push(left + right);
-            else if (token.value == "-") stack.push(left - right);
-            else if (token.value == "*") stack.push(left * right);
-            else if (token.value == "/") {
-                if (right == 0) throw SolverException("Division by zero error.");
-                stack.push(left / right);
-            } else if (token.value == "^") stack.push(std::pow(left, right));
-            else throw SolverException("Unknown operator: '" + token.value + "'");
-        } else if (token.type == FUNCTION) {
-            auto it = functions.find(token.value);
-            if (it == functions.end()) {
-                throw SolverException("Unknown function: '" + token.value + "'");
+            case VARIABLE: {
+                // Look up the variable’s current value
+                NUMBER_TYPE varValue = symbolTable.lookupSymbol(token.value);
+                stack.push_back(varValue);
+                break;
             }
-
-            const Function& function = it->second;
-            size_t argCount = function.argCount;
-
-            if (stack.size() < argCount) {
-                throw SolverException("Not enough arguments for function '" + token.value + "'");
+            case OPERATOR: {
+                // Ensure there are at least two operands
+                if (stack.size() < 2) {
+                    throw SolverException("Not enough operands for operator '" + token.value + "'");
+                }
+                NUMBER_TYPE right = stack.back(); stack.pop_back();
+                NUMBER_TYPE left  = stack.back(); stack.pop_back();
+                NUMBER_TYPE result = 0;
+                
+                // Instead of string comparisons, you could use token.op (an enum) if available.
+                if (token.value == "+") {
+                    result = left + right;
+                } else if (token.value == "-") {
+                    result = left - right;
+                } else if (token.value == "*") {
+                    result = left * right;
+                } else if (token.value == "/") {
+                    if (right == 0) {
+                        throw SolverException("Division by zero error.");
+                    }
+                    result = left / right;
+                } else if (token.value == "^") {
+                    result = std::pow(left, right);
+                } else {
+                    throw SolverException("Unknown operator: '" + token.value + "'");
+                }
+                stack.push_back(result);
+                break;
             }
-
-            std::vector<NUMBER_TYPE> args(argCount);
-            for (size_t i = 0; i < argCount; ++i) {
-                args[argCount - i - 1] = stack.top();
-                stack.pop();
+            case FUNCTION: {
+                auto it = functions.find(token.value);
+                if (it == functions.end()) {
+                    throw SolverException("Unknown function: '" + token.value + "'");
+                }
+                const Function& function = it->second;
+                size_t argCount = function.argCount;
+                if (stack.size() < argCount) {
+                    throw SolverException("Not enough arguments for function '" + token.value + "'");
+                }
+                
+                // Use a fixed-size array if argCount is small
+                const size_t MAX_ARGS = 16;
+                if (argCount <= MAX_ARGS) {
+                    NUMBER_TYPE args[MAX_ARGS];
+                    for (size_t i = 0; i < argCount; ++i) {
+                        args[argCount - i - 1] = stack.back();
+                        stack.pop_back();
+                    }
+                    // Create a temporary vector from the fixed array if the callback expects a vector.
+                    stack.push_back(function.callback(std::vector<NUMBER_TYPE>(args, args + argCount)));
+                } else {
+                    // Fallback: allocate dynamically if necessary.
+                    std::vector<NUMBER_TYPE> args(argCount);
+                    for (size_t i = 0; i < argCount; ++i) {
+                        args[argCount - i - 1] = stack.back();
+                        stack.pop_back();
+                    }
+                    stack.push_back(function.callback(args));
+                }
+                break;
             }
-
-            if (function.isPredefined) {
-                stack.push(function.callback(args));
-            } else {
-                throw SolverException("User defined functions should be flattened before eval stage");
-            }
-        } else {
-            throw SolverException("Unsupported token type during evaluation.");
+            default:
+                throw SolverException("Unsupported token type during evaluation.");
         }
     }
 
@@ -165,7 +199,7 @@ NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const Symbol
         throw SolverException("The postfix expression could not be evaluated.");
     }
 
-    return stack.top();
+    return stack.back();
 }
 
 
