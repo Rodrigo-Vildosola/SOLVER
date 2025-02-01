@@ -210,6 +210,7 @@ std::vector<Token> replaceConstantSymbols(const std::vector<Token> &postfix, con
             Token newToken;
             newToken.type  = NUMBER;
             newToken.value = numberToString(constVal);
+            newToken.numericValue = constVal;
             replaced.push_back(std::move(newToken));
         }
         else
