@@ -767,8 +767,9 @@ static const char *__doc_SymbolType_VARIABLE = R"doc()doc";
 static const char *__doc_Token =
 R"doc(Represents a token in a mathematical expression.
 
-A Token consists of a type (from the TokenType enum) and a string value. It is
-used to break down mathematical expressions into manageable components.)doc";
+When the token is a number, the numeric value is precomputed and stored in the
+numericValue field. This saves us from having to call std::stold() during
+evaluation.)doc";
 
 static const char *__doc_TokenType =
 R"doc(@enum TokenType Represents the type of a token in a mathematical expression.
@@ -790,9 +791,15 @@ static const char *__doc_TokenType_UNARY_OPERATOR = R"doc(A unary operator (e.g.
 
 static const char *__doc_TokenType_VARIABLE = R"doc(A variable (e.g., x, y))doc";
 
-static const char *__doc_Token_type = R"doc(The type of the token (e.g., NUMBER, OPERATOR))doc";
+static const char *__doc_Token_Token = R"doc()doc";
 
-static const char *__doc_Token_value = R"doc(The string value of the token (e.g., "42", "+", "x"))doc";
+static const char *__doc_Token_Token_2 = R"doc()doc";
+
+static const char *__doc_Token_numericValue = R"doc(Precomputed numeric value (only valid if type == NUMBER))doc";
+
+static const char *__doc_Token_type = R"doc(The type of the token)doc";
+
+static const char *__doc_Token_value = R"doc(The textual representation (for operators, variables, etc.))doc";
 
 static const char *__doc_Tokenizer =
 R"doc(A static utility class for tokenizing mathematical expressions.

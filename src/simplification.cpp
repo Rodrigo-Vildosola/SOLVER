@@ -97,8 +97,8 @@ std::vector<Token> trySimplifyBinary(const std::vector<Token> &leftExpr, const s
     // If both are single-number expressions, constant fold
     if (isNumber(leftExpr) && isNumber(rightExpr)) {
         changed = true;  // We are folding something
-        NUMBER_TYPE lhs = asNumber(leftExpr);
-        NUMBER_TYPE rhs = asNumber(rightExpr);
+        NUMBER_TYPE lhs = leftExpr[0].numericValue;
+        NUMBER_TYPE rhs = rightExpr[0].numericValue;
 
         if (opToken.value == "+") {
             return { {NUMBER, numberToString(lhs + rhs)} };

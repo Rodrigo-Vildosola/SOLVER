@@ -119,8 +119,7 @@ NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const Symbol
             case NUMBER: {
                 // Assume token holds a precomputed numeric value (or convert once)
                 // If not, you still call std::stold(token.value)
-                NUMBER_TYPE num = std::stold(token.value);
-                stack.push_back(num);
+                stack.push_back(token.numericValue);
                 break;
             }
             case VARIABLE: {
