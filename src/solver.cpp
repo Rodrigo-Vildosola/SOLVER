@@ -167,7 +167,6 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRange(const std::string& variable, c
     return results;
 }
 
-
 std::vector<NUMBER_TYPE> Solver::evaluateForRanges(const std::vector<std::string>& variables, const std::vector<std::vector<NUMBER_TYPE>>& valuesSets, const std::string& expression, bool debug) {
     PROFILE_FUNCTION()
 
