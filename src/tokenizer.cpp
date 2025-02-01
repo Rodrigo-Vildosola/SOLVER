@@ -47,10 +47,10 @@ void Tokenizer::processMatch(const std::string& match, std::vector<Token>& token
         handleOperatorToken(match, tokens, it, end);
     }
     else if (std::regex_match(match, parenRegex)) {
-        tokens.emplace_back(Token{PAREN, match});
+        tokens.emplace_back(PAREN, match);
     }
     else if (std::regex_match(match, separatorRegex)) {
-        tokens.emplace_back(Token{SEPARATOR, match});
+        tokens.emplace_back(SEPARATOR, match);
     }
     else {
         throw SolverException("Error: Unknown token '" + match + "'");
@@ -63,12 +63,12 @@ void Tokenizer::handleNumberToken(const std::string& match, std::vector<Token>& 
     if (!tokens.empty() && tokens.back().type == FUNCTION && tokens.back().value == "neg") {
         auto next_it = std::next(it);
         if (next_it != end && (*next_it)[1].str() == "^") {
-            tokens.emplace_back(Token{NUMBER, match}); 
+            tokens.emplace_back(NUMBER, match); 
         } else {
             tokens.back() = Token{NUMBER, "-" + match};  // Merge negation into the number token
         }
     } else {
-        tokens.emplace_back(Token{NUMBER, match});
+        tokens.emplace_back(NUMBER, match);
     }
 }
 
@@ -76,9 +76,9 @@ void Tokenizer::handleVariableOrFunctionToken(const std::string& match, std::vec
     PROFILE_FUNCTION() // Profile the handleVariableOrFunctionToken function
     auto next_it = std::next(it);
     if (next_it != end && (*next_it)[1].str() == "(") {
-        tokens.emplace_back(Token{FUNCTION, match});
+        tokens.emplace_back(FUNCTION, match);
     } else {
-        tokens.emplace_back(Token{VARIABLE, match});
+        tokens.emplace_back(VARIABLE, match);
     }
 }
 
@@ -87,13 +87,13 @@ void Tokenizer::handleOperatorToken(const std::string& match, std::vector<Token>
     if (match == "-" && (tokens.empty() || isUnaryContext(tokens.back()))) {
         // PROFILE_SCOPE("Tokenizer::handleOperatorToken_UnaryMinus");
         // Handle unary minus (negation)
-        tokens.emplace_back(Token{FUNCTION, "neg"});
+        tokens.emplace_back(FUNCTION, "neg");
         auto next_it = std::next(it);
         if (next_it != end && (*next_it)[1].str() == "^") {
-            tokens.emplace_back(Token{PAREN, "("});  // Wrap the negation before exponentiation
+            tokens.emplace_back(PAREN, "(");
         }
     } else {
-        tokens.emplace_back(Token{OPERATOR, match});
+        tokens.emplace_back(OPERATOR, match);
     }
 }
 
