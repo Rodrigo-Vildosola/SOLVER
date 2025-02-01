@@ -1,6 +1,7 @@
 #include "solver.h"
 #include "tokenizer.h"
 #include "debug.h"
+#include "postfix.h"
 
 
 // Register standard math functions
@@ -120,4 +121,87 @@ void Solver::printFunctionExpressions() {
 }
 
 
+
+
+NUMBER_TYPE Solver::evaluateAST(const std::string &expression, bool debug)
+{
+    PROFILE_FUNCTION();
+    setCurrentExpressionAST(expression, debug);
+
+    std::size_t cacheKey = generateCacheKey(expression, {});
+    if (cacheEnabled) {
+        if (NUMBER_TYPE* cachedResult = expressionCache.get(cacheKey)) {
+            // std::cout << "AST cache hit!" << std::endl;
+            return *cachedResult;  // Return cached result if found
+        }
+    }
+
+    if (!currentAST) {
+        throw SolverException("Cannot evaluate AST pipeline: currentAST is null.");
+    }
+
+    // Evaluate the final AST
+    NUMBER_TYPE result = 0.0;
+    try {
+        result = AST::evaluateAST(currentAST, symbolTable, functions);
+    }
+    catch (const SolverException &e) {
+        throw; // or handle differently
+    }
+
+    return result;
+}
+
+
+ASTNode* Solver::parseAST(const std::string& expression, bool debug) {
+    auto tokens   = Tokenizer::tokenize(expression);
+    auto postfix  = Postfix::shuntingYard(tokens);
+    auto flattened = Postfix::flattenPostfix(postfix, functions);
+    auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
+
+    ASTNode * root = AST::buildASTFromPostfix(inlined, functions);
+
+    ASTNode * simplified = Simplification::simplifyAST(root, functions);
+
+    if (debug) {
+        std::cout << "Flattened AST: ";
+        AST::printAST(root);
+        std::cout << "Simplified AST: ";
+        AST::printAST(simplified);
+    }
+
+
+    return simplified; 
+}
+
+
+void Solver::setCurrentExpressionAST(const std::string &expression, bool debug) {
+    if (expression == currentExpressionAST && currentAST != nullptr) {
+        return; // no need to rebuild
+    }
+
+    // Store the expression
+    currentExpressionAST = expression;
+
+    // If we had an old AST, free it
+    if (currentAST) {
+        delete currentAST;
+        currentAST = nullptr;
+    }
+
+    try {
+        // store it
+        currentAST = parseAST(expression, debug); // 'root' is no longer valid after the simplification returns the new root
+
+    }
+    catch (const SolverException &e) {
+        // If there's an error, ensure we don't leave a partial AST
+        if (currentAST) {
+            delete currentAST;
+            currentAST = nullptr;
+        }
+        // rethrow 
+        throw;
+    }
+}
 
