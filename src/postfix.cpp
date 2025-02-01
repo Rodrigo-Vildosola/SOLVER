@@ -137,22 +137,27 @@ NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const Symbol
                 NUMBER_TYPE left  = stack.back(); stack.pop_back();
                 NUMBER_TYPE result = 0;
                 
-                // Instead of string comparisons, you could use token.op (an enum) if available.
-                if (token.value == "+") {
-                    result = left + right;
-                } else if (token.value == "-") {
-                    result = left - right;
-                } else if (token.value == "*") {
-                    result = left * right;
-                } else if (token.value == "/") {
-                    if (right == 0) {
-                        throw SolverException("Division by zero error.");
-                    }
-                    result = left / right;
-                } else if (token.value == "^") {
-                    result = std::pow(left, right);
-                } else {
-                    throw SolverException("Unknown operator: '" + token.value + "'");
+                // Use a switch on the operator enumeration
+                switch (token.op) {
+                    case OperatorType::ADD:
+                        result = left + right;
+                        break;
+                    case OperatorType::SUB:
+                        result = left - right;
+                        break;
+                    case OperatorType::MUL:
+                        result = left * right;
+                        break;
+                    case OperatorType::DIV:
+                        if (right == 0)
+                            throw SolverException("Division by zero error.");
+                        result = left / right;
+                        break;
+                    case OperatorType::POW:
+                        result = std::pow(left, right);
+                        break;
+                    default:
+                        throw SolverException("Unknown operator: '" + token.value + "'");
                 }
                 stack.push_back(result);
                 break;

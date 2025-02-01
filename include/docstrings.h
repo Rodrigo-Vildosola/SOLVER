@@ -122,6 +122,20 @@ static const char *__doc_LRUCache_maxSize = R"doc()doc";
 
 static const char *__doc_LRUCache_put = R"doc()doc";
 
+static const char *__doc_OperatorType = R"doc()doc";
+
+static const char *__doc_OperatorType_ADD = R"doc()doc";
+
+static const char *__doc_OperatorType_DIV = R"doc()doc";
+
+static const char *__doc_OperatorType_MUL = R"doc()doc";
+
+static const char *__doc_OperatorType_POW = R"doc()doc";
+
+static const char *__doc_OperatorType_SUB = R"doc()doc";
+
+static const char *__doc_OperatorType_UNKNOWN = R"doc()doc";
+
 static const char *__doc_Postfix_evaluatePostfix = R"doc()doc";
 
 static const char *__doc_Postfix_flattenPostfix = R"doc()doc";
@@ -797,9 +811,11 @@ static const char *__doc_Token_Token_2 = R"doc()doc";
 
 static const char *__doc_Token_numericValue = R"doc(Precomputed numeric value (only valid if type == NUMBER))doc";
 
+static const char *__doc_Token_op = R"doc(Operator type (only valid if type == OPERATOR))doc";
+
 static const char *__doc_Token_type = R"doc(The type of the token)doc";
 
-static const char *__doc_Token_value = R"doc(The textual representation (for operators, variables, etc.))doc";
+static const char *__doc_Token_value = R"doc(The textual representation (for non-operator tokens))doc";
 
 static const char *__doc_Tokenizer =
 R"doc(A static utility class for tokenizing mathematical expressions.

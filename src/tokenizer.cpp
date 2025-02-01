@@ -93,7 +93,22 @@ void Tokenizer::handleOperatorToken(const std::string& match, std::vector<Token>
             tokens.emplace_back(PAREN, "(");
         }
     } else {
-        tokens.emplace_back(OPERATOR, match);
+        // Create an operator token and assign the enumeration value.
+        Token token(OPERATOR, match);
+        if (match == "+") {
+            token.op = OperatorType::ADD;
+        } else if (match == "-") {
+            token.op = OperatorType::SUB;
+        } else if (match == "*") {
+            token.op = OperatorType::MUL;
+        } else if (match == "/") {
+            token.op = OperatorType::DIV;
+        } else if (match == "^") {
+            token.op = OperatorType::POW;
+        } else {
+            token.op = OperatorType::UNKNOWN;
+        }
+        tokens.push_back(token);
     }
 }
 
