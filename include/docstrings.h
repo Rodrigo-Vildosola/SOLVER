@@ -867,6 +867,13 @@ R"doc(Validate the syntax of the given expression.
 Parameter ``expression``:
     The expression to validate.)doc";
 
+static const char *__doc__unnamed_class_at_include_exception_h_12_7 =
+R"doc(Custom exception class for handling errors in the Solver class.
+
+The SolverException class is derived from std::runtime_error and is thrown when
+the Solver encounters an error during expression evaluation or function
+declaration.)doc";
+
 static const char *__doc_compilePostfix = R"doc()doc";
 
 static const char *__doc_numberToString = R"doc()doc";

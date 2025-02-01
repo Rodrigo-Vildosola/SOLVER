@@ -5,7 +5,7 @@
 #include "debug.h"
 #include "tokenizer.h"
 #include "ast.h"
-#include "compile.h"
+#include "compiler.h"
 
 Solver::Solver(size_t exprCacheSize)
     : expressionCache(exprCacheSize) {
@@ -149,14 +149,22 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRange(const std::string& variable, c
         throw SolverException("Invalid variable name '" + variable + "'.");
     }
 
-    NUMBER_TYPE* varPtr = symbolTable.getVariablePtr(variable);
+    EvalFunc compiledExpr = compilePostfix(currentPostfix, functions);
+
+    // 3. Build the environment from the current symbol table.
+    //    We assume that the symbol table's constants are fully folded.
+    Env env = symbolTable.getConstants();
+    // Insert any variables already set in the symbol table.
+    Env varEnv = symbolTable.getVariables();
+    env.insert(varEnv.begin(), varEnv.end());
+    
 
     for (NUMBER_TYPE value : values) {
         PROFILE_SCOPE("EvaluateRangeLoop");
-        *varPtr = value;
+        env[variable] = value;
 
         try {
-            NUMBER_TYPE result = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
+            NUMBER_TYPE result = compiledExpr(env);
             results.push_back(result);
         } catch (const SolverException& e) {
             std::cerr << "Error evaluating expression for " << variable << " = " << value << ": " << e.what() << std::endl;

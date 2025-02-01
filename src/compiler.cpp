@@ -1,4 +1,9 @@
-#include "compile.h"
+#include "compiler.h"
+#include <cmath>     // For std::pow
+#include <vector>
+#include <stack>
+#include <stdexcept> // For std::runtime_error if needed
+
 
 EvalFunc compilePostfix(const std::vector<Token>& tokens, const std::unordered_map<std::string, Function>& functions) {
     std::stack<EvalFunc> funcStack;
