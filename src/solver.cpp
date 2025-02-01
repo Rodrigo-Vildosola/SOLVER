@@ -129,17 +129,17 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRanges(const std::vector<std::string
     if (variables.size() != valuesSets.size()) {
         throw SolverException("Mismatch in number of variables vs. value ranges.");
     }
-    for (auto& var : variables) {
+    for (const auto& var : variables) {
         if (!Validator::isValidName(var)) {
             throw SolverException("Invalid variable name '" + var + "'.");
         }
     }
 
-    // Parse expression only once for efficiency
+    // Parse and compile the expression
     setCurrentExpression(expression, debug);
+    EvalFunc compiledExpr = compilePostfix(currentPostfix, functions);
 
     // Compute the total number of combinations in the cartesian product
-    // E.g., if x has 3 values and y has 2, totalCombinations = 3 * 2 = 6.
     size_t totalCombinations = 1;
     for (const auto& vals : valuesSets) {
         totalCombinations *= vals.size();
@@ -149,45 +149,38 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRanges(const std::vector<std::string
     std::vector<NUMBER_TYPE> results;
     results.reserve(totalCombinations);
 
-    // Get direct pointers to all variables (auto-create if missing)
-    const size_t nVars = variables.size();
-    std::vector<NUMBER_TYPE*> varPtrs(nVars);
-    for (size_t i = 0; i < nVars; ++i) {
-        varPtrs[i] = symbolTable.getVariablePtr(variables[i]);
-    }
+    // Initialize an environment map with current variable values
+    Env env = symbolTable.getVariables();
 
     // Indices for tracking cartesian product iteration
-    std::vector<size_t> indices(nVars, 0);
+    std::vector<size_t> indices(variables.size(), 0);
 
-    // We'll iterate from combination #0 to combination #(totalCombinations-1).
-    // For each iteration, assign symbolTable values and evaluate.
+    // Iterate through all combinations
     for (size_t count = 0; count < totalCombinations; ++count) {
+        PROFILE_SCOPE("EvaluateRangesLoop");
+
         // Assign each variable to its current index's value
-        for (size_t i = 0; i < nVars; ++i) {
-            *varPtrs[i] = valuesSets[i][indices[i]]; // Direct memory write
+        for (size_t i = 0; i < variables.size(); ++i) {
+            env[variables[i]] = valuesSets[i][indices[i]];
         }
 
         // Evaluate and capture the result
         try {
-            NUMBER_TYPE val = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
+            NUMBER_TYPE val = compiledExpr(env);
             results.push_back(val);
         } catch (const SolverException& e) {
-            // On error, store NaN to keep indices consistent
-            std::cerr << "Error evaluating expression for combination "
-                      << (count+1) << " of " << totalCombinations << ": "
-                      << e.what() << std::endl;
+            std::cerr << "Error evaluating expression for combination " << (count + 1)
+                      << " of " << totalCombinations << ": " << e.what() << std::endl;
             results.push_back(std::nan(""));
         }
 
-        // Increment the 'indices' in a multi-digit manner (the last variable changes fastest)
-        for (int varIndex = static_cast<int>(nVars) - 1; varIndex >= 0; --varIndex) {
+        // Increment the indices in a multi-digit manner (last variable changes fastest)
+        for (int varIndex = static_cast<int>(variables.size()) - 1; varIndex >= 0; --varIndex) {
             indices[varIndex]++;
             if (indices[varIndex] < valuesSets[varIndex].size()) {
-                // We successfully incremented without overflow; break
-                break;
+                break; // Successfully incremented without overflow
             } else {
-                // Reset this index to 0 and carry over to the next variable
-                indices[varIndex] = 0;
+                indices[varIndex] = 0; // Reset this index and carry over to the next variable
             }
         }
     }

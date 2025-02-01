@@ -94,7 +94,6 @@ EvalFunc compilePostfix(const std::vector<Token>& tokens, const std::unordered_m
                 return callback(evaluatedArgs);
             });
         }
-        // (Optionally handle additional token types.)
     }
     if (funcStack.size() != 1) {
         throw SolverException("Compilation error: stack size is not 1 after processing.");
