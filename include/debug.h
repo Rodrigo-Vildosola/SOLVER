@@ -119,10 +119,3 @@ inline void printPostfix(const std::vector<Token>& tokens) {
     std::cout << std::endl;
 }
 
-
-/**
- * @brief Print the tokens with their types for debugging purposes.
- * 
- * @param tokens A vector of Token objects representing the expression.
- */
-void printTokens(const std::vector<Token>& tokens);

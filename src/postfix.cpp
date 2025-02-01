@@ -136,7 +136,7 @@ NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const Symbol
                 NUMBER_TYPE right = stack.back(); stack.pop_back();
                 NUMBER_TYPE left  = stack.back(); stack.pop_back();
                 NUMBER_TYPE result = 0;
-                
+
                 // Use a switch on the operator enumeration
                 switch (token.op) {
                     case OperatorType::ADD:
@@ -172,7 +172,7 @@ NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const Symbol
                 if (stack.size() < argCount) {
                     throw SolverException("Not enough arguments for function '" + token.value + "'");
                 }
-                
+
                 // Use a fixed-size array if argCount is small
                 const size_t MAX_ARGS = 16;
                 if (argCount <= MAX_ARGS) {
@@ -185,11 +185,11 @@ NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const Symbol
                     stack.push_back(function.callback(std::vector<NUMBER_TYPE>(args, args + argCount)));
                 } else {
                     // Fallback: allocate dynamically if necessary.
-                    std::vector<NUMBER_TYPE> args(argCount);
-                    for (size_t i = 0; i < argCount; ++i) {
-                        args[argCount - i - 1] = stack.back();
-                        stack.pop_back();
-                    }
+                std::vector<NUMBER_TYPE> args(argCount);
+                for (size_t i = 0; i < argCount; ++i) {
+                    args[argCount - i - 1] = stack.back();
+                    stack.pop_back();
+                }
                     stack.push_back(function.callback(args));
                 }
                 break;
