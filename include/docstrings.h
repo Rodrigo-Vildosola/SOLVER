@@ -728,23 +728,19 @@ static const char *__doc_SymbolEntry_value = R"doc()doc";
 
 static const char *__doc_SymbolTable = R"doc()doc";
 
-static const char *__doc_SymbolTable_cachedSymbolEntry = R"doc()doc";
-
 static const char *__doc_SymbolTable_cachedSymbolName = R"doc()doc";
+
+static const char *__doc_SymbolTable_cachedSymbolValue = R"doc()doc";
 
 static const char *__doc_SymbolTable_clearVariables = R"doc()doc";
 
-static const char *__doc_SymbolTable_clone = R"doc()doc";
+static const char *__doc_SymbolTable_constants = R"doc()doc";
 
 static const char *__doc_SymbolTable_declareConstant = R"doc()doc";
 
 static const char *__doc_SymbolTable_declareVariable = R"doc()doc";
 
-static const char *__doc_SymbolTable_entries = R"doc()doc";
-
 static const char *__doc_SymbolTable_getConstants = R"doc()doc";
-
-static const char *__doc_SymbolTable_getEntries = R"doc()doc";
 
 static const char *__doc_SymbolTable_getVariablePtr = R"doc()doc";
 
@@ -757,6 +753,10 @@ static const char *__doc_SymbolTable_isVariable = R"doc()doc";
 static const char *__doc_SymbolTable_lookupSymbol = R"doc()doc";
 
 static const char *__doc_SymbolTable_restoreVariables = R"doc()doc";
+
+static const char *__doc_SymbolTable_variableIndex = R"doc()doc";
+
+static const char *__doc_SymbolTable_variables = R"doc()doc";
 
 static const char *__doc_SymbolType = R"doc()doc";
 

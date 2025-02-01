@@ -1,132 +1,115 @@
 #include "symbol_table.h"
 #include "validator.h"
 
-// Declare a constant, ensuring no variable with the same name exists and the name is valid
+// Declare a constant (error if already declared or if a variable exists with the same name)
 void SymbolTable::declareConstant(const std::string& name, NUMBER_TYPE value) {
-    PROFILE_FUNCTION()
     if (!Validator::isValidName(name)) {
         throw SolverException("Invalid constant name '" + name + "'.");
     }
-
-    auto it = entries.find(name);
-    if (it != entries.end() && it->second.type == SymbolType::CONSTANT) {
+    if (constants.find(name) != constants.end()) {
         throw SolverException("Constant '" + name + "' already declared.");
     }
-    entries[name] = SymbolEntry(value, SymbolType::CONSTANT);
+    if (variableIndex.find(name) != variableIndex.end()) {  // NEW CHECK: Prevent variable-constant name conflict
+        throw SolverException("Cannot declare constant '" + name + "', variable with the same name exists.");
+    }
+
+    constants[name] = value;
 }
 
 
-// Declare a variable, ensuring no constant with the same name exists and the name is valid
-void SymbolTable::declareVariable(const std::string& name, NUMBER_TYPE value, NUMBER_TYPE skipCheck) {
-    PROFILE_FUNCTION()
+// Declare a variable (stored in a vector for pointer stability)
+void SymbolTable::declareVariable(const std::string& name, NUMBER_TYPE value, bool skipCheck) {
     if (!skipCheck && !Validator::isValidName(name)) {
         throw SolverException("Invalid variable name '" + name + "'.");
     }
-
-    // Invalidate the cache if the variable being declared is cached
-    if (cachedSymbolName == name) {
-        cachedSymbolName.clear();  
-    }
-
-    auto it = entries.find(name);
-    if (it != entries.end() && it->second.type == SymbolType::CONSTANT) {
+    if (constants.find(name) != constants.end()) {
         throw SolverException("Cannot declare variable '" + name + "', constant with the same name exists.");
     }
-    entries[name] = SymbolEntry(value, SymbolType::VARIABLE);
+
+    auto it = variableIndex.find(name);
+    if (it == variableIndex.end()) {
+        // New variable → Add to vector and map
+        variableIndex[name] = variables.size();
+        variables.emplace_back(value, SymbolType::VARIABLE);
+    } else {
+        // Existing variable → Update value
+        variables[it->second].value = value;
+    }
+
+    // Invalidate cache
+    cachedSymbolName.clear();
 }
 
-
+// Fast direct access to a variable's value (unsafe but fast)
 NUMBER_TYPE* SymbolTable::getVariablePtr(const std::string& name) {
-    auto it = entries.find(name);
-    if (it == entries.end()) {
+    auto it = variableIndex.find(name);
+    if (it == variableIndex.end()) {
         throw SolverException("Variable not declared: " + name);
     }
-    return &(it->second.value);
+    return &variables[it->second].value;
 }
 
-// Lookup a symbol in the table (checks both variables and constants)
+// Lookup a symbol (checks both variables and constants)
 NUMBER_TYPE SymbolTable::lookupSymbol(const std::string& name) const {
-    PROFILE_SCOPE("Symbol Lookup");
     if (cachedSymbolName == name) {
-        return cachedSymbolEntry.value; 
+        return cachedSymbolValue;
     }
 
-    auto it = entries.find(name);
-    if (it != entries.end()) {
-        // Cache the result
+    auto constIt = constants.find(name);
+    if (constIt != constants.end()) {
         cachedSymbolName = name;
-        cachedSymbolEntry = it->second;
-        return it->second.value;
+        cachedSymbolValue = constIt->second;
+        return constIt->second;
+    }
+
+    auto varIt = variableIndex.find(name);
+    if (varIt != variableIndex.end()) {
+        cachedSymbolName = name;
+        cachedSymbolValue = variables[varIt->second].value;
+        return cachedSymbolValue;
     }
 
     throw SolverException("Unknown symbol: '" + name + "'");
 }
 
-// Clear all variables (constants remain unaffected)
+// Clear all variables but keep constants
 void SymbolTable::clearVariables() {
-    // Invalidate cache when clearing variables
-    cachedSymbolName.clear();  // Clear cached name to invalidate the cache
-    
-    for (auto it = entries.begin(); it != entries.end();) {
-        if (it->second.type == SymbolType::VARIABLE) {
-            it = entries.erase(it); // Erase variable
-        } else {
-            ++it; // Keep constants
-        }
-    }
+    variables.clear();
+    variableIndex.clear();
+    cachedSymbolName.clear();
 }
 
-
-
-// Restore the variables from a saved copy
+// Restore variables from a saved copy
 void SymbolTable::restoreVariables(const std::unordered_map<std::string, NUMBER_TYPE>& savedVariables) {
-    // Invalidate cache when restoring variables
-    cachedSymbolName.clear();  // Clear cached name to invalidate the cache
-
+    clearVariables();
     for (const auto& [name, value] : savedVariables) {
-        entries[name] = SymbolEntry(value, SymbolType::VARIABLE);  // Assume every entry is a variable
+        declareVariable(name, value, true);
     }
 }
 
 
-
-// Check if a symbol is a constant
+// Check if a name is a constant
 bool SymbolTable::isConstant(const std::string& name) const {
-    auto it = entries.find(name);
-    return it != entries.end() && it->second.type == SymbolType::CONSTANT;
+    return constants.find(name) != constants.end();
 }
 
+// Check if a name is a variable
 bool SymbolTable::isVariable(const std::string& name) const {
-    auto it = entries.find(name);
-    return it != entries.end() && it->second.type == SymbolType::VARIABLE;
+    return variableIndex.find(name) != variableIndex.end();
 }
 
 
-
-// Return a copy of the current constants (for listing purposes)
+// Get a copy of current constants
 std::unordered_map<std::string, NUMBER_TYPE> SymbolTable::getConstants() const {
-    std::unordered_map<std::string, NUMBER_TYPE> constants;
-    for (const auto& [name, entry] : entries) {
-        if (entry.type == SymbolType::CONSTANT) {
-            constants[name] = entry.value;
-        }
-    }
     return constants;
 }
 
-// Return a copy of the current variables (for listing purposes)
+// Get a copy of current variables
 std::unordered_map<std::string, NUMBER_TYPE> SymbolTable::getVariables() const {
-    std::unordered_map<std::string, NUMBER_TYPE> variables;
-    for (const auto& [name, entry] : entries) {
-        if (entry.type == SymbolType::VARIABLE) {
-            variables[name] = entry.value;
-        }
+    std::unordered_map<std::string, NUMBER_TYPE> vars;
+    for (const auto& [name, index] : variableIndex) {
+        vars[name] = variables[index].value;
     }
-    return variables;
-}
-
-// Return a copy of all entries (both constants and variables)
-std::unordered_map<std::string, SymbolEntry> SymbolTable::getEntries() const {
-    return entries;  // Return the entire entries map
+    return vars;
 }
 
