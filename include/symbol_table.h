@@ -29,15 +29,17 @@ public:
     void clearVariables();
     void restoreVariables(const std::unordered_map<std::string, NUMBER_TYPE>& savedVariables);
 
-    std::unordered_map<std::string,NUMBER_TYPE> getConstants() const;
+    std::unordered_map<std::string, NUMBER_TYPE> getConstants() const;
 
-    std::unordered_map<std::string,NUMBER_TYPE> getVariables() const;
+    std::unordered_map<std::string, NUMBER_TYPE> getVariables() const;
 
     std::unordered_map<std::string, SymbolEntry> getEntries() const;
 
     std::shared_ptr<SymbolTable> clone() const {
         return std::make_shared<SymbolTable>(*this); // Shallow copy for Copy-on-Write
     }
+
+    NUMBER_TYPE* getVariablePtr(const std::string& name);
 
     // Utility methods for checks
     bool isConstant(const std::string& name) const;

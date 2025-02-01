@@ -23,6 +23,7 @@ message(STATUS "Project Version: ${VERSION_CONTENTS}")
 message(STATUS "LIB_NAME: ${LIB_NAME}")
 message(STATUS "HEADERS_DIR: ${HEADERS_DIR}")
 message(STATUS "MODULE_NAME: ${MODULE_NAME}")
+message(STATUS "PREFER: ${PREFER_DOUBLE}")
 
 # Add a compile definition for the version
 add_compile_definitions(LIB_VERSION="${VERSION_CONTENTS}")
@@ -41,7 +42,6 @@ add_library(${LIB_NAME} STATIC ${LIB_SRC})
 
 # Create a shared library for Python bindings
 add_library(${MODULE_NAME} SHARED ${BINDING_SRC})
-
 
 target_link_libraries(${MODULE_NAME} PRIVATE ${LIB_NAME})
 target_link_libraries(${LIB_NAME} ${Python3_LIBRARIES})

@@ -36,6 +36,14 @@ void SymbolTable::declareVariable(const std::string& name, NUMBER_TYPE value, NU
 }
 
 
+NUMBER_TYPE* SymbolTable::getVariablePtr(const std::string& name) {
+    auto it = entries.find(name);
+    if (it == entries.end()) {
+        throw SolverException("Variable not declared: " + name);
+    }
+    return &(it->second.value);
+}
+
 // Lookup a symbol in the table (checks both variables and constants)
 NUMBER_TYPE SymbolTable::lookupSymbol(const std::string& name) const {
     PROFILE_SCOPE("Symbol Lookup");

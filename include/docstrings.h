@@ -746,6 +746,8 @@ static const char *__doc_SymbolTable_getConstants = R"doc()doc";
 
 static const char *__doc_SymbolTable_getEntries = R"doc()doc";
 
+static const char *__doc_SymbolTable_getVariablePtr = R"doc()doc";
+
 static const char *__doc_SymbolTable_getVariables = R"doc()doc";
 
 static const char *__doc_SymbolTable_isConstant = R"doc()doc";

@@ -43,14 +43,9 @@ void Solver::declareVariable(const std::string& name, NUMBER_TYPE value) {
 
 #pragma region Parsing
 
-
 std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto tokens   = Tokenizer::tokenize(expression);
     auto postfix  = Postfix::shuntingYard(tokens);
-    if (debug) {
-        std::cout << "Original postfix: ";
-        printPostfix(postfix);
-    }
     auto flattened = Postfix::flattenPostfix(postfix, functions);
     auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
 
@@ -153,9 +148,12 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRange(const std::string& variable, c
         throw SolverException("Invalid variable name '" + variable + "'.");
     }
 
+    NUMBER_TYPE* varPtr = symbolTable.getVariablePtr(variable);
+
+
     for (NUMBER_TYPE value : values) {
         PROFILE_SCOPE("EvaluateRangeLoop");
-        symbolTable.declareVariable(variable, value, true);
+        *varPtr = value;
 
         try {
             NUMBER_TYPE result = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
