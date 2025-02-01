@@ -1,4 +1,12 @@
 #include "simplification.h"
+#include "simplification/simplification_engine.h"
+#include "simplification/rules/add_zero_rule.h"
+#include "simplification/rules/constant_folding_rule.h"
+#include "simplification/rules/div_one_rule.h"
+#include "simplification/rules/function_folding_rule.h"
+#include "simplification/rules/mult_one_rule.h"
+#include "simplification/rules/mult_zero_rule.h"
+#include "simplification/rules/sub_zero_rule.h"
 
 namespace Simplification {
 
@@ -17,16 +25,18 @@ static bool isNumber(const std::vector<Token> &tokens);
 std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
     // We'll do a loop that calls singlePassSimplify repeatedly
     // until we detect no changes or we reach an iteration limit.
-    std::vector<Token> current = postfix;
-    bool changed = true;
-    const int MAX_ITERATIONS = 50; // arbitrary safe-guard
-
-    for (int i = 0; i < MAX_ITERATIONS && changed; ++i) {
-        std::vector<Token> next = singlePassSimplify(current, functions, changed);
-        current = std::move(next);
-    }
-
-    return current;
+    SimplificationEngine engine;
+    engine.add_rule(std::make_unique<ConstantFoldingRule>());
+    engine.add_rule(std::make_unique<AddZeroRule>());
+    engine.add_rule(std::make_unique<MultOneRule>());
+    engine.add_rule(std::make_unique<MultZeroRule>());
+    engine.add_rule(std::make_unique<SubZeroRule>());
+    engine.add_rule(std::make_unique<DivOneRule>());
+    engine.add_rule(std::make_unique<FunctionFoldingRule>(functions));
+    // Add additional rules as needed.
+    
+    std::cout << "Starting simplification!" << std::endl;
+    return engine.simplify(postfix);
 }
 
 

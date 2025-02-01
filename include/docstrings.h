@@ -88,7 +88,27 @@ R"doc(Public-facing function to pretty-print the AST from its root.
 Parameter ``root``:
     Pointer to the root ASTNode of the tree.)doc";
 
+static const char *__doc_AddZeroRule = R"doc()doc";
+
+static const char *__doc_AddZeroRule_apply = R"doc()doc";
+
+static const char *__doc_ConstantFoldingRule = R"doc()doc";
+
+static const char *__doc_ConstantFoldingRule_apply = R"doc()doc";
+
+static const char *__doc_DivOneRule = R"doc()doc";
+
+static const char *__doc_DivOneRule_apply = R"doc()doc";
+
 static const char *__doc_Function = R"doc()doc";
+
+static const char *__doc_FunctionFoldingRule = R"doc()doc";
+
+static const char *__doc_FunctionFoldingRule_FunctionFoldingRule = R"doc()doc";
+
+static const char *__doc_FunctionFoldingRule_apply = R"doc()doc";
+
+static const char *__doc_FunctionFoldingRule_functions = R"doc()doc";
 
 static const char *__doc_Function_Function = R"doc()doc";
 
@@ -121,6 +141,14 @@ static const char *__doc_LRUCache_get = R"doc()doc";
 static const char *__doc_LRUCache_maxSize = R"doc()doc";
 
 static const char *__doc_LRUCache_put = R"doc()doc";
+
+static const char *__doc_MultOneRule = R"doc()doc";
+
+static const char *__doc_MultOneRule_apply = R"doc()doc";
+
+static const char *__doc_MultZeroRule = R"doc()doc";
+
+static const char *__doc_MultZeroRule_apply = R"doc()doc";
 
 static const char *__doc_OperatorType = R"doc()doc";
 
@@ -285,6 +313,35 @@ static const char *__doc_Profiler_Utils_CleanedString = R"doc()doc";
 static const char *__doc_Profiler_Utils_CleanedString_data = R"doc()doc";
 
 static const char *__doc_Profiler_Utils_cleanup_output_string = R"doc()doc";
+
+static const char *__doc_SimplificationEngine = R"doc()doc";
+
+static const char *__doc_SimplificationEngine_add_rule = R"doc()doc";
+
+static const char *__doc_SimplificationEngine_rules = R"doc()doc";
+
+static const char *__doc_SimplificationEngine_simplify =
+R"doc(Simplify the given token sequence by applying rules repeatedly.
+
+Parameter ``input``:
+    The original token sequence.
+
+Returns:
+    The simplified token sequence.)doc";
+
+static const char *__doc_SimplificationRule = R"doc()doc";
+
+static const char *__doc_SimplificationRule_apply =
+R"doc(Attempt to simplify a given token sequence.
+
+Parameter ``input``:
+    The tokens representing a subexpression.
+
+Parameter ``output``:
+    The simplified tokens if the rule applies.
+
+Returns:
+    true if the rule was applied; false otherwise.)doc";
 
 static const char *__doc_Simplification_fullySimplifyPostfix = R"doc()doc";
 
@@ -729,6 +786,10 @@ Parameter ``args``:
 
 Throws:
     SolverException If an invalid argument name or reference is encountered.)doc";
+
+static const char *__doc_SubZeroRule = R"doc()doc";
+
+static const char *__doc_SubZeroRule_apply = R"doc()doc";
 
 static const char *__doc_SymbolEntry = R"doc()doc";
 

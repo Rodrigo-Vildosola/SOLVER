@@ -84,6 +84,8 @@ def run_examples():
         except SolverException as e:
             logger.error(f"FAILED - {description}: Exception occurred: {e}")
             failed_count += 1
+        
+        print()
 
     print()
 
