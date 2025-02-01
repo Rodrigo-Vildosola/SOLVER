@@ -74,14 +74,18 @@ NUMBER_TYPE Solver::evaluate(const std::string& expression, bool debug) {
     std::size_t cacheKey = generateCacheKey(expression, {});
     if (cacheEnabled) {
         if (NUMBER_TYPE* cachedResult = expressionCache.get(cacheKey)) {
-            return *cachedResult;  // Return cached result if found
+            return *cachedResult;
         }
     }
 
-    NUMBER_TYPE result = Postfix::evaluatePostfix(currentPostfix, symbolTable, functions);
+    EvalFunc compiledExpr = compilePostfix(currentPostfix, functions);
+
+    Env env = symbolTable.getVariables();
+
+    NUMBER_TYPE result = compiledExpr(env);
 
     if (cacheEnabled) {
-        expressionCache.put(cacheKey, result);  // Cache the result
+        expressionCache.put(cacheKey, result);
     }
 
     return result;
@@ -216,9 +220,6 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
         auto tokens = Tokenizer::tokenize(expression);
         auto postfix = Postfix::shuntingYard(tokens);
         auto flattened = Postfix::flattenPostfix(postfix, functions);
-        
-        // std::cout << "This is the postfix of the expression: " << expression << std::endl;
-        // printPostfix(flattened);
 
         // Store the function with its inlined postfix and argument names
         functions[name] = Function(flattened, args);
@@ -231,12 +232,10 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
 
 #pragma region Helpers
 
-// Return the list of constants
 std::unordered_map<std::string, NUMBER_TYPE> Solver::listConstants() const {
     return symbolTable.getConstants();
 }
 
-// Return the list of variables
 std::unordered_map<std::string, NUMBER_TYPE> Solver::listVariables() const {
     return symbolTable.getVariables();
 }
