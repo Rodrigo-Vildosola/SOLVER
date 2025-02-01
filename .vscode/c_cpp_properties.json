@@ -6,6 +6,7 @@
                 "${default}",
                 "${workspaceFolder}/include/*",
                 "${workspaceFolder}/external/pybind11/include/*",
+                "${workspaceFolder}/external/catch2/include/*",
                 "/Library/Frameworks/Python.framework/Versions/3.13/include/python3.13"
             ],
             "defines": [
