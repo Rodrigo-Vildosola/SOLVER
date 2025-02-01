@@ -52,3 +52,6 @@ struct Token {
 
     Token() : type(NUMBER), value(), numericValue(0), op(OperatorType::UNKNOWN) {}
 };
+
+using Env = std::unordered_map<std::string, NUMBER_TYPE>;
+using EvalFunc = std::function<NUMBER_TYPE(const Env&)>;

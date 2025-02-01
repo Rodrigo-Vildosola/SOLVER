@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "tokenizer.h"
 #include "ast.h"
+#include "compile.h"
 
 Solver::Solver(size_t exprCacheSize)
     : expressionCache(exprCacheSize) {
@@ -149,7 +150,6 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRange(const std::string& variable, c
     }
 
     NUMBER_TYPE* varPtr = symbolTable.getVariablePtr(variable);
-
 
     for (NUMBER_TYPE value : values) {
         PROFILE_SCOPE("EvaluateRangeLoop");

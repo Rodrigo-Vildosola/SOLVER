@@ -867,6 +867,8 @@ R"doc(Validate the syntax of the given expression.
 Parameter ``expression``:
     The expression to validate.)doc";
 
+static const char *__doc_compilePostfix = R"doc()doc";
+
 static const char *__doc_numberToString = R"doc()doc";
 
 static const char *__doc_postfixToInfix = R"doc()doc";
