@@ -1,8 +1,3 @@
-Below is an example `README.md` that you can include at the root of your project. It explains the purpose, features, installation, build, and usage of your library. Feel free to adjust the wording and sections as needed.
-
----
-
-```markdown
 # Solver
 
 **Solver** is a high-performance mathematical expression solver and parsing library written in C++ with Python bindings. It is designed to evaluate complex mathematical expressions—including those involving variables, constants, and user-defined functions—using advanced parsing techniques, caching, and optimization strategies. The library is ideal for scientific computing, data analysis, and applications where performance is critical.
@@ -33,18 +28,18 @@ Below is an example `README.md` that you can include at the root of your project
   C++23-compliant compiler
   
 - **Build Tools:**  
-  [CMake](https://cmake.org/) (minimum version 3.12), [clang-format](https://clang.llvm.org/docs/ClangFormat.html) (optional, for code formatting)
-
+  The build process uses CMake internally, but you must build the library via the provided Python setup script.
+  
 - **Python:**  
   Python 3.8 or later
 
 - **Dependencies:**  
   - [PyBind11](https://github.com/pybind/pybind11)  
-  - CMake, Clang (listed in `install_requires`)
+  - CMake, clang (these are listed in `install_requires` and managed by the build process)
 
-## Installation & Build
+## Manual Installation & Build
 
-### Using CMake
+The recommended way to build **Solver** is using the provided `setup.py` script. The build process leverages CMake internally with Python-provided definitions and then automatically copies the resulting shared library (and stub files) to the examples directory.
 
 1. **Clone the repository:**
 
@@ -53,67 +48,86 @@ Below is an example `README.md` that you can include at the root of your project
    cd SOLVER
    ```
 
-2. **Configure and build the library:**
+2. **Build the library using the setup script:**
 
    ```bash
-   mkdir build && cd build
-   cmake -DCMAKE_BUILD_TYPE=Release ..
-   cmake --build . --config Release
+   python setup.py build
    ```
 
-   This will compile both the C++ library and the Python bindings.
+   This command:
+   
+   - Invokes CMake (with definitions supplied by the Python build commands)
+   - Compiles the C++ library and Python bindings
+   - Copies the compiled artifacts (including shared libraries, stub files, and an `__init__.py`) to the appropriate directories (for example, the `examples` directory)
 
-### Using Setup.py
+3. **Install the library (optional):**
 
-You can also build and install the Python module using the provided `setup.py`. The build system leverages CMake internally:
+   If you want to install **Solver** for system-wide use, run:
 
-```bash
-python setup.py build_ext --inplace
-python setup.py install
-```
+   ```bash
+   python setup.py install
+   ```
 
-This will compile the shared library and generate Python stub files and an `__init__.py` for easy importing.
+   This installs the Python module so you can simply `import solver` in your projects.
+
+> **Note:** Directly invoking CMake is not supported because some definitions are provided by the Python functions in the build scripts.
 
 ## Usage Examples
 
-Here is a simple example showing how to use **Solver** from Python:
+Below is an example showing how to use **Solver** to evaluate the cartesian products using evaluate for ranges to claculate and matplotlib to 3d plot the results in Python:
 
 ```python
-from solver import Solver
 import numpy as np
 import matplotlib.pyplot as plt
+from solver import Solver, SolverException
 
-# Create a solver instance.
+# Create a solver instance
 solver = Solver()
 
-# Optionally, disable caching for testing:
-solver.setUseCache(False)
+# Let's define two variables: x and y
+# We will evaluate an expression across the cartesian product of x_vals and y_vals.
+x_vals = np.linspace(-2, 2, 50)
+y_vals = np.linspace(-2, 2, 50)
 
-# Declare a constant and a variable.
-solver.declareConstant("pi", np.pi)
-solver.declareVariable("x", 10)
+expression = "x^3 + y^4"
 
-# Declare a user-defined function.
-solver.declareFunction("func", ["z"], "z + 20")
+try:
+    results = solver.evaluate_ranges(
+        ["x", "y"],
+        [x_vals.tolist(), y_vals.tolist()],
+        expression,
+        debug=False
+    )
+except SolverException as e:
+    print(f"Error evaluating expression '{expression}': {e}")
+    return
 
-# Evaluate some expressions.
-result1 = solver.evaluate("tan(pi / 4)", debug=True)
-print(f"tan(pi / 4) = {result1}")
+# The results come back as a single flat array of length len(x_vals)*len(y_vals).
+# We reshape to (len(x_vals), len(y_vals)) for plotting on a grid.
+Z = np.array(results).reshape(len(x_vals), len(y_vals))
 
-result2 = solver.evaluate("func(10) + 40", debug=True)
-print(f"func(10) + 40 = {result2}")
+# Create meshgrid for plotting
+X, Y = np.meshgrid(x_vals, y_vals)
 
-# Evaluate an expression for a range of values.
-x_values = np.linspace(0, 100, 1000)
-results = solver.evaluateForRange("x", x_values.tolist(), "x^3 + 2*x + 1", debug=True)
+# We'll do a 3D surface plot
+fig = plt.figure(figsize=(10, 6))
+ax = fig.add_subplot(111, projection='3d')
 
-# Plot the results.
-plt.plot(x_values, results, label="x^3 + 2x + 1")
-plt.title("Single Variable Expressions")
-plt.xlabel("x")
-plt.ylabel("f(x)")
-plt.legend()
-plt.grid(True)
+# Plot the surface
+ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none')
+ax.set_title(f"3D Surface Plot of {expression}")
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("f(x, y)")
+
+# 2D contour plot in a separate figure
+fig2, ax2 = plt.subplots(figsize=(8, 6))
+contour = ax2.contourf(X, Y, Z, levels=30, cmap='viridis')
+fig2.colorbar(contour, ax=ax2)
+ax2.set_title(f"Contour Plot of {expression}")
+ax2.set_xlabel("x")
+ax2.set_ylabel("y")
+
 plt.show()
 ```
 
@@ -122,24 +136,24 @@ plt.show()
 The **Solver** class exposes methods to:
 
 - **Declare Symbols:**  
-  `declareConstant(name, value)` and `declareVariable(name, value)`
+  - `declare_constant(name, value)`  
+  - `declare_variable(name, value)`
 
 - **Expression Evaluation:**  
-  `evaluate(expression, debug=False)`  
-  `evaluateForRange(variable, values, expression, debug=False)`  
-  `evaluateForRanges(variables, valuesSets, expression, debug=False)`
+  - `evaluate(expression, debug=False)`  
+  - `evaluate_range(variable, values, expression, debug=False)`  
+  - `evaluate_ranges(variables, valuesSets, expression, debug=False)`
 
 - **Function Registration:**  
-  `registerPredefinedFunction(name, callback, argCount)`  
-  `declareFunction(name, args, expression)`
+  - `declare_function(name, args, expression)`
 
 - **Caching:**  
-  Enable or disable caching with `setUseCache(useCache)` and clear caches with `clearCache()`.
+  - Enable or disable caching with `use_cache(useCache)`  
 
 - **Parsing:**  
-  `setCurrentExpression(expression, debug)` parses an expression into a flattened postfix form, and `setCurrentExpressionAST(expression, debug=False)` builds an AST.
+  - `set_current_expression(expression, debug)` parses an expression into a flattened postfix form  
 
-For more details, refer to the inline documentation and source code.
+For more details, please refer to the inline documentation and source code.
 
 ## Contributing
 
@@ -162,8 +176,3 @@ This project is licensed under the [MIT License](LICENSE).
 ---
 
 Happy solving!
-```
-
----
-
-This README outlines the purpose, features, requirements, installation steps, usage examples, and contribution guidelines for your Solver library. Adjust any details (paths, commands, version numbers, etc.) as needed for your project.

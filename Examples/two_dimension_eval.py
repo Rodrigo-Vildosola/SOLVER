@@ -2,7 +2,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 # Import from your solver binding module
 from solver import Solver, SolverException
@@ -16,12 +15,8 @@ def main():
     x_vals = np.linspace(-2, 2, 50)
     y_vals = np.linspace(-2, 2, 50)
 
-    # Example expression(s) for 2 variables
     expression = "x^3 + y^4"
 
-    # We call evaluate_ranges() with:
-    # - variables = ["x", "y"]
-    # - valueSets = [x_vals, y_vals]
     try:
         results = solver.evaluate_ranges(
             ["x", "y"],
