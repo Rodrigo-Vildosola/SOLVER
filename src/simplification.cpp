@@ -15,7 +15,7 @@ namespace Simplification {
 static NUMBER_TYPE asNumber(const std::vector<Token> &tokens);
 static bool isNumber(const std::vector<Token> &tokens);
 
-std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
+std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
     // We'll do a loop that calls singlePassSimplify repeatedly
     // until we detect no changes or we reach an iteration limit.
     SimplificationEngine engine;
@@ -28,12 +28,11 @@ std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const
     engine.add_rule(std::make_unique<FunctionFoldingRule>(functions));
     // Add additional rules as needed.
     
-    std::cout << "Starting simplification!" << std::endl;
     return engine.simplify(postfix, functions);
 }
 
 
-// std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
+// std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
 //     // We'll do a loop that calls singlePassSimplify repeatedly
 //     // until we detect no changes or we reach an iteration limit.
 //     std::vector<Token> current = postfix;

@@ -51,7 +51,7 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
 
     // Now do a simplification pass
-    auto simplified = Simplification::fullySimplifyPostfix(inlined, functions);
+    auto simplified = Simplification::simplifyPostfix(inlined, functions);
 
     if (debug) {
         std::cout << "Flattened postfix: ";

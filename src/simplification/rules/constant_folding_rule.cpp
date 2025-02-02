@@ -30,9 +30,9 @@ bool ConstantFoldingRule::apply(const std::vector<Token>& input, std::vector<Tok
             return false;
         }
 
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(15) << result;
-        Token newToken(NUMBER, oss.str());
+        Token newToken;
+        newToken.type  = NUMBER;
+        newToken.value = numberToString(result);
         newToken.numericValue = result;
         output = { newToken };
         return true;
