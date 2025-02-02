@@ -2,7 +2,8 @@
 
 
 bool ConstantFoldingRule::apply(const std::vector<Token>& input, std::vector<Token>& output) {
-    // Expect a binary expression: NUMBER, NUMBER, OPERATOR
+    // Check that the sub-expression is exactly of the form:
+    // NUMBER, NUMBER, OPERATOR
     if (input.size() == 3 &&
         input[0].type == NUMBER &&
         input[1].type == NUMBER &&
@@ -28,7 +29,7 @@ bool ConstantFoldingRule::apply(const std::vector<Token>& input, std::vector<Tok
         } else {
             return false;
         }
-        // Convert the result to a string
+
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(15) << result;
         Token newToken(NUMBER, oss.str());

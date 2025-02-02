@@ -316,18 +316,27 @@ static const char *__doc_Profiler_Utils_cleanup_output_string = R"doc()doc";
 
 static const char *__doc_SimplificationEngine = R"doc()doc";
 
-static const char *__doc_SimplificationEngine_add_rule = R"doc()doc";
-
-static const char *__doc_SimplificationEngine_rules = R"doc()doc";
+static const char *__doc_SimplificationEngine_add_rule = R"doc(Add a new simplification rule.)doc";
 
 static const char *__doc_SimplificationEngine_simplify =
-R"doc(Simplify the given token sequence by applying rules repeatedly.
+R"doc(Simplify the full postfix token sequence.
+
+This function repeatedly applies all simplification rules on every sub-
+expression (by “rebuilding” the expression via a stack) until no rule makes any
+further change or a maximum number of passes is reached.
 
 Parameter ``input``:
-    The original token sequence.
+    The original postfix token vector.
+
+Parameter ``functions``:
+    A table of functions (needed for function rules).
 
 Returns:
-    The simplified token sequence.)doc";
+    The fully simplified postfix token vector.)doc";
+
+static const char *__doc_SimplificationEngine_simplifyPass =
+R"doc(A single pass that traverses the full expression and applies rules where
+possible.)doc";
 
 static const char *__doc_SimplificationRule = R"doc()doc";
 
