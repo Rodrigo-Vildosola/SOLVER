@@ -34,7 +34,7 @@ namespace Simplification {
     // static bool isNumber(const std::vector<Token> &tokens);
 
 
-    std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
+    std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions);
 
 
     /**

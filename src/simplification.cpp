@@ -1,33 +1,51 @@
 #include "simplification.h"
+#include "simplification/simplification_engine.h"
+#include "simplification/rules/add_zero_rule.h"
+#include "simplification/rules/constant_folding_rule.h"
+#include "simplification/rules/div_one_rule.h"
+#include "simplification/rules/function_folding_rule.h"
+#include "simplification/rules/mult_one_rule.h"
+#include "simplification/rules/mult_zero_rule.h"
+#include "simplification/rules/sub_zero_rule.h"
 
 namespace Simplification {
 
 #pragma region Postfix simplification
 
-// inline std::string toStringLongDouble(NUMBER_TYPE value, int precision = 30) {
-//     std::ostringstream oss;
-//     // Choose the format and precision you want:
-//     oss << std::fixed << std::setprecision(precision) << value;
-//     return oss.str();
-// }
-
 static NUMBER_TYPE asNumber(const std::vector<Token> &tokens);
 static bool isNumber(const std::vector<Token> &tokens);
 
-std::vector<Token> fullySimplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
+std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
     // We'll do a loop that calls singlePassSimplify repeatedly
     // until we detect no changes or we reach an iteration limit.
-    std::vector<Token> current = postfix;
-    bool changed = true;
-    const int MAX_ITERATIONS = 50; // arbitrary safe-guard
-
-    for (int i = 0; i < MAX_ITERATIONS && changed; ++i) {
-        std::vector<Token> next = singlePassSimplify(current, functions, changed);
-        current = std::move(next);
-    }
-
-    return current;
+    SimplificationEngine engine;
+    engine.add_rule(std::make_unique<ConstantFoldingRule>());
+    engine.add_rule(std::make_unique<AddZeroRule>());
+    engine.add_rule(std::make_unique<MultOneRule>());
+    engine.add_rule(std::make_unique<MultZeroRule>());
+    engine.add_rule(std::make_unique<SubZeroRule>());
+    engine.add_rule(std::make_unique<DivOneRule>());
+    engine.add_rule(std::make_unique<FunctionFoldingRule>(functions));
+    // Add additional rules as needed.
+    
+    return engine.simplify(postfix, functions);
 }
+
+
+// std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
+//     // We'll do a loop that calls singlePassSimplify repeatedly
+//     // until we detect no changes or we reach an iteration limit.
+//     std::vector<Token> current = postfix;
+//     bool changed = true;
+//     const int MAX_ITERATIONS = 50; // arbitrary safe-guard
+
+//     for (int i = 0; i < MAX_ITERATIONS && changed; ++i) {
+//         std::vector<Token> next = singlePassSimplify(current, functions, changed);
+//         current = std::move(next);
+//     }
+
+//     return current;
+// }
 
 
 std::vector<Token> singlePassSimplify(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions, bool &changed) {
