@@ -37,7 +37,20 @@
   - [PyBind11](https://github.com/pybind/pybind11)  
   - CMake, clang (these are listed in `install_requires` and managed by the build process)
 
-## Manual Installation & Build
+## Installation
+
+### Install via pip
+
+The **Solver** library is available on PyPI. You can install it using pip:
+
+```bash
+pip install solver
+```
+This command will install the latest release along with its Python bindings.
+
+
+
+### Manual Installation & Build
 
 The recommended way to build **Solver** is using the provided `setup.py` script. The build process leverages CMake internally with Python-provided definitions and then automatically copies the resulting shared library (and stub files) to the examples directory.
 
