@@ -168,6 +168,15 @@ The **Solver** class exposes methods to:
 
 For more details, please refer to the inline documentation and source code.
 
+## Dependencies and License Notices
+Solver makes use of the following libraries during the build and documentation process:
+
+- [pybind11_mkdoc](https://github.com/pybind/pybind11_mkdoc)
+
+- [pybind11-stubgen](https://github.com/sizmailov/pybind11-stubgen)
+
+both of their source codes where altered to better fit the Solver library needs
+
 ## Contributing
 
 Contributions to **Solver** are welcome! Please follow these guidelines:
