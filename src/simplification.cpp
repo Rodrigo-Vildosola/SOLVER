@@ -7,6 +7,9 @@
 #include "simplification/rules/mult_one_rule.h"
 #include "simplification/rules/mult_zero_rule.h"
 #include "simplification/rules/sub_zero_rule.h"
+#include "simplification/rules/associative_add_rule.h"
+#include "simplification/rules/associative_mult_rule.h"
+
 
 namespace Simplification {
 
@@ -26,6 +29,9 @@ std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std:
     engine.add_rule(std::make_unique<SubZeroRule>());
     engine.add_rule(std::make_unique<DivOneRule>());
     engine.add_rule(std::make_unique<FunctionFoldingRule>(functions));
+
+    // engine.add_rule(std::make_unique<AssociativeAddRule>());
+    // engine.add_rule(std::make_unique<AssociativeMultRule>());
     // Add additional rules as needed.
     
     return engine.simplify(postfix, functions);

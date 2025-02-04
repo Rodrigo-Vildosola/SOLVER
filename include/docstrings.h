@@ -92,6 +92,14 @@ static const char *__doc_AddZeroRule = R"doc()doc";
 
 static const char *__doc_AddZeroRule_apply = R"doc()doc";
 
+static const char *__doc_AssociativeAddRule = R"doc()doc";
+
+static const char *__doc_AssociativeAddRule_apply = R"doc()doc";
+
+static const char *__doc_AssociativeMultRule = R"doc()doc";
+
+static const char *__doc_AssociativeMultRule_apply = R"doc()doc";
+
 static const char *__doc_ConstantFoldingRule = R"doc()doc";
 
 static const char *__doc_ConstantFoldingRule_apply = R"doc()doc";
@@ -352,8 +360,6 @@ Parameter ``output``:
 Returns:
     true if the rule was applied; false otherwise.)doc";
 
-static const char *__doc_Simplification_fullySimplifyPostfix = R"doc()doc";
-
 static const char *__doc_Simplification_replaceConstantSymbols =
 R"doc(Replaces tokens that refer to constants with NUMBER tokens in a postfix
 sequence.
@@ -385,6 +391,8 @@ Parameter ``functions``:
 Returns:
     The (possibly replaced) pointer to the simplified AST node. If a node is
     replaced, the old pointer is deleted.)doc";
+
+static const char *__doc_Simplification_simplifyPostfix = R"doc()doc";
 
 static const char *__doc_Simplification_singlePassSimplify =
 R"doc(Performs a single pass of local folding/simplification on a fully flattened

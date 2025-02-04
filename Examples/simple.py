@@ -16,20 +16,20 @@ result = solver.evaluate("tan(pi / 4)", True)
 
 print(f"The results of the solver are: {result}")
 
-result = solver.evaluate("func(10) + 40", True)
+result = solver.evaluate("3 + (x + 8)", True)
 
 print(f"The results of the solver are: {result}")
 
 x_values = np.linspace(0, 100, 1000)
 
-results = solver.evaluate_range("x", x_values.tolist(), "x^3 + 2*x + 1", True)
+# results = solver.evaluate_range("x", x_values.tolist(), "x^3 + 2*x + 1", True)
 
-plt.plot(x_values, results, label="x^3 + 2x + 1")
-plt.title("Single Variable Expressions")
-plt.xlabel("x")
-plt.ylabel("f(x)")
-plt.legend()
-plt.grid(True)
+# plt.plot(x_values, results, label="x^3 + 2x + 1")
+# plt.title("Single Variable Expressions")
+# plt.xlabel("x")
+# plt.ylabel("f(x)")
+# plt.legend()
+# plt.grid(True)
 
-# Display the plot
-plt.show()
+# # Display the plot
+# plt.show()
