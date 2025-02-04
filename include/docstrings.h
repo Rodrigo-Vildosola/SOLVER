@@ -176,21 +176,6 @@ static const char *__doc_Postfix_evaluatePostfix = R"doc()doc";
 
 static const char *__doc_Postfix_flattenPostfix = R"doc()doc";
 
-static const char *__doc_Postfix_getFunctionArgCount =
-R"doc(Retrieves the expected argument count for a given function.
-
-Parameter ``functionName``:
-    The name of the function.
-
-Parameter ``functions``:
-    Map of available functions with argument details.
-
-Returns:
-    Number of arguments the function expects.
-
-Throws:
-    SolverException if the function is not found.)doc";
-
 static const char *__doc_Postfix_getPrecedence =
 R"doc(Retrieves the precedence level of a given operator.
 

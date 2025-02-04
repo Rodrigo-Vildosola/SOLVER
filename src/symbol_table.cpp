@@ -83,7 +83,7 @@ void SymbolTable::clearVariables() {
 }
 
 // Restore variables from a saved copy
-void SymbolTable::restoreVariables(const std::unordered_map<std::string, NUMBER_TYPE>& savedVariables) {
+void SymbolTable::restoreVariables(const Env& savedVariables) {
     clearVariables();
     for (const auto& [name, value] : savedVariables) {
         declareVariable(name, value, true);
@@ -103,13 +103,13 @@ bool SymbolTable::isVariable(const std::string& name) const {
 
 
 // Get a copy of current constants
-std::unordered_map<std::string, NUMBER_TYPE> SymbolTable::getConstants() const {
+Env SymbolTable::getConstants() const {
     return constants;
 }
 
 // Get a copy of current variables
-std::unordered_map<std::string, NUMBER_TYPE> SymbolTable::getVariables() const {
-    std::unordered_map<std::string, NUMBER_TYPE> vars;
+Env SymbolTable::getVariables() const {
+    Env vars;
     for (const auto& [name, index] : variableIndex) {
         vars[name] = variables[index].value;
     }

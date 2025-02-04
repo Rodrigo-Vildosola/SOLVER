@@ -4,17 +4,6 @@
 
 namespace Postfix {
 
-#pragma region Helpers
-
-size_t getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions) {
-    auto it = functions.find(functionName);
-    if (it != functions.end()) {
-        return it->second.argCount;
-    }
-    throw SolverException("Unknown function '" + functionName + "'");
-}
-
-#pragma endregion
 
 #pragma region Parsing and Shunting Yard
 

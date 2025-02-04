@@ -54,8 +54,6 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
     auto simplified = Simplification::simplifyPostfix(inlined, functions);
 
     if (debug) {
-        std::cout << "Flattened postfix: ";
-        printPostfix(inlined);
         std::cout << "Simplified postfix: ";
         printPostfix(simplified);
     }
@@ -225,13 +223,6 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
 
 #pragma region Helpers
 
-std::unordered_map<std::string, NUMBER_TYPE> Solver::listConstants() const {
-    return symbolTable.getConstants();
-}
-
-std::unordered_map<std::string, NUMBER_TYPE> Solver::listVariables() const {
-    return symbolTable.getVariables();
-}
 
 void Solver::setCurrentExpression(const std::string& expression, bool debug) {
     // Check if the expression is the same and the currentPostfix is not empty

@@ -3,9 +3,8 @@
 #include "pch.h"
 #include "exception.h"
 #include "validator.h"
-#include <unordered_map>
-#include <vector>
-#include <string>
+#include "token.h"
+
 
 enum class SymbolType {
     CONSTANT,
@@ -38,13 +37,13 @@ public:
     void clearVariables();
 
     // Restore variables from a saved copy
-    void restoreVariables(const std::unordered_map<std::string, NUMBER_TYPE>& savedVariables);
+    void restoreVariables(const Env& savedVariables);
 
     // Get a copy of current constants
-    std::unordered_map<std::string, NUMBER_TYPE> getConstants() const;
+    Env getConstants() const;
 
     // Get a copy of current variables
-    std::unordered_map<std::string, NUMBER_TYPE> getVariables() const;
+    Env getVariables() const;
 
     // Check if a name is a constant
     bool isConstant(const std::string& name) const;
@@ -54,7 +53,7 @@ public:
 
 private:
     // Constants stored in a hash table (since they are read-only after declaration)
-    std::unordered_map<std::string, NUMBER_TYPE> constants;
+    Env constants;
 
     // Variables stored in a vector (ensures pointer stability)
     std::vector<SymbolEntry> variables;

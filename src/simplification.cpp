@@ -19,8 +19,7 @@ static NUMBER_TYPE asNumber(const std::vector<Token> &tokens);
 static bool isNumber(const std::vector<Token> &tokens);
 
 std::vector<Token> simplifyPostfix(const std::vector<Token> &postfix, const std::unordered_map<std::string, Function> &functions) {
-    // We'll do a loop that calls singlePassSimplify repeatedly
-    // until we detect no changes or we reach an iteration limit.
+
     SimplificationEngine engine;
     engine.add_rule(std::make_unique<ConstantFoldingRule>());
     engine.add_rule(std::make_unique<AddZeroRule>());

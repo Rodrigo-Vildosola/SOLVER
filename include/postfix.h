@@ -60,14 +60,4 @@ namespace Postfix {
      */
     void handleFunctionArgumentSeparator(std::stack<Token>& operatorStack, std::vector<Token>& outputVector, std::stack<int>& argumentCounts);
 
-    /**
-     * @brief Retrieves the expected argument count for a given function.
-     * @param functionName The name of the function.
-     * @param functions Map of available functions with argument details.
-     * @return Number of arguments the function expects.
-     * @throws SolverException if the function is not found.
-     */
-    size_t getFunctionArgCount(const std::string& functionName, const std::unordered_map<std::string, Function>& functions);
-
-
 }  // namespace ExpressionTree

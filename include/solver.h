@@ -185,7 +185,7 @@ public:
      * 
      * @return An unordered_map from constant name to double value.
      */
-    std::unordered_map<std::string, NUMBER_TYPE> listConstants() const;
+    Env listConstants() const { return symbolTable.getConstants(); }
 
     /**
      * @brief Lists all declared variables.
@@ -195,7 +195,7 @@ public:
      * 
      * @return An unordered_map from variable name to double value.
      */
-    std::unordered_map<std::string, NUMBER_TYPE> listVariables() const;
+    Env listVariables() const { return symbolTable.getVariables(); }
 
     /**
      * @brief Sets the expression to be evaluated and parses it into a postfix representation.
