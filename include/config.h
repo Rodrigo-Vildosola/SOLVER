@@ -11,9 +11,8 @@
 // #define PREFER_FLOAT
 
 // ==================
-// 🔹 Define Precision Level
+// Define Precision Level
 // ==================
-// Change NUMBER_TYPE to float, double, or long double
 
 #if defined(PREFER_FLOAT)
     #define NUMBER_TYPE float
@@ -27,12 +26,12 @@
 #endif
 
 // ==================
-// 🔹 Precision Configuration
+// Precision Configuration
 // ==================
 constexpr int PRECISION_DIGITS = std::numeric_limits<NUMBER_TYPE>::digits10 + 10;  // Max digits + buffer
 
 // ==================
-// 🔹 String Conversions
+// String Conversions
 // ==================
 
 // Converts NUMBER_TYPE to a high-precision string
@@ -51,7 +50,7 @@ inline NUMBER_TYPE stringToNumber(const std::string& str) {
 }
 
 // ==================
-// 🔹 Debug Info
+// Debug Info
 // ==================
 inline void printPrecisionInfo() {
     std::cout << "Precision Type: " << NUMBER_TYPE_STRING << "\n";
