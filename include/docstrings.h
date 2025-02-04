@@ -455,13 +455,29 @@ This is a direct way to force the solver to discard all cached results. After
 calling, the next evaluations will re-parse and re-compute the expression
 outcomes from scratch.)doc";
 
+static const char *__doc_Solver_compileExpression =
+R"doc(Compiles an expression string into an EvalFunc.
+
+This function tokenizes the input, converts it to postfix notation, flattens and
+inlines user-defined functions, replaces constant symbols, simplifies the
+expression, and finally compiles it into an EvalFunc.
+
+Parameter ``expression``:
+    The mathematical expression to compile.
+
+Parameter ``debug``:
+    If true, prints debug information.
+
+Returns:
+    The compiled EvalFunc.)doc";
+
 static const char *__doc_Solver_currentAST = R"doc(The parsed (and flattened) AST tokens corresponding to currentExpression.)doc";
 
+static const char *__doc_Solver_currentCompiledExpression = R"doc(The most recent expression callback created by parse().)doc";
+
+static const char *__doc_Solver_currentExpression = R"doc(The most recent expression string passed to setCurrentExpression().)doc";
+
 static const char *__doc_Solver_currentExpressionAST = R"doc(The most recent expression string passed to setCurrentExpression().)doc";
-
-static const char *__doc_Solver_currentExpressionPostfix = R"doc(The most recent expression string passed to setCurrentExpression().)doc";
-
-static const char *__doc_Solver_currentPostfix = R"doc(The parsed (and flattened) postfix tokens corresponding to currentExpression.)doc";
 
 static const char *__doc_Solver_declareConstant =
 R"doc(Declares a constant in the symbol table.
@@ -667,25 +683,6 @@ names to their current numeric values.
 
 Returns:
     An unordered_map from variable name to double value.)doc";
-
-static const char *__doc_Solver_parse =
-R"doc(Parses a mathematical expression from string to postfix.
-
-The process includes tokenizing, converting tokens to postfix notation, and
-flattening (inlining any user-defined functions). If ``debug`` is set, it may
-print intermediate steps.
-
-Parameter ``expression``:
-    The input mathematical expression (in infix).
-
-Parameter ``debug``:
-    If true, prints debug information about the tokenization/postfix steps.
-
-Returns:
-    A vector of Tokens representing the flattened postfix form.
-
-Throws:
-    SolverException If a syntax error or unknown function is encountered.)doc";
 
 static const char *__doc_Solver_parseAST =
 R"doc(Parses a mathematical expression from string to postfix.

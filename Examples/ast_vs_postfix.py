@@ -85,7 +85,7 @@ def main():
 
     # We'll do multiple runs to get average timings
     num_runs = 5
-    repetitions_per_expression = 100000
+    repetitions_per_expression = 1000000
 
     postfix_times = []
     ast_times = []

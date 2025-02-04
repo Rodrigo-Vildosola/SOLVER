@@ -240,7 +240,7 @@ public:
      * 
      * @return The current expression string.
      */
-    std::string getCurrentExpression() const { return currentExpressionPostfix; }
+    std::string getCurrentExpression() const { return currentExpression; }
 
 private:
     /**
@@ -252,18 +252,17 @@ private:
     void registerBuiltInFunctions();
 
     /**
-     * @brief Parses a mathematical expression from string to postfix.
-     * 
-     * The process includes tokenizing, converting tokens to postfix notation,
-     * and flattening (inlining any user-defined functions). If \p debug is set,
-     * it may print intermediate steps.
-     * 
-     * @param expression The input mathematical expression (in infix).
-     * @param debug If true, prints debug information about the tokenization/postfix steps.
-     * @return A vector of Tokens representing the flattened postfix form.
-     * @throws SolverException If a syntax error or unknown function is encountered.
+     * @brief Compiles an expression string into an EvalFunc.
+     *
+     * This function tokenizes the input, converts it to postfix notation,
+     * flattens and inlines user-defined functions, replaces constant symbols,
+     * simplifies the expression, and finally compiles it into an EvalFunc.
+     *
+     * @param expression The mathematical expression to compile.
+     * @param debug If true, prints debug information.
+     * @return The compiled EvalFunc.
      */
-    std::vector<Token> parse(const std::string &expression, bool debug = false);
+    EvalFunc compileExpression(const std::string &expression, bool debug = false);
 
     /**
      * @brief Parses a mathematical expression from string to postfix.
@@ -299,18 +298,6 @@ private:
      */
     void invalidateCaches();
 
-    /**
-     * @brief Validates that a user-defined function's dependencies are valid.
-     * 
-     * This checks whether each argument used in the function is well-formed, ensuring
-     * no conflicts in naming or reserved keywords. Called during declareFunction().
-     * 
-     * @param expression The user-defined function's body in string form.
-     * @param args The list of argument names for that function.
-     * @throws SolverException If an invalid argument name or reference is encountered.
-     */
-    void validateFunctionDependencies(const std::string& expression, const std::vector<std::string>& args);
-
     // -------------------------------------------------------------------------
     // Member Variables
 
@@ -327,13 +314,13 @@ private:
     SymbolTable symbolTable;
 
     /// The most recent expression string passed to setCurrentExpression().
-    std::string currentExpressionPostfix;
+    std::string currentExpression;
+
+    /// The most recent expression callback created by parse().
+    EvalFunc currentCompiledExpression;
 
     /// The most recent expression string passed to setCurrentExpression().
     std::string currentExpressionAST;
-
-    /// The parsed (and flattened) postfix tokens corresponding to currentExpression.
-    std::vector<Token> currentPostfix;
 
     /// The parsed (and flattened) AST tokens corresponding to currentExpression.
     ASTNode* currentAST;

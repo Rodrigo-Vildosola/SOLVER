@@ -44,13 +44,16 @@ void Solver::declareVariable(const std::string& name, NUMBER_TYPE value) {
 
 #pragma region Parsing
 
-std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
-    auto tokens   = Tokenizer::tokenize(expression);
-    auto postfix  = Postfix::shuntingYard(tokens);
+EvalFunc Solver::compileExpression(const std::string &expression, bool debug) {
+    // Tokenize the expression
+    auto tokens = Tokenizer::tokenize(expression);
+    // Convert tokens to postfix using the shunting-yard algorithm
+    auto postfix = Postfix::shuntingYard(tokens);
+    // Flatten any user-defined functions
     auto flattened = Postfix::flattenPostfix(postfix, functions);
+    // Replace constant symbols with their values from the symbol table
     auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
-
-    // Now do a simplification pass
+    // Simplify the resulting postfix expression
     auto simplified = Simplification::simplifyPostfix(inlined, functions);
 
     if (debug) {
@@ -58,7 +61,8 @@ std::vector<Token> Solver::parse(const std::string& expression, bool debug) {
         printPostfix(simplified);
     }
 
-    return simplified; 
+    // Compile the simplified postfix into an EvalFunc and return it
+    return compilePostfix(simplified, functions);
 }
 
 #pragma endregion
@@ -76,7 +80,7 @@ NUMBER_TYPE Solver::evaluate(const std::string& expression, bool debug) {
         }
     }
 
-    EvalFunc compiledExpr = compilePostfix(currentPostfix, functions);
+    EvalFunc compiledExpr = currentCompiledExpression;
 
     Env env = symbolTable.getVariables();
 
@@ -100,7 +104,7 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRange(const std::string& variable, c
         throw SolverException("Invalid variable name '" + variable + "'.");
     }
 
-    EvalFunc compiledExpr = compilePostfix(currentPostfix, functions);
+    EvalFunc compiledExpr = currentCompiledExpression;
 
     Env env = symbolTable.getVariables();
 
@@ -135,7 +139,7 @@ std::vector<NUMBER_TYPE> Solver::evaluateForRanges(const std::vector<std::string
 
     // Parse and compile the expression
     setCurrentExpression(expression, debug);
-    EvalFunc compiledExpr = compilePostfix(currentPostfix, functions);
+    EvalFunc compiledExpr = currentCompiledExpression;
 
     // Compute the total number of combinations in the cartesian product
     size_t totalCombinations = 1;
@@ -224,15 +228,17 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
 #pragma region Helpers
 
 
-void Solver::setCurrentExpression(const std::string& expression, bool debug) {
-    // Check if the expression is the same and the currentPostfix is not empty
-    if (expression == currentExpressionPostfix && !currentPostfix.empty()) {
+void Solver::setCurrentExpression(const std::string &expression, bool debug) {
+    // If the expression is unchanged and we already have a compiled expression, do nothing.
+    // (Note: since EvalFunc is likely a std::function, checking if it is nonempty works.)
+    if (expression == currentExpression && currentCompiledExpression) {
         return;
     }
 
-    // Otherwise, parse the new expression into postfix
-    currentExpressionPostfix = expression;
-    currentPostfix = parse(expression, debug); 
+    // Update the current expression string
+    currentExpression = expression;
+    // Compile the expression and cache the resulting EvalFunc
+    currentCompiledExpression = compileExpression(expression, debug);
 
     if (debug) {
         std::cout << "Current expression set to: " << expression << std::endl;

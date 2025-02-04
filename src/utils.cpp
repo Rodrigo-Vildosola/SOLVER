@@ -57,25 +57,6 @@ void Solver::registerBuiltInFunctions() {
 }
 
 
-// Semantic validation: Ensure all dependencies are defined
-void Solver::validateFunctionDependencies(const std::string& expression, const std::vector<std::string>& args) {
-    auto tokens = Tokenizer::tokenize(expression);
-    for (const auto& token : tokens) {
-        if (token.type == VARIABLE) {
-            // Check if the variable is a function argument or a declared constant
-            if (std::find(args.begin(), args.end(), token.value) == args.end() && !symbolTable.isConstant(token.value)) {
-                throw SolverException("Variable '" + token.value + "' is not declared in the function scope or as a constant.");
-            }
-        }
-        else if (token.type == FUNCTION) {
-            // Ensure that the function being called is defined
-            if (functions.find(token.value) == functions.end()) {
-                throw SolverException("Function '" + token.value + "' is not defined.");
-            }
-        }
-    }
-}
-
 
 
 std::size_t Solver::generateCacheKey(const std::string& base, const std::vector<NUMBER_TYPE>& args) {
