@@ -55,3 +55,6 @@ struct Token {
 
 using Env = std::unordered_map<std::string, NUMBER_TYPE>;
 using EvalFunc = std::function<NUMBER_TYPE(const Env&)>;
+
+using NumberList = std::vector<NUMBER_TYPE>;
+using NumberMatrix = std::vector<std::vector<NUMBER_TYPE>>;

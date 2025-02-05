@@ -242,6 +242,55 @@ public:
      */
     std::string getCurrentExpression() const { return currentExpression; }
 
+    /**
+     * @brief Efficiently generates animation data for visualizing a function.
+     *
+     * This optimized version evaluates the function in bulk rather than iterating over individual points.
+     *
+     * @param expression The function to evaluate.
+     * @param variable The variable to sweep across.
+     * @param start The starting value of the variable.
+     * @param end The ending value of the variable.
+     * @param steps The number of steps (frames) to generate.
+     * @return A tuple (x_values, y_values), where x_values are input values and y_values are computed results.
+     */
+    std::tuple<NumberList, NumberList> generateAnimationData(
+        const std::string &expression,
+        const std::string &variable,
+        NUMBER_TYPE start,
+        NUMBER_TYPE end,
+        size_t steps);
+
+
+    /**
+     * @brief Efficiently generates contour data for 3D surface plots.
+     *
+     * This function uses batch evaluation to compute values over a grid of (x, y) coordinates.
+     *
+     * @param expression The function to evaluate.
+     * @param variable1 The first variable (x-axis).
+     * @param variable2 The second variable (y-axis).
+     * @param start1 The start value for variable1.
+     * @param end1 The end value for variable1.
+     * @param steps1 The number of steps for variable1.
+     * @param start2 The start value for variable2.
+     * @param end2 The end value for variable2.
+     * @param steps2 The number of steps for variable2.
+     * @return A tuple (x_values, y_values, z_values), where z_values is a 2D matrix of results.
+     */
+    std::tuple<NumberList, NumberList, NumberMatrix> generateContourData(
+        const std::string &expression,
+        const std::string &variable1,
+        const std::string &variable2,
+        NUMBER_TYPE start1,
+        NUMBER_TYPE end1,
+        size_t steps1,
+        NUMBER_TYPE start2,
+        NUMBER_TYPE end2,
+        size_t steps2);
+
+
+
 private:
     /**
      * @brief Registers built-in mathematical functions such as sin, cos, exp, etc.

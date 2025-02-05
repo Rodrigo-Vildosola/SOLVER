@@ -101,5 +101,27 @@ void bind_solver(py::module_ &m) {
 
         .def("get_current_expression", 
              &Solver::getCurrentExpression, 
-             DOC(Solver, getCurrentExpression));
+             DOC(Solver, getCurrentExpression))
+
+        .def("generate_animation_data", 
+             &Solver::generateAnimationData,
+             py::arg("expression"),
+             py::arg("variable"),
+             py::arg("start"),
+             py::arg("end"),
+             py::arg("steps"),
+             DOC(Solver, generateAnimationData))
+
+        .def("generate_contour_data", 
+             &Solver::generateContourData,
+             py::arg("expression"),
+             py::arg("variable1"),
+             py::arg("variable2"),
+             py::arg("start1"),
+             py::arg("end1"),
+             py::arg("steps1"),
+             py::arg("start2"),
+             py::arg("end2"),
+             py::arg("steps2"),
+             DOC(Solver, generateContourData));
 }

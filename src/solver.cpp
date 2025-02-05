@@ -246,3 +246,71 @@ void Solver::setCurrentExpression(const std::string &expression, bool debug) {
 }
 
 #pragma endregion
+
+std::tuple<NumberList, NumberList> Solver::generateAnimationData(
+    const std::string &expression,
+    const std::string &variable,
+    NUMBER_TYPE start,
+    NUMBER_TYPE end,
+    size_t steps) 
+{
+    PROFILE_FUNCTION();
+
+    // Generate x values
+    NumberList x_values(steps);
+    NUMBER_TYPE step_size = (steps > 1) ? (end - start) / (steps - 1) : 0;
+    
+    for (size_t i = 0; i < steps; ++i) {
+        x_values[i] = start + i * step_size;
+    }
+
+    // Evaluate the function in batch using evaluateForRange (optimized)
+    NumberList y_values = evaluateForRange(variable, x_values, expression, false);
+
+    return std::make_tuple(x_values, y_values);
+}
+
+
+std::tuple<NumberList, NumberList, NumberMatrix> Solver::generateContourData(
+    const std::string &expression,
+    const std::string &variable1,
+    const std::string &variable2,
+    NUMBER_TYPE start1,
+    NUMBER_TYPE end1,
+    size_t steps1,
+    NUMBER_TYPE start2,
+    NUMBER_TYPE end2,
+    size_t steps2) 
+{
+    PROFILE_FUNCTION();
+
+    // Generate grid values for x and y
+    NumberList x_values(steps1);
+    NumberList y_values(steps2);
+
+    NUMBER_TYPE step_size1 = (steps1 > 1) ? (end1 - start1) / (steps1 - 1) : 0;
+    NUMBER_TYPE step_size2 = (steps2 > 1) ? (end2 - start2) / (steps2 - 1) : 0;
+
+    for (size_t i = 0; i < steps1; ++i) {
+        x_values[i] = start1 + i * step_size1;
+    }
+    for (size_t j = 0; j < steps2; ++j) {
+        y_values[j] = start2 + j * step_size2;
+    }
+
+    // Use evaluateForRanges to compute all function values in a batch
+    std::vector<std::vector<NUMBER_TYPE>> z_values(steps2, std::vector<NUMBER_TYPE>(steps1));
+    
+    std::vector<std::vector<NUMBER_TYPE>> valuesSets = {x_values, y_values};
+    std::vector<NUMBER_TYPE> flat_results = evaluateForRanges({variable1, variable2}, valuesSets, expression, false);
+
+    // Reshape flat_results into a matrix (row-major order)
+    size_t index = 0;
+    for (size_t j = 0; j < steps2; ++j) {
+        for (size_t i = 0; i < steps1; ++i) {
+            z_values[j][i] = flat_results[index++];
+        }
+    }
+
+    return std::make_tuple(x_values, y_values, z_values);
+}

@@ -635,6 +635,31 @@ static const char *__doc_Solver_expressionCache = R"doc(An LRU cache for storing
 
 static const char *__doc_Solver_functions = R"doc(A map storing both built-in (predefined) and user-defined functions by name.)doc";
 
+static const char *__doc_Solver_generateAnimationData =
+R"doc(Efficiently generates animation data for visualizing a function.
+
+This optimized version evaluates the function in bulk rather than iterating over
+individual points.
+
+Parameter ``expression``:
+    The function to evaluate.
+
+Parameter ``variable``:
+    The variable to sweep across.
+
+Parameter ``start``:
+    The starting value of the variable.
+
+Parameter ``end``:
+    The ending value of the variable.
+
+Parameter ``steps``:
+    The number of steps (frames) to generate.
+
+Returns:
+    A tuple (x_values, y_values), where x_values are input values and y_values
+    are computed results.)doc";
+
 static const char *__doc_Solver_generateCacheKey =
 R"doc(Generates an integer cache key based on an expression string and argument
 values.
@@ -651,6 +676,43 @@ Parameter ``args``:
 
 Returns:
     A std::size_t representing a unique hash key.)doc";
+
+static const char *__doc_Solver_generateContourData =
+R"doc(Efficiently generates contour data for 3D surface plots.
+
+This function uses batch evaluation to compute values over a grid of (x, y)
+coordinates.
+
+Parameter ``expression``:
+    The function to evaluate.
+
+Parameter ``variable1``:
+    The first variable (x-axis).
+
+Parameter ``variable2``:
+    The second variable (y-axis).
+
+Parameter ``start1``:
+    The start value for variable1.
+
+Parameter ``end1``:
+    The end value for variable1.
+
+Parameter ``steps1``:
+    The number of steps for variable1.
+
+Parameter ``start2``:
+    The start value for variable2.
+
+Parameter ``end2``:
+    The end value for variable2.
+
+Parameter ``steps2``:
+    The number of steps for variable2.
+
+Returns:
+    A tuple (x_values, y_values, z_values), where z_values is a 2D matrix of
+    results.)doc";
 
 static const char *__doc_Solver_getCurrentExpression =
 R"doc(Retrieves the most recently set expression string.
@@ -770,21 +832,6 @@ Parameter ``useCache``:
     Pass true to enable expression caching, false to disable it.)doc";
 
 static const char *__doc_Solver_symbolTable = R"doc(Symbol table for all declared variables and constants (manages their values).)doc";
-
-static const char *__doc_Solver_validateFunctionDependencies =
-R"doc(Validates that a user-defined function's dependencies are valid.
-
-This checks whether each argument used in the function is well-formed, ensuring
-no conflicts in naming or reserved keywords. Called during declareFunction().
-
-Parameter ``expression``:
-    The user-defined function's body in string form.
-
-Parameter ``args``:
-    The list of argument names for that function.
-
-Throws:
-    SolverException If an invalid argument name or reference is encountered.)doc";
 
 static const char *__doc_SubZeroRule = R"doc()doc";
 

@@ -194,6 +194,70 @@ class Solver:
             SolverException If a variable name is invalid, or expression parsing fails,
             etc.
         """
+    def generate_animation_data(self, expression: str, variable: str, start: float, end: float, steps: int) -> tuple[list[float], list[float]]:
+        """
+        Efficiently generates animation data for visualizing a function.
+        
+        This optimized version evaluates the function in bulk rather than iterating over
+        individual points.
+        
+        Parameter ``expression``:
+            The function to evaluate.
+        
+        Parameter ``variable``:
+            The variable to sweep across.
+        
+        Parameter ``start``:
+            The starting value of the variable.
+        
+        Parameter ``end``:
+            The ending value of the variable.
+        
+        Parameter ``steps``:
+            The number of steps (frames) to generate.
+        
+        Returns:
+            A tuple (x_values, y_values), where x_values are input values and y_values
+            are computed results.
+        """
+    def generate_contour_data(self, expression: str, variable1: str, variable2: str, start1: float, end1: float, steps1: int, start2: float, end2: float, steps2: int) -> tuple[list[float], list[float], list[list[float]]]:
+        """
+        Efficiently generates contour data for 3D surface plots.
+        
+        This function uses batch evaluation to compute values over a grid of (x, y)
+        coordinates.
+        
+        Parameter ``expression``:
+            The function to evaluate.
+        
+        Parameter ``variable1``:
+            The first variable (x-axis).
+        
+        Parameter ``variable2``:
+            The second variable (y-axis).
+        
+        Parameter ``start1``:
+            The start value for variable1.
+        
+        Parameter ``end1``:
+            The end value for variable1.
+        
+        Parameter ``steps1``:
+            The number of steps for variable1.
+        
+        Parameter ``start2``:
+            The start value for variable2.
+        
+        Parameter ``end2``:
+            The end value for variable2.
+        
+        Parameter ``steps2``:
+            The number of steps for variable2.
+        
+        Returns:
+            A tuple (x_values, y_values, z_values), where z_values is a 2D matrix of
+            results.
+        """
     def get_current_expression(self) -> str:
         """
         Retrieves the most recently set expression string.
