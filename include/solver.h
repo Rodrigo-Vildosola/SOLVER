@@ -129,6 +129,40 @@ public:
                                           const std::string& expression,
                                           bool debug);
 
+
+    /**
+     * @brief Computes the derivative of an expression with respect to a variable.
+     *
+     * @param expression The function to differentiate.
+     * @param variable The variable with respect to which differentiation is performed.
+     * @param atValue The point at which the derivative is evaluated.
+     * @param method The numerical differentiation method (e.g., "central", "forward", "backward").
+     * @param epsilon The small delta for numerical differentiation.
+     * @return The computed derivative value.
+     */
+    NUMBER_TYPE evaluateDerivative(const std::string& expression, 
+                                   const std::string& variable, 
+                                   NUMBER_TYPE atValue, 
+                                   const std::string& method = "central", 
+                                   NUMBER_TYPE epsilon = 1e-5);
+
+
+    /**
+     * @brief Computes the definite integral of an expression over a range using numerical methods.
+     *
+     * @param expression The function to integrate.
+     * @param variable The variable of integration.
+     * @param lower The lower bound of integration.
+     * @param upper The upper bound of integration.
+     * @param steps Number of steps to divide the interval (higher = more precision).
+     * @return The computed integral value.
+     */
+    NUMBER_TYPE evaluateIntegral(const std::string& expression, 
+                                const std::string& variable, 
+                                NUMBER_TYPE lower, 
+                                NUMBER_TYPE upper, 
+                                size_t steps = 1000);
+
     /**
      * @brief Registers a predefined function with a C++ callback.
      * 

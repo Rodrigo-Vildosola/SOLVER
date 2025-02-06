@@ -314,3 +314,82 @@ std::tuple<NumberList, NumberList, NumberMatrix> Solver::generateContourData(
 
     return std::make_tuple(x_values, y_values, z_values);
 }
+
+
+#pragma region Calculus
+
+NUMBER_TYPE Solver::evaluateDerivative(
+    const std::string& expression,
+    const std::string& variable,
+    NUMBER_TYPE atValue,
+    const std::string& method,
+    NUMBER_TYPE epsilon) 
+{
+    PROFILE_FUNCTION();
+
+    auto replaceVariable = [](const std::string& expr, const std::string& var, NUMBER_TYPE value) {
+        std::string modifiedExpr = expr;
+        size_t pos = modifiedExpr.find(var);
+        if (pos != std::string::npos) {
+            modifiedExpr.replace(pos, var.length(), std::to_string(value));
+        }
+        return modifiedExpr;
+    };
+
+    std::string expr_fwd = replaceVariable(expression, variable, atValue + epsilon);
+    std::string expr_bwd = replaceVariable(expression, variable, atValue - epsilon);
+    std::string expr_mid = replaceVariable(expression, variable, atValue);
+
+    // Forward Difference: f'(x) ≈ (f(x + ε) - f(x)) / ε
+    if (method == "forward") {
+        return (evaluate(expr_fwd) - evaluate(expr_mid)) / epsilon;
+    }
+    // Backward Difference: f'(x) ≈ (f(x) - f(x - ε)) / ε
+    else if (method == "backward") {
+        return (evaluate(expr_mid) - evaluate(expr_bwd)) / epsilon;
+    }
+    // Central Difference (default): f'(x) ≈ (f(x + ε) - f(x - ε)) / (2ε)
+    else {
+        return (evaluate(expr_fwd) - evaluate(expr_bwd)) / (2 * epsilon);
+    }
+}
+
+
+NUMBER_TYPE Solver::evaluateIntegral(
+    const std::string& expression,
+    const std::string& variable,
+    NUMBER_TYPE lower,
+    NUMBER_TYPE upper,
+    size_t steps) 
+{
+    PROFILE_FUNCTION();
+
+    NUMBER_TYPE stepSize = (upper - lower) / steps;
+    NUMBER_TYPE integral = 0.0;
+
+    auto replaceVariable = [](const std::string& expr, const std::string& var, NUMBER_TYPE value) {
+        std::string modifiedExpr = expr;
+        size_t pos = modifiedExpr.find(var);
+        if (pos != std::string::npos) {
+            modifiedExpr.replace(pos, var.length(), std::to_string(value));
+        }
+        return modifiedExpr;
+    };
+
+    for (size_t i = 0; i < steps; ++i) {
+        NUMBER_TYPE x1 = lower + i * stepSize;
+        NUMBER_TYPE x2 = lower + (i + 1) * stepSize;
+
+        NUMBER_TYPE f_x1 = evaluate(replaceVariable(expression, variable, x1));
+        NUMBER_TYPE f_x2 = evaluate(replaceVariable(expression, variable, x2));
+
+        integral += 0.5 * (f_x1 + f_x2) * stepSize;
+    }
+
+    return integral;
+}
+
+
+
+
+#pragma endregion
