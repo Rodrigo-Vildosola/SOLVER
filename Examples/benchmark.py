@@ -8,7 +8,7 @@ from solver import Solver, SolverException
 def setup_solver():
     """Initialize and return a configured custom solver instance."""
     solver = Solver()
-    solver.use_cache(False)
+    solver.use_cache(True)
     try:
         solver.declare_constant("pi", np.pi)
         solver.declare_variable("x", 10)

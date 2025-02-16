@@ -145,12 +145,9 @@ ASTNode* Solver::parseAST(const std::string& expression, bool debug) {
     ASTNode * simplified = Simplification::simplifyAST(root, functions);
 
     if (debug) {
-        std::cout << "Flattened AST: ";
-        AST::printAST(root);
         std::cout << "Simplified AST: ";
         AST::printAST(simplified);
     }
-
 
     return simplified; 
 }
