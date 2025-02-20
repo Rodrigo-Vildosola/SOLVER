@@ -48,7 +48,7 @@ void Solver::declareVariable(const std::string& name, NUMBER_TYPE value) {
 
 EvalFunc Solver::compileExpression(const std::string &expression, bool debug) {
     // Tokenize the expression
-    auto tokens = TokenizerNew::tokenize(expression);
+    auto tokens = Tokenizer::tokenize(expression);
     // Convert tokens to postfix using the shunting-yard algorithm
     auto postfix = Postfix::shuntingYard(tokens);
     // Flatten any user-defined functions
