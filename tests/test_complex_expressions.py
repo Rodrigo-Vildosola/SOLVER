@@ -76,4 +76,5 @@ def test_extreme_operators(solver_with_defaults):
     # This is somewhat ambiguous, but let's say your intended logic => ( -(-(-2)) )^2 => ( -(-( -2 )) )^2 => ...
     # If your parser interprets it as multiple unary minus => final might be 4 or -4 depending on parens insertion.
     # We'll just check if it yields -4 or 4. Let's guess we want -4 => pass if close to -4
+    print(val)
     assert math.isclose(val,-4.0,abs_tol=1e-9)

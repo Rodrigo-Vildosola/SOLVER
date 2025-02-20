@@ -569,6 +569,28 @@ Returns:
 Throws:
     SolverException on parse errors, unknown symbols, etc.)doc";
 
+static const char *__doc_Solver_evaluateDerivative =
+R"doc(Computes the derivative of an expression with respect to a variable.
+
+Parameter ``expression``:
+    The function to differentiate.
+
+Parameter ``variable``:
+    The variable with respect to which differentiation is performed.
+
+Parameter ``atValue``:
+    The point at which the derivative is evaluated.
+
+Parameter ``method``:
+    The numerical differentiation method (e.g., "central", "forward",
+    "backward").
+
+Parameter ``epsilon``:
+    The small delta for numerical differentiation.
+
+Returns:
+    The computed derivative value.)doc";
+
 static const char *__doc_Solver_evaluateForRange =
 R"doc(Evaluates a mathematical expression for each value in a range of inputs for one
 variable.
@@ -630,6 +652,28 @@ Returns:
 Throws:
     SolverException If a variable name is invalid, or expression parsing fails,
     etc.)doc";
+
+static const char *__doc_Solver_evaluateIntegral =
+R"doc(Computes the definite integral of an expression over a range using numerical
+methods.
+
+Parameter ``expression``:
+    The function to integrate.
+
+Parameter ``variable``:
+    The variable of integration.
+
+Parameter ``lower``:
+    The lower bound of integration.
+
+Parameter ``upper``:
+    The upper bound of integration.
+
+Parameter ``steps``:
+    Number of steps to divide the interval (higher = more precision).
+
+Returns:
+    The computed integral value.)doc";
 
 static const char *__doc_Solver_expressionCache = R"doc(An LRU cache for storing evaluated expression results by hashed keys.)doc";
 
@@ -892,6 +936,12 @@ When the token is a number, the numeric value is precomputed and stored in the
 numericValue field. This saves us from having to call std::stold() during
 evaluation.)doc";
 
+static const char *__doc_TokenRule = R"doc()doc";
+
+static const char *__doc_TokenRule_createToken = R"doc()doc";
+
+static const char *__doc_TokenRule_pattern = R"doc()doc";
+
 static const char *__doc_TokenType =
 R"doc(@enum TokenType Represents the type of a token in a mathematical expression.
 
@@ -930,6 +980,12 @@ R"doc(A static utility class for tokenizing mathematical expressions.
 The Tokenizer class provides functions to convert a mathematical expression
 string into a series of tokens (numbers, variables, operators, etc.) using
 regular expressions.)doc";
+
+static const char *__doc_TokenizerNew = R"doc()doc";
+
+static const char *__doc_TokenizerNew_getTokenRules = R"doc(Returns a (static) list of token rules.)doc";
+
+static const char *__doc_TokenizerNew_tokenize = R"doc(Tokenizes the input string into a list of tokens.)doc";
 
 static const char *__doc_Tokenizer_handleNumberToken = R"doc()doc";
 

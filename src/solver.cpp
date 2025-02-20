@@ -4,6 +4,8 @@
 #include "validator.h"
 #include "debug.h"
 #include "tokenizer.h"
+#include "tokenizer_new.h"
+
 #include "ast.h"
 #include "compiler.h"
 
@@ -46,7 +48,7 @@ void Solver::declareVariable(const std::string& name, NUMBER_TYPE value) {
 
 EvalFunc Solver::compileExpression(const std::string &expression, bool debug) {
     // Tokenize the expression
-    auto tokens = Tokenizer::tokenize(expression);
+    auto tokens = TokenizerNew::tokenize(expression);
     // Convert tokens to postfix using the shunting-yard algorithm
     auto postfix = Postfix::shuntingYard(tokens);
     // Flatten any user-defined functions
@@ -212,7 +214,7 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
 
     try {
         // Tokenize and convert the function body to postfix
-        auto tokens = Tokenizer::tokenize(expression);
+        auto tokens = TokenizerNew::tokenize(expression);
         auto postfix = Postfix::shuntingYard(tokens);
         auto flattened = Postfix::flattenPostfix(postfix, functions);
 
