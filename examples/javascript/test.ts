@@ -1,8 +1,6 @@
 // test.mjs
 import { createSolverModule, SolverModule } from './solver';
 
-// Emscripten with MODULARIZE=1 exports a default function 
-// that returns a promise resolving to the module instance.
 async function main() {
   // "Solver" is the class_ we exposed in EMSCRIPTEN_BINDINGS
   const mod: SolverModule = await createSolverModule();
