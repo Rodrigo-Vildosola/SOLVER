@@ -3,7 +3,6 @@
 #include "pch.h"
 
 /**
- * @class SolverException
  * @brief Custom exception class for handling errors in the Solver class.
  * 
  * The SolverException class is derived from std::runtime_error and is thrown when
