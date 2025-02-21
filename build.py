@@ -67,17 +67,17 @@ class BuildFramework:
         # Get Python library path.
         if platform.system() == "Windows":
             python_library = os.path.join(sysconfig.get_config_var('LIBDIR'),
-                                          f"python{py_version.replace('.', '')}.lib")
+                                        f"python{py_version.replace('.', '')}.lib")
         elif platform.system() == "Darwin":
             python_library = os.path.join(sysconfig.get_config_var('LIBDIR'),
-                                          f"libpython{py_version}.dylib")
+                                        f"libpython{py_version}.dylib")
         else:
             python_library = os.path.join(sysconfig.get_config_var('LIBDIR'),
-                                          f"libpython{py_version}.so")
+                                        f"libpython{py_version}.so")
         
         # Choose the CMake command and generator.
         if target == "wasm":
-            cmake_cmd = "emcmake"
+            cmake_cmd = "emcmake cmake"
             generator = None
         else:
             cmake_cmd = "cmake"
@@ -104,11 +104,13 @@ class BuildFramework:
         cmake_args.append(f"-DMODULE_NAME=_{self.config.library_name}")
         
         cli_print(f"Configuring CMake for target '{target}'...", level="info")
-        cmd = [cmake_cmd, self.root_dir] + cmake_args
-        subprocess.check_call(cmd, cwd=self.build_temp)
+        
+        # Build a single command line string so that shell splitting works properly.
+        cmd = f"{cmake_cmd} -S {self.root_dir} -B {self.build_temp} " + " ".join(cmake_args)
+        subprocess.check_call(cmd, cwd=self.build_temp, shell=True)
         cli_print("CMake configuration completed.", level="info")
         return ext_file_ext
-    
+
     def build_cmake(self, target: str = "python"):
         """Invokes the CMake build."""
         if platform.system() == "Windows":

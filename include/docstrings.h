@@ -1030,7 +1030,7 @@ R"doc(Validate the syntax of the given expression.
 Parameter ``expression``:
     The expression to validate.)doc";
 
-static const char *__doc__unnamed_class_at_include_exception_h_11_7 =
+static const char *__doc__unnamed_class_at_Users_rodrigovildosola_VSPROJECTS_CPP_MATH_Solver_include_exception_h_11_7 =
 R"doc(Custom exception class for handling errors in the Solver class.
 
 The SolverException class is derived from std::runtime_error and is thrown when

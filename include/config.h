@@ -7,7 +7,7 @@
 #include <limits>
 #include <iostream>
 
-// #define PREFER_DOUBLE
+#define PREFER_DOUBLE
 // #define PREFER_FLOAT
 
 // ==================

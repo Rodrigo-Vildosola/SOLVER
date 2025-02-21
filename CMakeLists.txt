@@ -35,6 +35,9 @@ file(GLOB_RECURSE LIB_HEADERS "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.h" "${CMAKE_
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     message(STATUS "Building for WebAssembly with Emscripten")
+    # Add include directories for the WASM target (so headers like compiler.h, pch.h, etc. are found)
+    include_directories("${CMAKE_SOURCE_DIR}/${HEADERS_DIR}")
+
     # Locate JavaScript binding sources (written with Embind)
     file(GLOB_RECURSE JS_BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/javascript/*.cpp")
     # Build an executable target (Emscripten converts this to a .js loader + .wasm)
@@ -42,8 +45,8 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     # Set properties so that Emscripten outputs a .js file and proper linker flags
     set_target_properties(${LIB_NAME}_js PROPERTIES 
         SUFFIX ".js"
-        LINK_FLAGS "-s MODULARIZE=1 -s EXPORT_NAME='SolverModule' -O3 -s ALLOW_MEMORY_GROWTH=1"
-    )
+        LINK_FLAGS "-s MODULARIZE=1 -s EXPORT_NAME='SolverModule' -O3 -s ALLOW_MEMORY_GROWTH=1 -lembind"
+        )
 else()
     message(STATUS "Building native Python bindings")
     # Locate Python binding sources (using Pybind11)
@@ -62,19 +65,19 @@ else()
 endif()
 
 # Compiler-specific options (example for GCC/Clang/MSVC)
-if (MSVC)
-    target_compile_options(${LIB_NAME} PRIVATE 
-        /W3 /EHsc /WX- 
-        /D_CRT_SECURE_NO_WARNINGS
-    )
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(${LIB_NAME} PRIVATE 
-        -Wall -Wundef -Wpedantic -Wextra 
-        -Wuninitialized -Winit-self 
-        -Wno-missing-field-initializers
-        -Wno-unknown-pragmas
-    )
-endif()
+# if (MSVC)
+#     target_compile_options(${LIB_NAME} PRIVATE 
+#         /W3 /EHsc /WX- 
+#         /D_CRT_SECURE_NO_WARNINGS
+#     )
+# elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+#     target_compile_options(${LIB_NAME} PRIVATE 
+#         -Wall -Wundef -Wpedantic -Wextra 
+#         -Wuninitialized -Winit-self 
+#         -Wno-missing-field-initializers
+#         -Wno-unknown-pragmas
+#     )
+# endif()
 
 if (WIN32)
     message(STATUS "Building on Windows")

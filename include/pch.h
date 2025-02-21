@@ -1,6 +1,10 @@
 #pragma once
 
 
+#ifndef __EMSCRIPTEN__
+#include <Python.h>
+#endif
+
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -20,8 +24,6 @@
 #include <algorithm>
 #include <list>
 #include <future>
-
-#include <Python.h>
 
 #include "utils/profiler.h"
 #include "config.h"
