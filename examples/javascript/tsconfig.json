@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    // Output the compiled .js into dist
+    "outDir": "dist",
+    // Or "ES2020", etc., depending on features needed
+    "target": "ES2019",
+    "module": "CommonJS",
+    // If you want type-checking on .d.ts usage, you might enable strict modes:
+    "strict": true,
+    // If you use import syntax in test.ts, you may need:
+    "esModuleInterop": true,
+    "allowJs": true
+  },
+  "include": [
+    "test.ts",
+    "solver/**/*"
+  ]
+}

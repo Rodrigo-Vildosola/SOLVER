@@ -23,12 +23,22 @@ using EvaluateForRangesSig = std::vector<double> (Solver::*)(
 );
 
 EMSCRIPTEN_BINDINGS(solver_module) {
+    // Register std::vector<double> so it’s understood as an array in JS.
+    register_vector<double>("VectorDouble");
+    register_vector<float>("VectorFloat");
+
+    // If you pass vectors of vectors or vectors of strings, also register them:
+    register_vector<std::string>("VectorString");
+    register_vector<std::vector<double>>("VectorOfVectorDouble");
+
     class_<Solver>("Solver")
         .constructor<size_t>()
         
         // Basic solver usage
         .function("declare_constant", &Solver::declareConstant)
         .function("declare_variable", &Solver::declareVariable)
+        .function("declare_function", &Solver::declareFunction)
+
         .function("evaluate", &Solver::evaluate)
         
         // Additional methods

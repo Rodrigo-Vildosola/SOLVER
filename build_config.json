@@ -21,7 +21,7 @@
     "build_directory": ".build",
   
     "extra_directories": [
-      "examples",
+      "examples/python",
       "tests"
     ],
   

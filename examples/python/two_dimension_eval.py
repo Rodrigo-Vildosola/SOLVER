@@ -15,7 +15,7 @@ def main():
     x_vals = np.linspace(-2, 2, 50)
     y_vals = np.linspace(-2, 2, 50)
 
-    expression = "x^3 + y^4"
+    expression = "x^2 + sin(y)"
 
     try:
         results = solver.evaluate_ranges(

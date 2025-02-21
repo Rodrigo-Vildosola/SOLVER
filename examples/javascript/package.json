@@ -1,0 +1,13 @@
+{
+  "name": "solver-js-demo",
+  "version": "0.1.0",
+  "description": "Node.js demo for using the solver WASM module",
+  "scripts": {
+    "build": "tsc && cp solver/solver_js.wasm dist/solver/solver_js.wasm",
+    "start": "npm run build && node dist/test.js"
+  },
+  "devDependencies": {
+      "ts-node": "^10.9.2",
+      "typescript": "^5.7.3"
+  }
+}
