@@ -41,9 +41,9 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     # Locate JavaScript binding sources (written with Embind)
     file(GLOB_RECURSE JS_BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/javascript/*.cpp")
     # Build an executable target (Emscripten converts this to a .js loader + .wasm)
-    add_executable(${LIB_NAME}_js ${LIB_SRC} ${JS_BINDING_SRC})
+    add_executable(_${LIB_NAME} ${LIB_SRC} ${JS_BINDING_SRC})
     # Set properties so that Emscripten outputs a .js file and proper linker flags
-    set_target_properties(${LIB_NAME}_js PROPERTIES 
+    set_target_properties(_${LIB_NAME} PROPERTIES 
         SUFFIX ".js"
         LINK_FLAGS "-s MODULARIZE=1 -s EXPORT_NAME='SolverModule' -O3 -s ALLOW_MEMORY_GROWTH=1 -lembind"
         )
