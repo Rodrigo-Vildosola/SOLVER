@@ -34,22 +34,14 @@ EMSCRIPTEN_BINDINGS(solver_module) {
     class_<Solver>("Solver")
         .constructor<size_t>()
         
-        // Basic solver usage
         .function("declare_constant", &Solver::declareConstant)
         .function("declare_variable", &Solver::declareVariable)
         .function("declare_function", &Solver::declareFunction)
 
         .function("evaluate", &Solver::evaluate)
-        
-        // Additional methods
-        .function(
-            "evaluate_range",
-            &Solver::evaluateForRange
-        )
-        .function(
-            "evaluate_ranges",
-            &Solver::evaluateForRanges
-        )
+
+        .function("evaluate_range", &Solver::evaluateForRange)
+        .function("evaluate_ranges", &Solver::evaluateForRanges)
         
         .function("clear_cache", &Solver::clearCache)
         .function("use_cache", &Solver::setUseCache)
