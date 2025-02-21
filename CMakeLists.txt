@@ -31,7 +31,7 @@ add_compile_definitions(MODULE_NAME=${MODULE_NAME})
 
 file(GLOB_RECURSE LIB_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE LIB_HEADERS "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.h" "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.hpp")
-file(GLOB_RECURSE BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/*.cpp")
+file(GLOB_RECURSE BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/python/*.cpp")
 
 # Add include directories (Python and project-specific headers)
 message(STATUS "THIS: ${CMAKE_SOURCE_DIR}/${HEADERS_DIR}")
