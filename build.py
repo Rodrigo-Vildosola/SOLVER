@@ -122,10 +122,6 @@ class BuildFramework:
         cli_print("CMake build completed successfully.", level="info")
     
     def find_and_move_shared_object(self, ext_file_ext: str, lib_temp: str):
-        """
-        Finds the compiled shared object in the build directory and moves it to lib_temp.
-        Returns the filename of the shared object.
-        """
         module_prefix = f"_{self.config.library_name}"
         compiled_file = next(
             (f for f in os.listdir(self.build_temp)
@@ -147,6 +143,26 @@ class BuildFramework:
         os.rename(src, dst)
         cli_print(f"Moved shared object '{compiled_file}' to {lib_temp}", level="info")
         return compiled_file
+
+    def find_and_move_wasm_module(self, lib_temp: str):
+        module_prefix = f"_{self.config.library_name}"
+        js_file = next(
+            (f for f in os.listdir(self.build_temp)
+                if f == f"{module_prefix}.js"),
+            None
+        )
+        wasm_file = next(
+            (f for f in os.listdir(self.build_temp)
+                if f == f"{module_prefix}.wasm"),
+            None
+        )
+        if not wasm_file or not js_file:
+            raise RuntimeError("No extension file found in the build directory.")
+        os.rename(os.path.join(self.build_temp, wasm_file), os.path.join(lib_temp, wasm_file))
+        os.rename(os.path.join(self.build_temp, js_file), os.path.join(lib_temp, js_file))
+
+        cli_print(f"Moved wasm module '{wasm_file}' to {lib_temp}", level="info")
+        return wasm_file, js_file
     
     def generate_init_file(self, lib_temp: str, compiled_file: str):
         """Generates an __init__.py file to expose the module."""
@@ -168,6 +184,7 @@ class BuildFramework:
         Copies the generated files from the build subdirectory to the specified destination directories.
         """
         source_dir = os.path.join(self.build_temp, self.config.library_name)
+        print(f"This is source dir: {source_dir} : {self.build_temp} : {self.config.library_name}")
         if not os.path.exists(source_dir):
             cli_print(f"Source directory '{source_dir}' does not exist.", level="error")
             raise RuntimeError(f"Source directory '{source_dir}' does not exist.")
@@ -215,6 +232,9 @@ class BuildFramework:
             destinations = [os.path.abspath(d) for d in self.config.extra_directories]
             self.copy_generated_files(destinations)
         elif target == "wasm":
+            wasm_file, js_file = self.find_and_move_wasm_module(lib_temp)
+            # destinations = [os.path.abspath(d) for d in self.config.extra_directories]
+            # self.copy_generated_files(destinations)
             cli_print("WASM target build complete. WebAssembly artifacts are available in the build directory.", level="info")
         
         cli_print("Build process completed successfully.", level="success")
