@@ -12,6 +12,9 @@ async function main() {
   // Create a solver instance with an LRU cache size of 100
   const solver = new Solver(100);
 
+  const args = ["x", "y"];
+  solver.declare_function("f", args, "x + 8 + y");
+
   // Declare a variable and evaluate an expression
   solver.declare_variable("x", 3);
   const result1 = solver.evaluate("x^2 + 1");

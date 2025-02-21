@@ -68,8 +68,7 @@ export interface SolverInstance {
    * @throws SolverException If the function name is invalid, the syntax is incorrect,
    *         or a function by the same name already exists.
    */
-  declare_function(name: string, value: number): void;
-
+  declare_function(name: string, args: string[], expression: string): void;
 
   /**
    * Evaluates a mathematical expression and returns its numeric result.
