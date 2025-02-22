@@ -1,1 +1,1 @@
-../../../.build/_solver.js
+../../../.build/solver/_solver.js
