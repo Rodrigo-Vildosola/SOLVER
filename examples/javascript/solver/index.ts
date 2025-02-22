@@ -22,13 +22,14 @@ export { createSolverModule };
  * @param items - The JavaScript array to convert.
  * @returns An instance of the Embind vector with all items added.
  */
-export function arrayToVector<T>(
-  VectorConstructor: { new(): { push_back(item: T): void } },
+export function arrayToVector<T, V extends { push_back(item: T): void }>(
+  VectorConstructor: { new (): V },
   items: T[]
-): InstanceType<typeof VectorConstructor> {
+): V {
   const vector = new VectorConstructor();
   for (const item of items) {
     vector.push_back(item);
   }
   return vector;
 }
+

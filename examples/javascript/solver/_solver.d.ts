@@ -20,11 +20,30 @@
 declare function createSolverModule(): Promise<SolverModule>;
 
 /**
+ * A generic interface for Embind vectors.
+ * Note: These types are not plain arrays, they are objects with methods like push_back.
+ */
+export interface EmbindVector<T> {
+  push_back(item: T): void;
+  resize(newSize: number, defaultValue: T): void;
+  size(): number;
+  get(index: number): T;
+  set(index: number, value: T): void;
+}
+
+/**
+ * Registered vector types from Embind.
+ */
+export interface VectorDouble extends EmbindVector<number> {}
+export interface VectorFloat extends EmbindVector<number> {}
+export interface VectorString extends EmbindVector<string> {}
+export interface VectorOfVectorDouble extends EmbindVector<VectorDouble> {}
+
+/**
  * The shape of the module returned by `createSolverModule()`.
- * It exposes a `Solver` class that we can instantiate and use.
+ * It exposes a `Solver` class and the vector constructors.
  */
 export interface SolverModule {
-  [x: string]: any;
   /**
    * The Solver class from the WASM build.
    */
@@ -33,18 +52,35 @@ export interface SolverModule {
      * Constructs a new Solver with an optional LRU cache size.
      * @param exprCacheSize The maximum number of entries the expression cache can hold (default 100).
      */
-    new(exprCacheSize?: number): SolverInstance;
+    new (exprCacheSize?: number): SolverInstance;
   };
+  /**
+   * Constructor for a vector of doubles.
+   */
+  VectorDouble: {
+    new (): VectorDouble;
+  };
+  /**
+   * Constructor for a vector of floats.
+   */
+  VectorFloat: {
+    new (): VectorFloat;
+  };
+  /**
+   * Constructor for a vector of strings.
+   */
+  VectorString: {
+    new (): VectorString;
+  };
+  /**
+   * Constructor for a vector of vectors of doubles.
+   */
+  VectorOfVectorDouble: {
+    new (): VectorOfVectorDouble;
+  };
+  // Allow any additional properties.
+  [x: string]: any;
 }
-
-/**
- * Registered vector types from Embind.
- * These types represent the corresponding C++ std::vector types.
- */
-export type VectorDouble = number[];
-export type VectorFloat = number[];
-export type VectorString = string[];
-export type VectorOfVectorDouble = number[][];
 
 /**
  * Represents an instance of the Solver class in JavaScript.
@@ -66,19 +102,12 @@ export interface SolverInstance {
   declare_variable(name: string, value: number): void;
 
   /**
-   * @brief Declares a user-defined function in terms of an expression and parameter list.
-   * 
-   * Internally, this parses the expression to a flattened postfix form and stores it, along
-   * with the argument names. When invoked in other expressions, the function is inlined
-   * (substituted for its body) or evaluated as needed.
-   * 
+   * Declares a user-defined function in terms of an expression and parameter list.
    * @param name The function name (e.g. "f").
-   * @param args A list of parameter names (e.g. ["x", "y"]).
+   * @param args A vector of parameter names (use mod.VectorString).
    * @param expression The expression defining the function body (e.g. "x^2 + y^2").
-   * @throws SolverException If the function name is invalid, the syntax is incorrect,
-   *         or a function by the same name already exists.
    */
-  declare_function(name: string, args: string[], expression: string): void;
+  declare_function(name: string, args: VectorString, expression: string): void;
 
   /**
    * Evaluates a mathematical expression and returns its numeric result.
@@ -90,27 +119,27 @@ export interface SolverInstance {
   /**
    * Evaluates a mathematical expression for each value in a range of inputs for one variable.
    * @param variable The name of the variable, e.g. "x".
-   * @param values A list of numeric values to assign to that variable.
+   * @param values A vector of numeric values (use mod.VectorDouble) to assign to that variable.
    * @param expression The expression to evaluate, e.g. "x^2 + 1".
    * @param debug Optional debug flag.
-   * @returns An array of results, one per input value in `values`.
+   * @returns A vector of results, one per input value.
    */
-  evaluate_range(variable: string, values: number[], expression: string, debug?: boolean): number[];
+  evaluate_range(variable: string, values: VectorDouble, expression: string, debug?: boolean): VectorDouble;
 
   /**
    * Evaluates a single expression across multiple variables, each with a range of values.
-   * @param variables A list of variable names, e.g. ["x", "y"].
-   * @param valuesSets An array of arrays of numeric values for each variable.
+   * @param variables A vector of variable names (use mod.VectorString), e.g. ["x", "y"].
+   * @param valuesSets A vector of vectors of numeric values (use mod.VectorOfVectorDouble) for each variable.
    * @param expression The expression to evaluate, e.g. "x+y".
    * @param debug Optional debug flag.
-   * @returns A flat array of results of size = product of each value set length.
+   * @returns A flat vector of results of size = product of each value set length.
    */
   evaluate_ranges(
-    variables: string[],
-    valuesSets: number[][],
+    variables: VectorString,
+    valuesSets: VectorOfVectorDouble,
     expression: string,
     debug?: boolean
-  ): number[];
+  ): VectorDouble;
 
   /**
    * Clears the solver's expression cache and function cache.
@@ -122,10 +151,6 @@ export interface SolverInstance {
    * @param useCache True to enable caching, false to disable.
    */
   use_cache(useCache: boolean): void;
-
-  // ... If you have more methods (declareFunction, etc.), you can add them here:
-  // declare_function(...): void;
-  // etc.
 }
 
 /**
