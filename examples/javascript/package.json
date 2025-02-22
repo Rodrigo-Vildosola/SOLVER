@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Node.js demo for using the solver WASM module",
   "scripts": {
-    "build": "tsc && cp solver/solver_js.wasm dist/solver/solver_js.wasm",
+    "build": "tsc && cp solver/_solver.wasm dist/solver/_solver.wasm",
     "start": "npm run build && node dist/test.js"
   },
   "devDependencies": {

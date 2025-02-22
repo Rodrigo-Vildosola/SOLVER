@@ -24,6 +24,7 @@ declare function createSolverModule(): Promise<SolverModule>;
  * It exposes a `Solver` class that we can instantiate and use.
  */
 export interface SolverModule {
+  [x: string]: any;
   /**
    * The Solver class from the WASM build.
    */
@@ -35,6 +36,15 @@ export interface SolverModule {
     new(exprCacheSize?: number): SolverInstance;
   };
 }
+
+/**
+ * Registered vector types from Embind.
+ * These types represent the corresponding C++ std::vector types.
+ */
+export type VectorDouble = number[];
+export type VectorFloat = number[];
+export type VectorString = string[];
+export type VectorOfVectorDouble = number[][];
 
 /**
  * Represents an instance of the Solver class in JavaScript.
