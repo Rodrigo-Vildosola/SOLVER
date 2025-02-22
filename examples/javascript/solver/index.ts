@@ -33,3 +33,13 @@ export function arrayToVector<T, V extends { push_back(item: T): void }>(
   return vector;
 }
 
+export function vectorToArray<T, V extends { size(): number; get(index: number): T }>(vector: V): T[] {
+  const arr: T[] = [];
+  const len = vector.size();
+  for (let i = 0; i < len; i++) {
+    arr.push(vector.get(i));
+  }
+  return arr;
+}
+
+
