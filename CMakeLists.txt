@@ -45,7 +45,7 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     # Set properties so that Emscripten outputs a .js file and proper linker flags
     set_target_properties(_${LIB_NAME} PROPERTIES 
         SUFFIX ".js"
-        LINK_FLAGS "-s MODULARIZE=1 -s EXPORT_NAME='createSolverModule' -O3 -s ALLOW_MEMORY_GROWTH=1 -lembind -fexceptions"
+        LINK_FLAGS "-s MODULARIZE=1 -s EXPORT_NAME='createSolverModule' -s EXPORT_ES6=1 -O3 -s ALLOW_MEMORY_GROWTH=1 -lembind -fexceptions"
         )
 else()
     message(STATUS "Building native Python bindings")

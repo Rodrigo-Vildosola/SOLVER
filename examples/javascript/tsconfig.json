@@ -4,12 +4,13 @@
     "outDir": "dist",
     // Or "ES2020", etc., depending on features needed
     "target": "ES2019",
-    "module": "CommonJS",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     // If you want type-checking on .d.ts usage, you might enable strict modes:
     "strict": true,
     // If you use import syntax in test.ts, you may need:
     "esModuleInterop": true,
-    "allowJs": true
+    "allowJs": true,
   },
   "include": [
     "test.ts",
