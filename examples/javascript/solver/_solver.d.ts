@@ -202,6 +202,8 @@ export interface SolverInstance {
     callback: (args: number[]) => number,
     argCount: number
   ): void;
+
+  delete(): void;
 }
 
 /**

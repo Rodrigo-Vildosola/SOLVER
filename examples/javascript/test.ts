@@ -35,6 +35,9 @@ async function main() {
     // ex is a raw pointer number; call our helper to get a message.
     console.error("C++ Exception: " + getExceptionMessage(ex));
   }
+
+  solver.delete()
+  console.log("Solver deleted")
 };
 
 main().catch((err) => {

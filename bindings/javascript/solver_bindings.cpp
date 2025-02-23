@@ -56,7 +56,6 @@ val evaluateForRangesWrapper(Solver& solver, const val& jsVariables, const val& 
     }
     
     std::vector<NUMBER_TYPE> result = solver.evaluateForRanges(variables, valuesSets, expression, debug);
-    // Manually convert the result to a native JS array:
     return vectorToJSArray(result);
 }
 
@@ -134,10 +133,6 @@ void bind_solver() {
         .function("set_current_expression", &Solver::setCurrentExpression,
                   allow_raw_pointers())
 
-        .function("set_current_expression_ast", &Solver::setCurrentExpressionAST)
-
-        .function("evaluate_ast", &Solver::evaluateAST)
-
         .function("get_current_expression", &Solver::getCurrentExpression)
 
         // // Numeric returns, bound directly or via a small wrapper:
@@ -151,6 +146,6 @@ void bind_solver() {
         .function("generate_contour_data", &generateContourDataWrapper)
 
         // If you want to expose registerPredefinedFunction for custom JS callbacks:
-        .function("register_predefined_function", &registerPredefinedFunctionWrapper)
+        // .function("register_predefined_function", &registerPredefinedFunctionWrapper)
         ;
 }
