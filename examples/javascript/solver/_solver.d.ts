@@ -35,8 +35,8 @@ export interface SolverModule {
     new (exprCacheSize?: number): SolverInstance;
   };
 
-  getExceptionMessage: Function
-  getException: Function
+  getExceptionMessage: CallableFunction
+  getException: CallableFunction
 
 }
 
@@ -58,14 +58,14 @@ export interface SolverInstance extends ClassHandle {
    * @param name The name of the constant.
    * @param value The numeric value of the constant.
    */
-  declare_constant(name: string, value: number): void;
+  declareConstant(name: string, value: number): void;
 
   /**
    * Declares (or re-declares) a variable in the solver's symbol table.
    * @param name The name of the variable.
    * @param value The numeric value to assign to the variable.
    */
-  declare_variable(name: string, value: number): void;
+  declareVariable(name: string, value: number): void;
 
   /**
    * Declares a user-defined function in terms of an expression and parameter list.
@@ -73,7 +73,7 @@ export interface SolverInstance extends ClassHandle {
    * @param args An array of parameter names (e.g. ["x", "y"]).
    * @param expression The expression defining the function body (e.g. "x^2 + y^2").
    */
-  declare_function(name: string, args: string[], expression: string): void;
+  declareFunction(name: string, args: string[], expression: string): void;
 
   /**
    * Evaluates a mathematical expression and returns its numeric result.
@@ -90,7 +90,7 @@ export interface SolverInstance extends ClassHandle {
    * @param debug Optional debug flag.
    * @returns A plain JavaScript array of results, one per input value.
    */
-  evaluate_range(variable: string, values: number[], expression: string, debug?: boolean): number[];
+  evaluateRange(variable: string, values: number[], expression: string, debug?: boolean): number[];
 
   /**
    * Evaluates a single expression across multiple variables, each with a range of values.
@@ -100,18 +100,18 @@ export interface SolverInstance extends ClassHandle {
    * @param debug Optional debug flag.
    * @returns A flat array of results of size = product of each value set length.
    */
-  evaluate_ranges(variables: string[], valuesSets: number[][], expression: string, debug?: boolean): number[];
+  evaluateRanges(variables: string[], valuesSets: number[][], expression: string, debug?: boolean): number[];
 
   /**
    * Clears the solver's expression cache and function cache.
    */
-  clear_cache(): void;
+  clearCache(): void;
 
   /**
    * Toggles whether the solver uses its LRU cache.
    * @param useCache True to enable caching, false to disable.
    */
-  use_cache(useCache: boolean): void;
+  useCache(useCache: boolean): void;
 
   /**
    * Prints expressions (postfix or inlined) for all registered functions to stdout.
@@ -122,27 +122,27 @@ export interface SolverInstance extends ClassHandle {
    * Lists all declared constants as a JS object where keys are names and values are numbers.
    * @returns An object mapping constant names to their numeric values.
    */
-  list_constants(): Record<string, number>;
+  listConstants(): Record<string, number>;
 
   /**
    * Lists all declared variables as a JS object where keys are names and values are numbers.
    * @returns An object mapping variable names to their current numeric values.
    */
-  list_variables(): Record<string, number>;
+  listVariables(): Record<string, number>;
 
   /**
    * Sets the expression to be evaluated and parses it into a postfix representation.
    * @param expression The new expression to parse and set as current.
    * @param debug If true, prints debug info.
    */
-  set_current_expression(expression: string, debug?: boolean): void;
+  setCurrentExpression(expression: string, debug?: boolean): void;
 
   /**
    * Sets the current expression for AST-based evaluation (builds or re-builds an AST).
    * @param expression The new expression to parse and set as current.
    * @param debug If true, prints debug info.
    */
-  set_current_expression_ast(expression: string, debug?: boolean): void;
+  setCurrentExpressionAST(expression: string, debug?: boolean): void;
 
   /**
    * Evaluates the current expression using the AST pipeline.
@@ -150,13 +150,13 @@ export interface SolverInstance extends ClassHandle {
    * @param debug Whether to print debugging info.
    * @returns The numeric evaluation result.
    */
-  evaluate_ast(expression: string, debug?: boolean): number;
+  evaluateAST(expression: string, debug?: boolean): number;
 
   /**
    * Retrieves the most recently set expression string.
    * @returns The current expression string.
    */
-  get_current_expression(): string;
+  getCurrentExpression(): string;
 
   /**
    * Efficiently generates animation data for visualizing a function.
@@ -167,7 +167,7 @@ export interface SolverInstance extends ClassHandle {
    * @param steps The number of steps (frames) to generate.
    * @returns An object with arrays of x and y values, e.g. { x: number[], y: number[] }.
    */
-  generate_animation_data(
+  generateAnimationData(
     expression: string,
     variable: string,
     start: number,
@@ -188,7 +188,7 @@ export interface SolverInstance extends ClassHandle {
    * @param steps2 The number of steps for variable2.
    * @returns An object with arrays x and y, plus a matrix z, e.g. { x: number[], y: number[], z: number[][] }.
    */
-  generate_contour_data(
+  generateContourData(
     expression: string,
     variable1: string,
     variable2: string,
@@ -207,7 +207,7 @@ export interface SolverInstance extends ClassHandle {
    * @param callback A JavaScript function that accepts an array of numbers and returns a number.
    * @param argCount The arity (number of arguments) for the function.
    */
-  register_predefined_function(
+  registerPredefinedFunction(
     name: string,
     callback: (args: number[]) => number,
     argCount: number

@@ -143,30 +143,30 @@ void registerPredefinedFunctionWrapper(Solver& solver,
 void bind_solver() {
     class_<Solver>("Solver")
         .constructor<size_t>()
-        .function("declare_constant", &Solver::declareConstant)
-        .function("declare_variable", &Solver::declareVariable)
+        .function("declareConstant", &Solver::declareConstant)
+        .function("declareVariable", &Solver::declareVariable)
         // Replace the original functions with our wrappers:
-        .function("declare_function", &declareFunctionWrapper)
+        .function("declareFunction", &declareFunctionWrapper)
         .function("evaluate", &Solver::evaluate)
-        .function("evaluate_range", &evaluateForRangeWrapper)
-        .function("evaluate_ranges", &evaluateForRangesWrapper)
-        .function("clear_cache", &Solver::clearCache)
-        .function("use_cache", &Solver::setUseCache)
+        .function("evaluateRange", &evaluateForRangeWrapper)
+        .function("evaluateRanges", &evaluateForRangesWrapper)
+        .function("clearCache", &Solver::clearCache)
+        .function("useCache", &Solver::setUseCache)
                 // Additional methods:
-        .function("print_function_expressions", &Solver::printFunctionExpressions)
-        .function("list_constants", &listConstantsWrapper)
-        .function("list_variables", &listVariablesWrapper)
+        .function("printFunctionExpressions", &Solver::printFunctionExpressions)
+        .function("listConstants", &listConstantsWrapper)
+        .function("listVariables", &listVariablesWrapper)
 
-        .function("set_current_expression", &Solver::setCurrentExpression,
+        .function("setCurrentExpression", &Solver::setCurrentExpression,
                   allow_raw_pointers())
 
-        .function("get_current_expression", &Solver::getCurrentExpression)
+        .function("getCurrentExpression", &Solver::getCurrentExpression)
 
         // Functions returning tuples need wrappers to produce JS objects:
-        .function("generate_animation_data", &generateAnimationDataWrapper)
-        .function("generate_contour_data", &generateContourDataWrapper)
+        .function("generateAnimationData", &generateAnimationDataWrapper)
+        .function("generateContourData", &generateContourDataWrapper)
 
         // If you want to expose registerPredefinedFunction for custom JS callbacks:
-        .function("register_predefined_function", &registerPredefinedFunctionWrapper)
+        .function("registerPredefinedFunction", &registerPredefinedFunctionWrapper)
         ;
 }
