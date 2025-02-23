@@ -38,11 +38,19 @@ export interface SolverModule {
   getExceptionMessage: Function
 }
 
+export interface ClassHandle {
+  isAliasOf(other: ClassHandle): boolean;
+  delete(): void;
+  deleteLater(): this;
+  isDeleted(): boolean;
+  clone(): this;
+}
+
 /**
  * Represents an instance of the Solver class in JavaScript.
  * This matches the C++ methods you bound in your Embind code.
  */
-export interface SolverInstance {
+export interface SolverInstance extends ClassHandle {
   /**
    * Declares a constant in the solver's symbol table.
    * @param name The name of the constant.
@@ -202,8 +210,6 @@ export interface SolverInstance {
     callback: (args: number[]) => number,
     argCount: number
   ): void;
-
-  delete(): void;
 }
 
 /**
