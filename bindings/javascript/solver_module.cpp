@@ -8,6 +8,7 @@
 
 EMSCRIPTEN_BINDINGS(solver_module) {
     emscripten::function("getExceptionMessage", &getExceptionMessage);
+    emscripten::function("getException", &getException);
 
     emscripten::function("version", &version);
 

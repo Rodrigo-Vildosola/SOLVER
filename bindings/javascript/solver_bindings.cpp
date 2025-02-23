@@ -14,6 +14,33 @@ std::string getExceptionMessage(int exceptionPtr) {
     return reinterpret_cast<SolverException*>(exceptionPtr)->what();
 }
 
+val getException(int exceptionPtr) {
+    // Reinterpret the integer as a pointer to SolverException.
+    SolverException* exception = reinterpret_cast<SolverException*>(exceptionPtr);
+
+    if (!exception) {
+        return val::global("Error").new_(std::string("Null exception pointer received."));
+    }
+
+    // Create a JavaScript Error object with the exception message.
+    val jsError = val::global("Error").new_(std::string(exception->what()));
+
+    // Attach additional metadata
+    jsError.set("cppType", std::string(typeid(*exception).name())); // Exception type
+    jsError.set("message", std::string(exception->what())); // Actual message
+    jsError.set("cppExceptionPointer", exceptionPtr); // Original pointer (for debugging)
+
+    // Simulate a C++ stack trace (only useful if integrated with a logging mechanism)
+    std::stringstream trace;
+    trace << "C++ Exception: " << typeid(*exception).name() << "\n";
+    trace << "Message: " << exception->what() << "\n";
+    trace << "Pointer: " << exceptionPtr;
+    
+    jsError.set("stack", trace.str());
+
+    return jsError;
+}
+
 /**
  * Wrapper for declareFunction:
  * Accepts a JS array for the argument names and converts it to a std::vector<std::string>.
@@ -135,17 +162,11 @@ void bind_solver() {
 
         .function("get_current_expression", &Solver::getCurrentExpression)
 
-        // // Numeric returns, bound directly or via a small wrapper:
-        // .function("evaluate_derivative", &evaluateDerivativeWrapper,
-        //           allow_raw_pointers())
-        // .function("evaluate_integral", &evaluateIntegralWrapper,
-        //           allow_raw_pointers())
-
         // Functions returning tuples need wrappers to produce JS objects:
         .function("generate_animation_data", &generateAnimationDataWrapper)
         .function("generate_contour_data", &generateContourDataWrapper)
 
         // If you want to expose registerPredefinedFunction for custom JS callbacks:
-        // .function("register_predefined_function", &registerPredefinedFunctionWrapper)
+        .function("register_predefined_function", &registerPredefinedFunctionWrapper)
         ;
 }

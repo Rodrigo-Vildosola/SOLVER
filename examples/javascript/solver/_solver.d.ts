@@ -36,6 +36,8 @@ export interface SolverModule {
   };
 
   getExceptionMessage: Function
+  getException: Function
+
 }
 
 export interface ClassHandle {

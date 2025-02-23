@@ -1,3 +1,5 @@
+#pragma once
+
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 #include <type_traits>
@@ -9,6 +11,8 @@ using namespace emscripten;
 // This helper receives an exception pointer as an integer
 // and returns the exception's message (via SolverException::what()).
 std::string getExceptionMessage(int exceptionPtr);
+val getException(int exceptionPtr);
+
 
 void bind_solver();
 
@@ -43,38 +47,71 @@ val vectorToJSArray(const std::vector<T>& vec) {
 }
 
 /**
- * Utility: Convert a 2D vector (vector<vector<T>>) -> JS Array of Arrays
+ * Converts a 2D std::vector (matrix) into a JavaScript array of arrays.
  */
 template<typename T>
-val matrixToJSArray(const std::vector<std::vector<T>>& mat) {
-  val outer = val::array();
-  for (auto& row : mat) {
-    outer.call<void>("push", vectorToJSArray(row));
-  }
-  return outer;
+inline val matrixToJSArray(const std::vector<std::vector<T>>& mat) {
+    val outer = val::array();
+    for (const auto& row : mat) {
+        outer.call<void>("push", vectorToJSArray(row));
+    }
+    return outer;
 }
 
 /**
- * Utility: Convert an unordered_map<std::string, double> -> a JS object { key: value, ... }
+ * Converts an unordered_map<string, double> to a native JavaScript object.
  */
 inline val mapStringDoubleToJSObject(const std::unordered_map<std::string, double>& data) {
-  val obj = val::object();
-  for (auto& kv : data) {
-    obj.set(kv.first, kv.second);
-  }
-  return obj;
+    val obj = val::object();
+    for (const auto& kv : data) {
+        obj.set(kv.first, kv.second);
+    }
+    return obj;
 }
 
 
 /**
- * The *opposite* direction: Create a C++ lambda that calls into a JS function "val callback",
- * converting the input vector<double> to a JS array, calling callback, 
- * and returning callback's result as a double.
+ * Creates a C++ lambda that wraps a JavaScript function.
+ * The lambda accepts a vector<double>, converts it to a JS array,
+ * calls the JS function, and returns its result as a double.
  */
 inline std::function<double(const std::vector<double>&)> makeFunctionCallbackFromJS(val jsFunc) {
-  return [jsFunc](const std::vector<double>& input) -> double {
-    val jsArray = vectorToJSArray(input);
-    val result = jsFunc(jsArray);
-    return result.as<double>();
-  };
+    // Check that jsFunc is callable. This is a minimal check.
+    if (!jsFunc.isUndefined() && !jsFunc.isNull() && jsFunc.typeOf().as<std::string>() == "function") {
+        return [jsFunc](const std::vector<double>& input) -> double {
+            val jsArray = vectorToJSArray(input);
+            val result = jsFunc(jsArray);
+            return result.as<double>();
+        };
+    } else {
+        return [](const std::vector<double>&) -> double {
+            throw std::runtime_error("Invalid JS callback provided to makeFunctionCallbackFromJS.");
+        };
+    }
 }
+
+// A helper macro to wrap a call in a try/catch block and rethrow a JS Error.
+#define WRAP_EXCEPTIONS(returnExpr)                  \
+  try {                                              \
+    return returnExpr;                               \
+  } catch (const SolverException& e) {               \
+    throw val::global("Error").new_(std::string(e.what()));  \
+  } catch (const std::exception& e) {                \
+    throw val::global("Error").new_(std::string(e.what()));  \
+  } catch (...) {                                    \
+    throw val::global("Error").new_(std::string("Unknown C++ exception")); \
+  }
+
+// For void-returning functions
+#define WRAP_EXCEPTIONS_VOID(expr)                   \
+  try {                                              \
+    expr;                                          \
+    return;                                          \
+  } catch (const SolverException& e) {               \
+    throw val::global("Error").new_(std::string(e.what()));  \
+  } catch (const std::exception& e) {                \
+    throw val::global("Error").new_(std::string(e.what()));  \
+  } catch (...) {                                    \
+    throw val::global("Error").new_(std::string("Unknown C++ exception")); \
+  }
+

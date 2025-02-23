@@ -5,7 +5,7 @@ async function main() {
   // "Solver" is the class_ we exposed in EMSCRIPTEN_BINDINGS
   const mod: SolverModule = await createSolverModule();
 
-  const { Solver, getExceptionMessage } = mod;
+  const { Solver, getExceptionMessage, getException } = mod;
 
   // Create a solver instance with an LRU cache size of 100
   const solver = new Solver(100);
@@ -33,7 +33,7 @@ async function main() {
     solver.declare_variable("1", 10);
   } catch (ex) {
     // ex is a raw pointer number; call our helper to get a message.
-    console.error("C++ Exception: " + getExceptionMessage(ex));
+    console.error("C++ Exception: " + getException(ex));
   }
 
   solver.delete()
