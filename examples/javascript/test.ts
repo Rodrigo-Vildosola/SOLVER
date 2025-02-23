@@ -5,14 +5,12 @@ async function main() {
   // "Solver" is the class_ we exposed in EMSCRIPTEN_BINDINGS
   const mod: SolverModule = await createSolverModule();
 
-  const { Solver, VectorString, VectorDouble } = mod;
+  const { Solver, getExceptionMessage } = mod;
 
   // Create a solver instance with an LRU cache size of 100
   const solver = new Solver(100);
 
-  const argVector = arrayToVector(VectorString, ["x"]);
-
-  solver.declare_function("f", argVector, "x + 8");
+  solver.declare_function("f", ["x"], "x + 8");
 
   // Declare a variable and evaluate an expression
   solver.declare_variable("x", 3);
@@ -21,15 +19,29 @@ async function main() {
 
   // Evaluate a range of values
   const xs = [1, 2, 3, 4, 5];
-  const xsVector = arrayToVector(VectorDouble, xs);
-  const results2 = solver.evaluate_range("x", xsVector, "2*x + 1", false);
-  const resultsArray = vectorToArray<number, typeof results2>(results2);
-  console.log("Results for 2*x + 1 over", xs, ":", resultsArray);
+  const results2 = solver.evaluate_range("x", xs, "2*x + 1", false);
+  console.log("Results for 2*x + 1 over", xs, ":", results2);
 
   // Declare a constant and use it
   solver.declare_constant("pi", 3.141592653589793);
-  const result3 = solver.evaluate("sin(pi / 2) + f(x)", true);
+  const result3 = solver.evaluate("sin(pi / 2) + f(x)", false);
   console.log("Result of sin(pi / 2) + f(x):", result3);
+
+  // Invalid variable name, should throw the message: Invalid variable name '1'.
+  try {
+    // Call some Solver method that might throw.
+    solver.declare_variable("1", 10);
+  } catch (ex) {
+    // ex is a raw pointer number; call our helper to get a message.
+    console.error("C++ Exception: " + getExceptionMessage(ex));
+  }
 };
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error("An error occurred in main():");
+  if (err && err.stack) {
+    console.error("Error stack: ", err.stack);
+  } else {
+    console.error("Error: ", err);
+  }
+});

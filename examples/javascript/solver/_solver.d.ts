@@ -107,7 +107,7 @@ export interface SolverInstance {
    * @param args A vector of parameter names (use mod.VectorString).
    * @param expression The expression defining the function body (e.g. "x^2 + y^2").
    */
-  declare_function(name: string, args: VectorString, expression: string): void;
+  declare_function(name: string, args: string[], expression: string): void;
 
   /**
    * Evaluates a mathematical expression and returns its numeric result.
@@ -124,7 +124,7 @@ export interface SolverInstance {
    * @param debug Optional debug flag.
    * @returns A vector of results, one per input value.
    */
-  evaluate_range(variable: string, values: VectorDouble, expression: string, debug?: boolean): VectorDouble;
+  evaluate_range(variable: string, values: number[], expression: string, debug?: boolean): VectorDouble;
 
   /**
    * Evaluates a single expression across multiple variables, each with a range of values.
