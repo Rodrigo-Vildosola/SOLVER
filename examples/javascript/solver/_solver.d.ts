@@ -20,26 +20,6 @@
 declare function createSolverModule(): Promise<SolverModule>;
 
 /**
- * A generic interface for Embind vectors.
- * Note: These types are not plain arrays, they are objects with methods like push_back.
- */
-export interface EmbindVector<T> {
-  push_back(item: T): void;
-  resize(newSize: number, defaultValue: T): void;
-  size(): number;
-  get(index: number): T;
-  set(index: number, value: T): void;
-}
-
-/**
- * Registered vector types from Embind.
- */
-export interface VectorDouble extends EmbindVector<number> {}
-export interface VectorFloat extends EmbindVector<number> {}
-export interface VectorString extends EmbindVector<string> {}
-export interface VectorOfVectorDouble extends EmbindVector<VectorDouble> {}
-
-/**
  * The shape of the module returned by `createSolverModule()`.
  * It exposes a `Solver` class and the vector constructors.
  */
@@ -53,30 +33,6 @@ export interface SolverModule {
      * @param exprCacheSize The maximum number of entries the expression cache can hold (default 100).
      */
     new (exprCacheSize?: number): SolverInstance;
-  };
-  /**
-   * Constructor for a vector of doubles.
-   */
-  VectorDouble: {
-    new (): VectorDouble;
-  };
-  /**
-   * Constructor for a vector of floats.
-   */
-  VectorFloat: {
-    new (): VectorFloat;
-  };
-  /**
-   * Constructor for a vector of strings.
-   */
-  VectorString: {
-    new (): VectorString;
-  };
-  /**
-   * Constructor for a vector of vectors of doubles.
-   */
-  VectorOfVectorDouble: {
-    new (): VectorOfVectorDouble;
   };
   // Allow any additional properties.
   [x: string]: any;
@@ -104,7 +60,7 @@ export interface SolverInstance {
   /**
    * Declares a user-defined function in terms of an expression and parameter list.
    * @param name The function name (e.g. "f").
-   * @param args A vector of parameter names (use mod.VectorString).
+   * @param args An array of parameter names (e.g. ["x", "y"]).
    * @param expression The expression defining the function body (e.g. "x^2 + y^2").
    */
   declare_function(name: string, args: string[], expression: string): void;
@@ -118,28 +74,23 @@ export interface SolverInstance {
 
   /**
    * Evaluates a mathematical expression for each value in a range of inputs for one variable.
-   * @param variable The name of the variable, e.g. "x".
-   * @param values A vector of numeric values (use mod.VectorDouble) to assign to that variable.
-   * @param expression The expression to evaluate, e.g. "x^2 + 1".
+   * @param variable The name of the variable (e.g. "x").
+   * @param values A list of numeric values to assign to that variable.
+   * @param expression The expression to evaluate (e.g. "x^2 + 1").
    * @param debug Optional debug flag.
-   * @returns A vector of results, one per input value.
+   * @returns A plain JavaScript array of results, one per input value.
    */
-  evaluate_range(variable: string, values: number[], expression: string, debug?: boolean): VectorDouble;
+  evaluate_range(variable: string, values: number[], expression: string, debug?: boolean): number[];
 
   /**
    * Evaluates a single expression across multiple variables, each with a range of values.
-   * @param variables A vector of variable names (use mod.VectorString), e.g. ["x", "y"].
-   * @param valuesSets A vector of vectors of numeric values (use mod.VectorOfVectorDouble) for each variable.
-   * @param expression The expression to evaluate, e.g. "x+y".
+   * @param variables An array of variable names (e.g. ["x", "y"]).
+   * @param valuesSets An array of arrays of numeric values for each variable.
+   * @param expression The expression to evaluate (e.g. "x + y").
    * @param debug Optional debug flag.
-   * @returns A flat vector of results of size = product of each value set length.
+   * @returns A flat array of results of size = product of each value set length.
    */
-  evaluate_ranges(
-    variables: VectorString,
-    valuesSets: VectorOfVectorDouble,
-    expression: string,
-    debug?: boolean
-  ): VectorDouble;
+  evaluate_ranges(variables: string[], valuesSets: number[][], expression: string, debug?: boolean): number[];
 
   /**
    * Clears the solver's expression cache and function cache.
@@ -151,6 +102,106 @@ export interface SolverInstance {
    * @param useCache True to enable caching, false to disable.
    */
   use_cache(useCache: boolean): void;
+
+  /**
+   * Prints expressions (postfix or inlined) for all registered functions to stdout.
+   */
+  print_function_expressions(): void;
+
+  /**
+   * Lists all declared constants as a JS object where keys are names and values are numbers.
+   * @returns An object mapping constant names to their numeric values.
+   */
+  list_constants(): Record<string, number>;
+
+  /**
+   * Lists all declared variables as a JS object where keys are names and values are numbers.
+   * @returns An object mapping variable names to their current numeric values.
+   */
+  list_variables(): Record<string, number>;
+
+  /**
+   * Sets the expression to be evaluated and parses it into a postfix representation.
+   * @param expression The new expression to parse and set as current.
+   * @param debug If true, prints debug info.
+   */
+  set_current_expression(expression: string, debug?: boolean): void;
+
+  /**
+   * Sets the current expression for AST-based evaluation (builds or re-builds an AST).
+   * @param expression The new expression to parse and set as current.
+   * @param debug If true, prints debug info.
+   */
+  set_current_expression_ast(expression: string, debug?: boolean): void;
+
+  /**
+   * Evaluates the current expression using the AST pipeline.
+   * @param expression The expression to evaluate.
+   * @param debug Whether to print debugging info.
+   * @returns The numeric evaluation result.
+   */
+  evaluate_ast(expression: string, debug?: boolean): number;
+
+  /**
+   * Retrieves the most recently set expression string.
+   * @returns The current expression string.
+   */
+  get_current_expression(): string;
+
+  /**
+   * Efficiently generates animation data for visualizing a function.
+   * @param expression The function to evaluate.
+   * @param variable The variable to sweep across.
+   * @param start The starting value of the variable.
+   * @param end The ending value of the variable.
+   * @param steps The number of steps (frames) to generate.
+   * @returns An object with arrays of x and y values, e.g. { x: number[], y: number[] }.
+   */
+  generate_animation_data(
+    expression: string,
+    variable: string,
+    start: number,
+    end: number,
+    steps: number
+  ): { x: number[]; y: number[] };
+
+  /**
+   * Efficiently generates contour data for a 3D surface plot.
+   * @param expression The function to evaluate.
+   * @param variable1 The first variable (x-axis).
+   * @param variable2 The second variable (y-axis).
+   * @param start1 The start value for variable1.
+   * @param end1 The end value for variable1.
+   * @param steps1 The number of steps for variable1.
+   * @param start2 The start value for variable2.
+   * @param end2 The end value for variable2.
+   * @param steps2 The number of steps for variable2.
+   * @returns An object with arrays x and y, plus a matrix z, e.g. { x: number[], y: number[], z: number[][] }.
+   */
+  generate_contour_data(
+    expression: string,
+    variable1: string,
+    variable2: string,
+    start1: number,
+    end1: number,
+    steps1: number,
+    start2: number,
+    end2: number,
+    steps2: number
+  ): { x: number[]; y: number[]; z: number[][] };
+
+  /**
+   * Registers a predefined function (e.g., 'sin', 'cos') with a callback,
+   * so that the solver recognizes it in expressions.
+   * @param name The function name, e.g. 'myfunc'.
+   * @param callback A JavaScript function that accepts an array of numbers and returns a number.
+   * @param argCount The arity (number of arguments) for the function.
+   */
+  register_predefined_function(
+    name: string,
+    callback: (args: number[]) => number,
+    argCount: number
+  ): void;
 }
 
 /**

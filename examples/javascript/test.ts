@@ -1,5 +1,5 @@
 // test.mjs
-import { createSolverModule, SolverModule, arrayToVector, vectorToArray } from './solver';
+import { createSolverModule, SolverModule} from './solver';
 
 async function main() {
   // "Solver" is the class_ we exposed in EMSCRIPTEN_BINDINGS
