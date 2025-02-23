@@ -34,8 +34,8 @@ export interface SolverModule {
      */
     new (exprCacheSize?: number): SolverInstance;
   };
-  // Allow any additional properties.
-  [x: string]: any;
+
+  getExceptionMessage: Function
 }
 
 /**

@@ -38,10 +38,5 @@ async function main() {
 };
 
 main().catch((err) => {
-  console.error("An error occurred in main():");
-  if (err && err.stack) {
-    console.error("Error stack: ", err.stack);
-  } else {
-    console.error("Error: ", err);
-  }
+  console.error("Error: ", err);
 });
