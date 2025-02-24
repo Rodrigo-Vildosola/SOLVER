@@ -82,6 +82,13 @@ void SymbolTable::clearVariables() {
     cachedSymbolName.clear();
 }
 
+void SymbolTable::clear() {
+    variables.clear();
+    variableIndex.clear();
+    cachedSymbolName.clear();
+    constants.clear();
+}
+
 // Restore variables from a saved copy
 void SymbolTable::restoreVariables(const Env& savedVariables) {
     clearVariables();

@@ -5,9 +5,24 @@ solver = Solver()
 
 print(version())
 
-solver.declare_function("f", ["x"], "x * 2 + 5")
+solver.declare_function("f", ["x"], "x + 2 + 5")
+solver.declare_variable("x", 15)
+solver.declare_constant("pi", np.pi)
+
+x = solver.evaluate("x + 5 + f(pi)", True)
+
+print("Result:", x)
+
+dump = solver.dump()
+
+newSolver = Solver()
+
+newSolver.load(dump)
 
 
-x = solver.evaluate("10 + 5 + f(10)")
+x = newSolver.evaluate("x + 5 + f(pi)", True)
 
-print(x)
+print("New result:", x)
+
+print(dump)
+print(newSolver.dump())

@@ -4,6 +4,7 @@
 #include "token.h"
 #include "function.h"
 #include "exception.h"
+#include "utils.h"
 
 // Color definitions
 #define RESET "\033[0m"
@@ -81,19 +82,6 @@ inline void printInfix(const std::vector<Token>& tokens, const std::unordered_ma
         std::cout << infix << std::endl;
     } catch (const SolverException& e) {
         std::cerr << "Error converting postfix to infix: " << e.what() << std::endl;
-    }
-}
-
-inline std::string tokenTypeToString(TokenType type) {
-    switch (type) {
-        case TokenType::NUMBER: return "NUMBER";
-        case TokenType::VARIABLE: return "VARIABLE";
-        case TokenType::OPERATOR: return "OPERATOR";
-        case TokenType::FUNCTION: return "FUNCTION";
-        case TokenType::PAREN: return "PAREN";
-        case TokenType::SEPARATOR: return "SEPARATOR";
-        case TokenType::UNARY_OPERATOR: return "UNARY_OPERATOR";
-        default: return "UNKNOWN";
     }
 }
 

@@ -219,7 +219,7 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
         auto flattened = Postfix::flattenPostfix(postfix, functions);
 
         // Store the function with its inlined postfix and argument names
-        functions[name] = Function(flattened, args);
+        functions[name] = Function(expression, flattened, args);
     } catch (const std::exception& e) {
         throw SolverException("Error defining function '" + name + "': " + e.what());
     }

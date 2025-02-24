@@ -123,5 +123,9 @@ void bind_solver(py::module_ &m) {
              py::arg("start2"),
              py::arg("end2"),
              py::arg("steps2"),
-             DOC(Solver, generateContourData));
+             DOC(Solver, generateContourData))
+
+        .def("dump", &Solver::dumpState, DOC(Solver, dumpState))
+        .def("load", &Solver::loadState, py::arg("dump"), DOC(Solver, loadState));
+
 }

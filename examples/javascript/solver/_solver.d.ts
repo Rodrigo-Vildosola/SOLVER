@@ -116,7 +116,7 @@ export interface SolverInstance extends ClassHandle {
   /**
    * Prints expressions (postfix or inlined) for all registered functions to stdout.
    */
-  print_function_expressions(): void;
+  printFunctionExpressions(): void;
 
   /**
    * Lists all declared constants as a JS object where keys are names and values are numbers.

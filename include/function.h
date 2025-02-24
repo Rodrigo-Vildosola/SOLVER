@@ -8,6 +8,7 @@ using FunctionCallback = std::function<NUMBER_TYPE(const std::vector<NUMBER_TYPE
 
 struct Function {
     FunctionCallback callback;              // For predefined functions
+    std::string expression;                 // The original expression of the function
     std::vector<Token> inlinedPostfix;      // Postfix expression for user-defined functions
     std::vector<std::string> argumentNames; // Names of the arguments
     size_t argCount;                        // Number of arguments
@@ -15,13 +16,13 @@ struct Function {
 
     // Default Constructor
     Function()
-        : callback(nullptr), inlinedPostfix(), argumentNames(), argCount(0), isPredefined(true) {}
+        : callback(nullptr), expression(), inlinedPostfix(), argumentNames(), argCount(0), isPredefined(true) {}
 
     // Constructor for predefined functions
     Function(FunctionCallback cb, size_t argCnt)
-        : callback(std::move(cb)), inlinedPostfix(), argumentNames(), argCount(argCnt), isPredefined(true) {}
+        : callback(std::move(cb)), expression(), inlinedPostfix(), argumentNames(), argCount(argCnt), isPredefined(true) {}
 
     // Constructor for user-defined functions
-    Function(std::vector<Token> postfix, std::vector<std::string> args)
-        : callback(nullptr), inlinedPostfix(std::move(postfix)), argumentNames(std::move(args)), argCount(argumentNames.size()), isPredefined(false) {}
+    Function(std::string newExpression, std::vector<Token> postfix, std::vector<std::string> args)
+        : callback(nullptr), expression(newExpression), inlinedPostfix(std::move(postfix)), argumentNames(std::move(args)), argCount(argumentNames.size()), isPredefined(false) {}
 };

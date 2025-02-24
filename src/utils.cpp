@@ -1,7 +1,81 @@
+#include <nlohmann/json.hpp>
+
 #include "solver.h"
+#include "utils.h"
 #include "tokenizer.h"
 #include "debug.h"
 #include "postfix.h"
+
+using namespace nlohmann;
+
+std::string Solver::dumpState() const {
+    json j;
+
+    // Dump constants and variables from the symbol table.
+    // Assuming symbolTable.getConstants() and getVariables() return an Env (std::unordered_map<std::string, NUMBER_TYPE>).
+    j["constants"] = symbolTable.getConstants();
+    j["variables"] = symbolTable.getVariables();
+
+    // Dump functions
+    // For each function, dump its name, a flag if it is predefined,
+    // and for user-defined functions, dump the argument names and serialized tokens.
+    json jsonFunctions;
+    for (const auto& pair : functions) {
+        const std::string& fname = pair.first;
+        const Function &func = pair.second;
+
+        if (!func.isPredefined) {
+            json funcJson;
+            funcJson["arguments"] = func.argumentNames;
+            funcJson["expression"] = func.expression;
+
+            jsonFunctions[fname] = funcJson;
+        }
+    }
+
+    j["functions"] = jsonFunctions;
+    
+    return j.dump(2);
+}
+
+void Solver::loadState(const std::string& dump) {
+    json j = json::parse(dump);
+
+    // Clear existing state
+    symbolTable.clear(); // Assuming there's a method to reset the symbol table
+    functions.clear();
+
+    // Load constants
+    if (j.contains("constants")) {
+        auto constants = j["constants"].get<Env>();
+        for (const auto &pair : constants) {
+            declareConstant(pair.first, pair.second);
+        }
+    }
+
+    // Load variables
+    if (j.contains("variables")) {
+        auto variables = j["variables"].get<Env>();
+        for (const auto &pair : variables) {
+            declareVariable(pair.first, pair.second);
+        }
+    }
+
+    // Load user-defined functions
+    if (j.contains("functions")) {
+        for (auto it = j["functions"].begin(); it != j["functions"].end(); ++it) {
+            std::string fname = it.key();
+            json funcJson = it.value();
+
+            // Get argument names
+            std::vector<std::string> argNames = funcJson["arguments"].get<std::vector<std::string>>();
+            std::string expression = funcJson["expression"].get<std::string>();
+
+
+            declareFunction(fname, argNames, expression);
+        }
+    }
+}
 
 
 // Register standard math functions

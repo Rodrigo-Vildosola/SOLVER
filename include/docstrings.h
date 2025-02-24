@@ -130,6 +130,8 @@ static const char *__doc_Function_argumentNames = R"doc()doc";
 
 static const char *__doc_Function_callback = R"doc()doc";
 
+static const char *__doc_Function_expression = R"doc()doc";
+
 static const char *__doc_Function_inlinedPostfix = R"doc()doc";
 
 static const char *__doc_Function_isPredefined = R"doc()doc";
@@ -527,6 +529,12 @@ Parameter ``name``:
 Parameter ``value``:
     The numeric value to assign to the variable.)doc";
 
+static const char *__doc_Solver_dumpState =
+R"doc(Dumps the current state (constants, variables, and functions) to a JSON string.
+
+Returns:
+    A JSON string representing the solver state.)doc";
+
 static const char *__doc_Solver_evaluate =
 R"doc(Evaluates a mathematical expression and returns its numeric result.
 
@@ -790,6 +798,12 @@ names to their current numeric values.
 Returns:
     An unordered_map from variable name to double value.)doc";
 
+static const char *__doc_Solver_loadState =
+R"doc(Loads the solver state from a JSON string.
+
+Parameter ``dump``:
+    A JSON string previously produced by dumpState().)doc";
+
 static const char *__doc_Solver_parseAST =
 R"doc(Parses a mathematical expression from string to postfix.
 
@@ -896,6 +910,8 @@ static const char *__doc_SymbolTable = R"doc()doc";
 static const char *__doc_SymbolTable_cachedSymbolName = R"doc()doc";
 
 static const char *__doc_SymbolTable_cachedSymbolValue = R"doc()doc";
+
+static const char *__doc_SymbolTable_clear = R"doc()doc";
 
 static const char *__doc_SymbolTable_clearVariables = R"doc()doc";
 
@@ -1030,7 +1046,7 @@ R"doc(Validate the syntax of the given expression.
 Parameter ``expression``:
     The expression to validate.)doc";
 
-static const char *__doc__unnamed_class_at_Users_rodrigovildosola_VSPROJECTS_CPP_MATH_Solver_include_exception_h_11_7 =
+static const char *__doc__unnamed_class_at_include_exception_h_11_7 =
 R"doc(Custom exception class for handling errors in the Solver class.
 
 The SolverException class is derived from std::runtime_error and is thrown when
@@ -1052,6 +1068,8 @@ static const char *__doc_printPrecisionInfo = R"doc()doc";
 static const char *__doc_printTokens = R"doc()doc";
 
 static const char *__doc_stringToNumber = R"doc()doc";
+
+static const char *__doc_stringToTokenType = R"doc()doc";
 
 static const char *__doc_tokenTypeToString = R"doc()doc";
 

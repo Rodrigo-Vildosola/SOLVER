@@ -323,6 +323,17 @@ public:
         NUMBER_TYPE end2,
         size_t steps2);
 
+    /**
+     * @brief Dumps the current state (constants, variables, and functions) to a JSON string.
+     * @return A JSON string representing the solver state.
+     */
+    std::string dumpState() const;
+
+    /**
+     * @brief Loads the solver state from a JSON string.
+     * @param dump A JSON string previously produced by dumpState().
+     */
+    void loadState(const std::string& dump);
 
 
 private:

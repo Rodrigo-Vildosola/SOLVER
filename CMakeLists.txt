@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PYBIND11_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/pybind11/include)
+set(NLOHMANN_JSON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann/include)
 
 message(STATUS "Python3 found:")
 message(STATUS "  Executable    : ${Python3_EXECUTABLE}")
@@ -33,36 +34,52 @@ add_compile_definitions(MODULE_NAME=${MODULE_NAME})
 file(GLOB_RECURSE LIB_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE LIB_HEADERS "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.h" "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.hpp")
 
+include_directories(${NLOHMANN_JSON_DIR})
+
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     message(STATUS "Building for WebAssembly with Emscripten")
+
+    # Ensure JSON library is included
+    include_directories(${NLOHMANN_JSON_DIR})
+
     # Add include directories for the WASM target (so headers like compiler.h, pch.h, etc. are found)
     include_directories("${CMAKE_SOURCE_DIR}/${HEADERS_DIR}")
 
     # Locate JavaScript binding sources (written with Embind)
     file(GLOB_RECURSE JS_BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/javascript/*.cpp")
+
     # Build an executable target (Emscripten converts this to a .js loader + .wasm)
     add_executable(_${LIB_NAME} ${LIB_SRC} ${JS_BINDING_SRC})
+
     # Set properties so that Emscripten outputs a .js file and proper linker flags
     set_target_properties(_${LIB_NAME} PROPERTIES 
         SUFFIX ".js"
         LINK_FLAGS "-s MODULARIZE=1 -s EXPORT_NAME='createSolverModule' -s EXPORT_ES6=1 -O3 -s ALLOW_MEMORY_GROWTH=1 -lembind -fexceptions"
-        )
+    )
+
 else()
     message(STATUS "Building native Python bindings")
+
     # Locate Python binding sources (using Pybind11)
     file(GLOB_RECURSE BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/python/*.cpp")
+
     # Build the static core library
     add_library(${LIB_NAME} STATIC ${LIB_SRC})
+
     # Create a shared library for Python bindings
     add_library(${MODULE_NAME} SHARED ${BINDING_SRC})
+
     target_link_libraries(${MODULE_NAME} PRIVATE ${LIB_NAME})
     target_link_libraries(${LIB_NAME} ${Python3_LIBRARIES})
+
     # Rename the shared library to match the Python module name
     set_target_properties(${MODULE_NAME} PROPERTIES PREFIX "" SUFFIX ".so")
+
     # Include directories (using paths passed in as arguments)
     include_directories(${Python3_INCLUDE_DIRS} "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}")
     include_directories(${PYBIND11_DIR})
 endif()
+
 
 # Compiler-specific options (example for GCC/Clang/MSVC)
 # if (MSVC)

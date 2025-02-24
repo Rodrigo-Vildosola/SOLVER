@@ -51,6 +51,8 @@ public:
     // Check if a name is a variable
     bool isVariable(const std::string& name) const;
 
+    void clear();
+
 private:
     // Constants stored in a hash table (since they are read-only after declaration)
     Env constants;
