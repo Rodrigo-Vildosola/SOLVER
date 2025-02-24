@@ -144,6 +144,10 @@ void bind_solver() {
         .function("declareVariable", &Solver::declareVariable)
         .function("declareFunction", &declareFunctionWrapper)
 
+        .function("deleteConstant", &Solver::deleteConstant)
+        .function("deleteVariable", &Solver::deleteVariable)
+        .function("deleteFunction", &Solver::deleteFunction)
+
         .function("evaluate", &Solver::evaluate)
         .function("evaluateRange", &evaluateForRangeWrapper)
         .function("evaluateRanges", &evaluateForRangesWrapper)

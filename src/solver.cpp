@@ -44,6 +44,28 @@ void Solver::declareVariable(const std::string& name, NUMBER_TYPE value) {
     invalidateCaches();
 }
 
+void Solver::deleteConstant(const std::string& name) {
+    PROFILE_FUNCTION();
+
+    if (!symbolTable.isConstant(name)) {
+        throw SolverException("Constant '" + name + "' does not exist.");
+    }
+
+    symbolTable.deleteConstant(name);
+    invalidateCaches();
+}
+
+void Solver::deleteVariable(const std::string& name) {
+    PROFILE_FUNCTION();
+
+    if (!symbolTable.isVariable(name)) {
+        throw SolverException("Variable '" + name + "' does not exist.");
+    }
+
+    symbolTable.deleteVariable(name);
+    invalidateCaches();
+}
+
 #pragma region Parsing
 
 EvalFunc Solver::compileExpression(const std::string &expression, bool debug) {
@@ -225,6 +247,22 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
     }
 }
 
+void Solver::deleteFunction(const std::string& name) {
+    PROFILE_FUNCTION();
+
+    auto it = functions.find(name);
+    if (it == functions.end()) {
+        throw SolverException("Function '" + name + "' does not exist.");
+    }
+
+    if (it->second.isPredefined) {
+        throw SolverException("Cannot delete predefined function '" + name + "'.");
+    }
+
+    functions.erase(it);
+    invalidateCaches();
+}
+
 #pragma endregion
 
 #pragma region Helpers
@@ -242,7 +280,7 @@ void Solver::reset() {
         }
     }
 
-    clearCache();
+    invalidateCaches();
 }
 
 void Solver::setCurrentExpression(const std::string &expression, bool debug) {

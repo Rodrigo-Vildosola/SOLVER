@@ -34,6 +34,16 @@ void bind_solver(py::module_ &m) {
              py::arg("value"),
              DOC(Solver, declareVariable))
 
+        .def("delete_constant", 
+             &Solver::deleteConstant,
+             py::arg("name"),
+             DOC(Solver, deleteConstant))
+
+        .def("delete_variable", 
+             &Solver::deleteVariable,
+             py::arg("name"),
+             DOC(Solver, deleteVariable))
+
         .def("evaluate",
              &Solver::evaluate, 
              py::arg("expression"),
@@ -69,6 +79,11 @@ void bind_solver(py::module_ &m) {
              py::arg("args"),
              py::arg("expression"),
              DOC(Solver, declareFunction))
+
+        .def("delete_function",
+             &Solver::deleteFunction,
+             py::arg("name"),
+             DOC(Solver, deleteFunction))
 
         .def("clear_cache", 
              &Solver::clearCache,

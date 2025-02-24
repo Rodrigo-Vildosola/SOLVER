@@ -529,6 +529,33 @@ Parameter ``name``:
 Parameter ``value``:
     The numeric value to assign to the variable.)doc";
 
+static const char *__doc_Solver_deleteConstant =
+R"doc(Deletes a constant from the symbol table.
+
+Parameter ``name``:
+    The name of the constant to delete.
+
+Throws:
+    SolverException If the constant does not exist.)doc";
+
+static const char *__doc_Solver_deleteFunction =
+R"doc(Deletes a user-defined function.
+
+Parameter ``name``:
+    The name of the function to delete.
+
+Throws:
+    SolverException If the function does not exist or is predefined.)doc";
+
+static const char *__doc_Solver_deleteVariable =
+R"doc(Deletes a variable from the symbol table.
+
+Parameter ``name``:
+    The name of the variable to delete.
+
+Throws:
+    SolverException If the variable does not exist.)doc";
+
 static const char *__doc_Solver_dumpState =
 R"doc(Dumps the current state (constants, variables, and functions) to a JSON string.
 
@@ -936,6 +963,24 @@ static const char *__doc_SymbolTable_declareConstant = R"doc()doc";
 
 static const char *__doc_SymbolTable_declareVariable = R"doc()doc";
 
+static const char *__doc_SymbolTable_deleteConstant =
+R"doc(Deletes a constant from the symbol table.
+
+Parameter ``name``:
+    The name of the constant.
+
+Throws:
+    SolverException If the constant does not exist.)doc";
+
+static const char *__doc_SymbolTable_deleteVariable =
+R"doc(Deletes a variable from the symbol table.
+
+Parameter ``name``:
+    The name of the variable.
+
+Throws:
+    SolverException If the variable does not exist.)doc";
+
 static const char *__doc_SymbolTable_getConstants = R"doc()doc";
 
 static const char *__doc_SymbolTable_getVariablePtr = R"doc()doc";
@@ -1061,7 +1106,7 @@ R"doc(Validate the syntax of the given expression.
 Parameter ``expression``:
     The expression to validate.)doc";
 
-static const char *__doc__unnamed_class_at_include_exception_h_11_7 =
+static const char *__doc__unnamed_class_at_Users_rodrigovildosola_VSPROJECTS_CPP_MATH_Solver_include_exception_h_11_7 =
 R"doc(Custom exception class for handling errors in the Solver class.
 
 The SolverException class is derived from std::runtime_error and is thrown when

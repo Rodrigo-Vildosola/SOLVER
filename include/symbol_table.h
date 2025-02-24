@@ -27,6 +27,23 @@ public:
     // Declare a variable (stored in a vector for pointer stability)
     void declareVariable(const std::string& name, NUMBER_TYPE value, bool skipCheck = false);
 
+    /**
+     * @brief Deletes a constant from the symbol table.
+     * 
+     * @param name The name of the constant.
+     * @throws SolverException If the constant does not exist.
+     */
+    void deleteConstant(const std::string& name);
+
+    /**
+     * @brief Deletes a variable from the symbol table.
+     * 
+     * @param name The name of the variable.
+     * @throws SolverException If the variable does not exist.
+     */
+    void deleteVariable(const std::string& name);
+
+
     // Lookup a symbol (checks both variables and constants)
     NUMBER_TYPE lookupSymbol(const std::string& name) const;
 

@@ -15,7 +15,7 @@ print("Result:", x)
 
 
 print()
-print(solver.list_functions())
-solver.reset()
-print(solver.list_functions())
+print(solver.list_constants())
+solver.delete_constant("pi")
+print(solver.list_constants())
 

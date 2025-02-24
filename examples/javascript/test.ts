@@ -36,6 +36,8 @@ async function main() {
     console.error("C++ Exception: " + getException(ex));
   }
 
+  console.log(solver.listFunctions())
+
   solver.delete()
   console.log("Solver deleted")
 };

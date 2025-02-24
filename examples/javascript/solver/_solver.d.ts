@@ -76,6 +76,28 @@ export interface SolverInstance extends ClassHandle {
   declareFunction(name: string, args: string[], expression: string): void;
 
   /**
+   * Declares a constant in the solver's symbol table.
+   * @param name The name of the constant.
+   * @param value The numeric value of the constant.
+   */
+  deleteConstant(name: string, value: number): void;
+
+  /**
+   * Declares (or re-declares) a variable in the solver's symbol table.
+   * @param name The name of the variable.
+   * @param value The numeric value to assign to the variable.
+   */
+  deleteVariable(name: string, value: number): void;
+
+  /**
+   * Declares a user-defined function in terms of an expression and parameter list.
+   * @param name The function name (e.g. "f").
+   * @param args An array of parameter names (e.g. ["x", "y"]).
+   * @param expression The expression defining the function body (e.g. "x^2 + y^2").
+   */
+  deleteFunction(name: string, args: string[], expression: string): void;
+
+  /**
    * Evaluates a mathematical expression and returns its numeric result.
    * @param expression A string representing the mathematical expression to evaluate.
    * @param debug Whether to enable debug output (default false).
@@ -114,6 +136,11 @@ export interface SolverInstance extends ClassHandle {
   useCache(useCache: boolean): void;
 
   /**
+   * Resets the solver state.
+   */
+  reset(): void;
+
+  /**
    * Prints expressions (postfix or inlined) for all registered functions to stdout.
    */
   printFunctionExpressions(): void;
@@ -129,6 +156,14 @@ export interface SolverInstance extends ClassHandle {
    * @returns An object mapping variable names to their current numeric values.
    */
   listVariables(): Record<string, number>;
+
+  /**
+   * Provides a snapshot of the solvers functions entries
+   * returning them in mathematical notation
+   * 
+   * @return A vector of strings representing each function.
+   */
+  listFunctions(): string[];
 
   /**
    * Sets the expression to be evaluated and parses it into a postfix representation.
@@ -212,6 +247,16 @@ export interface SolverInstance extends ClassHandle {
     callback: (args: number[]) => number,
     argCount: number
   ): void;
+
+  /**
+   * Returns a stringified dump of the solvers variables, constants and functions
+   */
+  dump(): string;
+
+  /**
+   * It receives a stringified dump, using that dump it loads the solver envirnment
+   */
+  load(dump: string): void;
 }
 
 /**

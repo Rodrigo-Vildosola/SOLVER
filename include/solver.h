@@ -82,6 +82,46 @@ public:
     void declareVariable(const std::string& name, NUMBER_TYPE value);
 
     /**
+     * @brief Declares a user-defined function in terms of an expression and parameter list.
+     * 
+     * Internally, this parses the expression to a flattened postfix form and stores it, along
+     * with the argument names. When invoked in other expressions, the function is inlined
+     * (substituted for its body) or evaluated as needed.
+     * 
+     * @param name The function name (e.g. "f").
+     * @param args A list of parameter names (e.g. ["x", "y"]).
+     * @param expression The expression defining the function body (e.g. "x^2 + y^2").
+     * @throws SolverException If the function name is invalid, the syntax is incorrect,
+     *         or a function by the same name already exists.
+     */
+    void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
+
+    /**
+     * @brief Deletes a constant from the symbol table.
+     * 
+     * @param name The name of the constant to delete.
+     * @throws SolverException If the constant does not exist.
+     */
+    void deleteConstant(const std::string& name);
+
+    /**
+     * @brief Deletes a variable from the symbol table.
+     * 
+     * @param name The name of the variable to delete.
+     * @throws SolverException If the variable does not exist.
+     */
+    void deleteVariable(const std::string& name);
+
+    /**
+     * @brief Deletes a user-defined function.
+     * 
+     * @param name The name of the function to delete.
+     * @throws SolverException If the function does not exist or is predefined.
+     */
+    void deleteFunction(const std::string& name);
+
+
+    /**
      * @brief Evaluates a mathematical expression and returns its numeric result.
      * 
      * - Internally, this calls setCurrentExpression() which parses the expression (or uses a cached parse if unchanged).
@@ -184,21 +224,6 @@ public:
      * @throws SolverException If a function with the same name already exists.
      */
     void registerPredefinedFunction(const std::string& name, const FunctionCallback& callback, size_t argCount);
-
-    /**
-     * @brief Declares a user-defined function in terms of an expression and parameter list.
-     * 
-     * Internally, this parses the expression to a flattened postfix form and stores it, along
-     * with the argument names. When invoked in other expressions, the function is inlined
-     * (substituted for its body) or evaluated as needed.
-     * 
-     * @param name The function name (e.g. "f").
-     * @param args A list of parameter names (e.g. ["x", "y"]).
-     * @param expression The expression defining the function body (e.g. "x^2 + y^2").
-     * @throws SolverException If the function name is invalid, the syntax is incorrect,
-     *         or a function by the same name already exists.
-     */
-    void declareFunction(const std::string& name, const std::vector<std::string>& args, const std::string& expression);
 
     /**
      * @brief Clears the solver's expression cache and function cache (if any).

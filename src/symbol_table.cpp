@@ -40,6 +40,24 @@ void SymbolTable::declareVariable(const std::string& name, NUMBER_TYPE value, bo
     cachedSymbolName.clear();
 }
 
+void SymbolTable::deleteConstant(const std::string& name) {
+    if (constants.erase(name) == 0) {
+        throw SolverException("Constant '" + name + "' does not exist.");
+    }
+}
+
+void SymbolTable::deleteVariable(const std::string& name) {
+    auto it = variableIndex.find(name);
+    if (it == variableIndex.end()) {
+        throw SolverException("Variable '" + name + "' does not exist.");
+    }
+
+    size_t index = it->second;
+    variableIndex.erase(it);
+    variables[index] = SymbolEntry();
+}
+
+
 // Fast direct access to a variable's value (auto-creates variable if missing)
 NUMBER_TYPE* SymbolTable::getVariablePtr(const std::string& name) {
     auto it = variableIndex.find(name);

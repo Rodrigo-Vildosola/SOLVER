@@ -86,6 +86,36 @@ class Solver:
         Parameter ``value``:
             The numeric value to assign to the variable.
         """
+    def delete_constant(self, name: str) -> None:
+        """
+        Deletes a constant from the symbol table.
+        
+        Parameter ``name``:
+            The name of the constant to delete.
+        
+        Throws:
+            SolverException If the constant does not exist.
+        """
+    def delete_function(self, name: str) -> None:
+        """
+        Deletes a user-defined function.
+        
+        Parameter ``name``:
+            The name of the function to delete.
+        
+        Throws:
+            SolverException If the function does not exist or is predefined.
+        """
+    def delete_variable(self, name: str) -> None:
+        """
+        Deletes a variable from the symbol table.
+        
+        Parameter ``name``:
+            The name of the variable to delete.
+        
+        Throws:
+            SolverException If the variable does not exist.
+        """
     def dump(self) -> str:
         """
         Dumps the current state (constants, variables, and functions) to a JSON string.
