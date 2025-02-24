@@ -865,6 +865,12 @@ Parameter ``argCount``:
 Throws:
     SolverException If a function with the same name already exists.)doc";
 
+static const char *__doc_Solver_reset =
+R"doc(Resets the state of the solver.
+
+Resets the state of the solver, removing all variables, constants and functions
+but without removing predefined functions)doc";
+
 static const char *__doc_Solver_setCurrentExpression =
 R"doc(Sets the expression to be evaluated and parses it into a postfix representation.
 

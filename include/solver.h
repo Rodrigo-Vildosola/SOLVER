@@ -42,6 +42,14 @@ public:
     }
 
     /**
+     * @brief Resets the state of the solver.
+     * 
+     * Resets the state of the solver, removing all variables, 
+     * constants and functions but without removing predefined functions
+     */
+    void reset();
+
+    /**
      * @brief Prints expressions (postfix or inlined) for all registered functions to stdout.
      * 
      * This can be useful for debugging or understanding how user-defined functions have been

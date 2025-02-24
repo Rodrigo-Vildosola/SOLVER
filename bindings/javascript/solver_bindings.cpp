@@ -150,6 +150,7 @@ void bind_solver() {
 
         .function("clearCache", &Solver::clearCache)
         .function("useCache", &Solver::setUseCache)
+        .function("reset", &Solver::reset)
 
         .function("printFunctionExpressions", &Solver::printFunctionExpressions)
 

@@ -78,6 +78,10 @@ void bind_solver(py::module_ &m) {
              &Solver::setUseCache,
              py::arg("useCache"),
              DOC(Solver, setUseCache))
+     
+        .def("reset", 
+             &Solver::reset,
+             DOC(Solver, reset))
 
         .def("list_constants", 
              &Solver::listConstants,

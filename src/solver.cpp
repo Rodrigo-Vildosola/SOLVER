@@ -229,6 +229,21 @@ void Solver::declareFunction(const std::string& name, const std::vector<std::str
 
 #pragma region Helpers
 
+void Solver::reset() {
+    PROFILE_FUNCTION();
+
+    symbolTable.clear();
+
+    for (auto it = functions.begin(); it != functions.end();) {
+        if (!it->second.isPredefined) {
+            it = functions.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    clearCache();
+}
 
 void Solver::setCurrentExpression(const std::string &expression, bool debug) {
     // If the expression is unchanged and we already have a compiled expression, do nothing.

@@ -318,6 +318,13 @@ class Solver:
         This can be useful for debugging or understanding how user-defined functions
         have been internally flattened to postfix representation.
         """
+    def reset(self) -> None:
+        """
+        Resets the state of the solver.
+        
+        Resets the state of the solver, removing all variables, constants and functions
+        but without removing predefined functions
+        """
     def set_current_expression(self, expression: str, debug: bool = False) -> None:
         """
         Sets the expression to be evaluated and parses it into a postfix representation.

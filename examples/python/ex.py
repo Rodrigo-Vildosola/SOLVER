@@ -13,16 +13,9 @@ x = solver.evaluate("x + 5 + f(pi)", True)
 
 print("Result:", x)
 
-dump = solver.dump()
-
-newSolver = Solver()
-
-newSolver.load(dump)
-
-
-x = newSolver.evaluate("x + 5 + f(pi)", True)
-
-print("New result:", x)
 
 print()
-print(newSolver.list_functions())
+print(solver.list_functions())
+solver.reset()
+print(solver.list_functions())
+
