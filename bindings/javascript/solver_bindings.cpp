@@ -97,6 +97,11 @@ val listVariablesWrapper(const Solver& solver) {
   return mapStringDoubleToJSObject(v);
 }
 
+val listFunctionsWrapper(const Solver& solver) {
+  auto v = solver.listFunctions();
+  return vectorToJSArray(v);
+}
+
 val generateAnimationDataWrapper(Solver& solver,
                                  const std::string& expression,
                                  const std::string& variable,
@@ -131,42 +136,35 @@ val generateContourDataWrapper(Solver& solver,
   return out;
 }
 
-void registerPredefinedFunctionWrapper(Solver& solver,
-                                       const std::string& name,
-                                       val jsCallback,
-                                       size_t argCount) {
-  // Turn the JS function into a C++ callback
-  auto cppCallback = makeFunctionCallbackFromJS(jsCallback);
-  solver.registerPredefinedFunction(name, cppCallback, argCount);
-}
-
 void bind_solver() {
     class_<Solver>("Solver")
         .constructor<size_t>()
+
         .function("declareConstant", &Solver::declareConstant)
         .function("declareVariable", &Solver::declareVariable)
-        // Replace the original functions with our wrappers:
         .function("declareFunction", &declareFunctionWrapper)
+
         .function("evaluate", &Solver::evaluate)
         .function("evaluateRange", &evaluateForRangeWrapper)
         .function("evaluateRanges", &evaluateForRangesWrapper)
+
         .function("clearCache", &Solver::clearCache)
         .function("useCache", &Solver::setUseCache)
-                // Additional methods:
+
         .function("printFunctionExpressions", &Solver::printFunctionExpressions)
+
         .function("listConstants", &listConstantsWrapper)
         .function("listVariables", &listVariablesWrapper)
+        .function("listFunctions", &listFunctionsWrapper)
 
-        .function("setCurrentExpression", &Solver::setCurrentExpression,
-                  allow_raw_pointers())
+        .function("dump", &Solver::dumpState)
+        .function("load", &Solver::loadState)
 
+        .function("setCurrentExpression", &Solver::setCurrentExpression)
         .function("getCurrentExpression", &Solver::getCurrentExpression)
 
         // Functions returning tuples need wrappers to produce JS objects:
         .function("generateAnimationData", &generateAnimationDataWrapper)
         .function("generateContourData", &generateContourDataWrapper)
-
-        // If you want to expose registerPredefinedFunction for custom JS callbacks:
-        .function("registerPredefinedFunction", &registerPredefinedFunctionWrapper)
         ;
 }

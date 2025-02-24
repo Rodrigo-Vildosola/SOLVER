@@ -11,14 +11,9 @@ using namespace nlohmann;
 std::string Solver::dumpState() const {
     json j;
 
-    // Dump constants and variables from the symbol table.
-    // Assuming symbolTable.getConstants() and getVariables() return an Env (std::unordered_map<std::string, NUMBER_TYPE>).
     j["constants"] = symbolTable.getConstants();
     j["variables"] = symbolTable.getVariables();
 
-    // Dump functions
-    // For each function, dump its name, a flag if it is predefined,
-    // and for user-defined functions, dump the argument names and serialized tokens.
     json jsonFunctions;
     for (const auto& pair : functions) {
         const std::string& fname = pair.first;
@@ -42,7 +37,7 @@ void Solver::loadState(const std::string& dump) {
     json j = json::parse(dump);
 
     // Clear existing state
-    symbolTable.clear(); // Assuming there's a method to reset the symbol table
+    symbolTable.clear();
     functions.clear();
 
     // Load constants
@@ -78,7 +73,6 @@ void Solver::loadState(const std::string& dump) {
 }
 
 
-// Register standard math functions
 void Solver::registerBuiltInFunctions() {
     PROFILE_FUNCTION()
     registerPredefinedFunction("neg", [](const std::vector<NUMBER_TYPE>& args) -> NUMBER_TYPE {
@@ -131,6 +125,37 @@ void Solver::registerBuiltInFunctions() {
 }
 
 
+std::vector<std::string> Solver::listFunctions() const {
+    std::vector<std::string> functionList;
+
+    for (const auto& pair : functions) {
+        const std::string& functionName = pair.first;
+        const Function& func = pair.second;
+
+        // Skip predefined functions
+        if (func.isPredefined) {
+            continue;
+        }
+
+        // Create function signature: f(x, y, z) =
+        std::string functionStr = functionName + "(";
+        for (size_t i = 0; i < func.argumentNames.size(); ++i) {
+            functionStr += func.argumentNames[i];
+            if (i < func.argumentNames.size() - 1) {
+                functionStr += ", ";
+            }
+        }
+        functionStr += ") = ";
+
+        // Append the original expression
+        functionStr += func.expression;
+
+        // Store the formatted function string
+        functionList.push_back(functionStr);
+    }
+
+    return functionList;
+}
 
 
 std::size_t Solver::generateCacheKey(const std::string& base, const std::vector<NUMBER_TYPE>& args) {

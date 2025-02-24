@@ -24,5 +24,5 @@ x = newSolver.evaluate("x + 5 + f(pi)", True)
 
 print("New result:", x)
 
-print(dump)
-print(newSolver.dump())
+print()
+print(newSolver.list_functions())

@@ -232,6 +232,16 @@ public:
     Env listVariables() const { return symbolTable.getVariables(); }
 
     /**
+     * @brief Lists all declared functions.
+     * 
+     * Provides a snapshot of the solvers functions entries
+     * returning them in mathematical notation
+     * 
+     * @return A vector of strings representing each function.
+     */
+    std::vector<std::string> listFunctions() const;
+
+    /**
      * @brief Sets the expression to be evaluated and parses it into a postfix representation.
      * 
      * If the given expression is different from the current one (or if there's no valid

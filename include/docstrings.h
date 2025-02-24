@@ -789,6 +789,15 @@ names to their numeric values.
 Returns:
     An unordered_map from constant name to double value.)doc";
 
+static const char *__doc_Solver_listFunctions =
+R"doc(Lists all declared functions.
+
+Provides a snapshot of the solvers functions entries returning them in
+mathematical notation
+
+Returns:
+    A vector of strings representing each function.)doc";
+
 static const char *__doc_Solver_listVariables =
 R"doc(Lists all declared variables.
 

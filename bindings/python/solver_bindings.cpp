@@ -87,6 +87,10 @@ void bind_solver(py::module_ &m) {
              &Solver::listVariables,
              DOC(Solver, listVariables))
 
+        .def("list_functions", 
+             &Solver::listFunctions,
+             DOC(Solver, listFunctions))
+
         .def("set_current_expression",
              &Solver::setCurrentExpression,
              py::arg("expression"),

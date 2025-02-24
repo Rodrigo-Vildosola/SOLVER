@@ -36,7 +36,7 @@ void handleParentheses(std::stack<Token>& operatorStack, std::vector<Token>& out
     if (operatorStack.empty()) {
         throw SolverException("Mismatched parentheses.");
     }
-    operatorStack.pop();  // Pop the left parenthesis
+    operatorStack.pop();
 }
 
 void handleFunctionArgumentSeparator(std::stack<Token>& operatorStack, std::vector<Token>& outputVector, std::stack<int>& argumentCounts) {
@@ -47,7 +47,6 @@ void handleFunctionArgumentSeparator(std::stack<Token>& operatorStack, std::vect
     if (operatorStack.empty()) {
         throw SolverException("Mismatched parentheses or misplaced comma.");
     }
-    // Increase the argument count for the current function
     if (!argumentCounts.empty()) {
         argumentCounts.top()++;
     }
@@ -55,13 +54,13 @@ void handleFunctionArgumentSeparator(std::stack<Token>& operatorStack, std::vect
 
 std::vector<Token> shuntingYard(const std::vector<Token>& tokens) {
     PROFILE_FUNCTION()
-    std::vector<Token> outputVector;       // Use a vector instead of queue
+    std::vector<Token> outputVector;
     std::stack<Token> operatorStack;
     std::stack<int> argumentCounts;
 
     for (const auto& token : tokens) {
         if (token.type == NUMBER || token.type == VARIABLE) {
-            outputVector.push_back(token); // Push directly into the output vector
+            outputVector.push_back(token);
         } else if (token.type == FUNCTION) {
             operatorStack.push(token);
             argumentCounts.push(1);
@@ -98,8 +97,6 @@ std::vector<Token> shuntingYard(const std::vector<Token>& tokens) {
 
 NUMBER_TYPE evaluatePostfix(const std::vector<Token>& postfixQueue, const SymbolTable& symbolTable, const std::unordered_map<std::string, Function>& functions) {
     PROFILE_FUNCTION()
-    // Preallocate a vector to serve as our evaluation stack.
-    // Its maximum size is the number of tokens (this is an overestimate but safe).
     std::vector<NUMBER_TYPE> stack;
     stack.reserve(postfixQueue.size());
 

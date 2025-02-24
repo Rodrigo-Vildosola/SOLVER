@@ -284,6 +284,16 @@ class Solver:
         Returns:
             An unordered_map from constant name to double value.
         """
+    def list_functions(self) -> list[str]:
+        """
+        Lists all declared functions.
+        
+        Provides a snapshot of the solvers functions entries returning them in
+        mathematical notation
+        
+        Returns:
+            A vector of strings representing each function.
+        """
     def list_variables(self) -> dict[str, float]:
         """
         Lists all declared variables.
