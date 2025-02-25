@@ -34,8 +34,6 @@ children).
 Note: This uses raw pointers for children; you will need to manage memory
 (delete) manually.)doc";
 
-static const char *__doc_ASTNode_2 = R"doc()doc";
-
 static const char *__doc_ASTNode_ASTNode =
 R"doc(Constructor that initializes the node with a Token.
 
@@ -45,10 +43,6 @@ Parameter ``t``:
 static const char *__doc_ASTNode_children =
 R"doc(Child pointers. For binary operators, typically size=2. For a function,
 size=argCount.)doc";
-
-static const char *__doc_ASTNode_evaluate = R"doc()doc";
-
-static const char *__doc_ASTNode_toString = R"doc()doc";
 
 static const char *__doc_ASTNode_token = R"doc(The token for this node (e.g., {OPERATOR, "+"} or {VARIABLE, "x"}).)doc";
 
@@ -102,11 +96,15 @@ static const char *__doc_AdditionNode = R"doc()doc";
 
 static const char *__doc_AdditionNode_AdditionNode = R"doc()doc";
 
+static const char *__doc_AdditionNode_derivative = R"doc()doc";
+
 static const char *__doc_AdditionNode_evaluate = R"doc()doc";
 
 static const char *__doc_AdditionNode_left = R"doc()doc";
 
 static const char *__doc_AdditionNode_right = R"doc()doc";
+
+static const char *__doc_AdditionNode_simplify = R"doc()doc";
 
 static const char *__doc_AdditionNode_toString = R"doc()doc";
 
@@ -130,11 +128,15 @@ static const char *__doc_DivisionNode = R"doc()doc";
 
 static const char *__doc_DivisionNode_DivisionNode = R"doc()doc";
 
+static const char *__doc_DivisionNode_derivative = R"doc()doc";
+
 static const char *__doc_DivisionNode_evaluate = R"doc()doc";
 
 static const char *__doc_DivisionNode_left = R"doc()doc";
 
 static const char *__doc_DivisionNode_right = R"doc()doc";
+
+static const char *__doc_DivisionNode_simplify = R"doc()doc";
 
 static const char *__doc_DivisionNode_toString = R"doc()doc";
 
@@ -154,11 +156,15 @@ static const char *__doc_FunctionNode_FunctionNode = R"doc()doc";
 
 static const char *__doc_FunctionNode_args = R"doc()doc";
 
+static const char *__doc_FunctionNode_derivative = R"doc()doc";
+
 static const char *__doc_FunctionNode_evaluate = R"doc()doc";
 
 static const char *__doc_FunctionNode_functionRef = R"doc()doc";
 
 static const char *__doc_FunctionNode_name = R"doc()doc";
+
+static const char *__doc_FunctionNode_simplify = R"doc()doc";
 
 static const char *__doc_FunctionNode_toString = R"doc()doc";
 
@@ -208,19 +214,37 @@ static const char *__doc_MultiplicationNode = R"doc()doc";
 
 static const char *__doc_MultiplicationNode_MultiplicationNode = R"doc()doc";
 
+static const char *__doc_MultiplicationNode_derivative = R"doc()doc";
+
 static const char *__doc_MultiplicationNode_evaluate = R"doc()doc";
 
 static const char *__doc_MultiplicationNode_left = R"doc()doc";
 
 static const char *__doc_MultiplicationNode_right = R"doc()doc";
 
+static const char *__doc_MultiplicationNode_simplify = R"doc()doc";
+
 static const char *__doc_MultiplicationNode_toString = R"doc()doc";
+
+static const char *__doc_Node = R"doc()doc";
+
+static const char *__doc_Node_derivative = R"doc()doc";
+
+static const char *__doc_Node_evaluate = R"doc()doc";
+
+static const char *__doc_Node_simplify = R"doc()doc";
+
+static const char *__doc_Node_toString = R"doc()doc";
 
 static const char *__doc_NumberNode = R"doc()doc";
 
 static const char *__doc_NumberNode_NumberNode = R"doc()doc";
 
+static const char *__doc_NumberNode_derivative = R"doc()doc";
+
 static const char *__doc_NumberNode_evaluate = R"doc()doc";
+
+static const char *__doc_NumberNode_simplify = R"doc()doc";
 
 static const char *__doc_NumberNode_toString = R"doc()doc";
 
@@ -319,9 +343,13 @@ static const char *__doc_PowerNode_PowerNode = R"doc()doc";
 
 static const char *__doc_PowerNode_base = R"doc()doc";
 
+static const char *__doc_PowerNode_derivative = R"doc()doc";
+
 static const char *__doc_PowerNode_evaluate = R"doc()doc";
 
 static const char *__doc_PowerNode_exponent = R"doc()doc";
+
+static const char *__doc_PowerNode_simplify = R"doc()doc";
 
 static const char *__doc_PowerNode_toString = R"doc()doc";
 
@@ -1047,11 +1075,15 @@ static const char *__doc_SubtractionNode = R"doc()doc";
 
 static const char *__doc_SubtractionNode_SubtractionNode = R"doc()doc";
 
+static const char *__doc_SubtractionNode_derivative = R"doc()doc";
+
 static const char *__doc_SubtractionNode_evaluate = R"doc()doc";
 
 static const char *__doc_SubtractionNode_left = R"doc()doc";
 
 static const char *__doc_SubtractionNode_right = R"doc()doc";
+
+static const char *__doc_SubtractionNode_simplify = R"doc()doc";
 
 static const char *__doc_SubtractionNode_toString = R"doc()doc";
 
@@ -1228,9 +1260,13 @@ static const char *__doc_VariableNode = R"doc()doc";
 
 static const char *__doc_VariableNode_VariableNode = R"doc()doc";
 
+static const char *__doc_VariableNode_derivative = R"doc()doc";
+
 static const char *__doc_VariableNode_evaluate = R"doc()doc";
 
 static const char *__doc_VariableNode_name = R"doc()doc";
+
+static const char *__doc_VariableNode_simplify = R"doc()doc";
 
 static const char *__doc_VariableNode_toString = R"doc()doc";
 

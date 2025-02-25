@@ -18,7 +18,7 @@ message(STATUS "LIB_NAME: ${LIB_NAME}")
 message(STATUS "HEADERS_DIR: ${HEADERS_DIR}")
 message(STATUS "MODULE_NAME: ${MODULE_NAME}")
 
-# Add a compile definition for the version and module name
+# Add compile definitions for version and module name
 add_compile_definitions(LIB_VERSION="${VERSION_CONTENTS}")
 add_compile_definitions(MODULE_NAME=${MODULE_NAME})
 
@@ -28,27 +28,12 @@ file(GLOB_RECURSE LIB_HEADERS "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.h" "${CMAKE_
 
 include_directories(${NLOHMANN_JSON_DIR})
 
+# Include the proper bindings file based on the system
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     include(${CMAKE_SOURCE_DIR}/tools/cmake/javascript.cmake)
 else()
     include(${CMAKE_SOURCE_DIR}/tools/cmake/python.cmake)
 endif()
-
-
-# Compiler-specific options (example for GCC/Clang/MSVC)
-# if (MSVC)
-#     target_compile_options(${LIB_NAME} PRIVATE 
-#         /W3 /EHsc /WX- 
-#         /D_CRT_SECURE_NO_WARNINGS
-#     )
-# elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-#     target_compile_options(${LIB_NAME} PRIVATE 
-#         -Wall -Wundef -Wpedantic -Wextra 
-#         -Wuninitialized -Winit-self 
-#         -Wno-missing-field-initializers
-#         -Wno-unknown-pragmas
-#     )
-# endif()
 
 if (WIN32)
     message(STATUS "Building on Windows")
@@ -58,17 +43,18 @@ else()
     message(STATUS "Building on Linux")
 endif()
 
+# Build an application executable if a main.cpp exists and defines main()
 file(GLOB MAIN_SRC "${CMAKE_SOURCE_DIR}/src/main.cpp")
 if(MAIN_SRC)
     add_executable(${LIB_NAME}_app ${MAIN_SRC})
-    # Link the executable with the core static library if available.
-    # In native builds, the core library target was created in python_bindings.cmake.
+    # Link the executable with the core static library.
+    # Ensure that main.cpp contains a valid main() function.
     if(TARGET ${LIB_NAME})
         target_link_libraries(${LIB_NAME}_app PRIVATE ${LIB_NAME})
     endif()
 endif()
 
-# Output the built shared library to the build directory
+# Set the output directory for built libraries/executables
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 message(STATUS "Project configuration complete.")
