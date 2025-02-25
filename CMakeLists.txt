@@ -7,14 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PYBIND11_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/pybind11/include)
 set(NLOHMANN_JSON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann/include)
-
-message(STATUS "Python3 found:")
-message(STATUS "  Executable    : ${Python3_EXECUTABLE}")
-message(STATUS "  Version       : ${Python3_VERSION}")
-message(STATUS "  Include dirs  : ${Python3_INCLUDE_DIRS}")
-message(STATUS "  Library       : ${Python3_LIBRARIES}")
 
 # Read the VERSION file
 file(READ "${CMAKE_SOURCE_DIR}/VERSION" VERSION_CONTENTS)
@@ -24,7 +17,6 @@ message(STATUS "Project Version: ${VERSION_CONTENTS}")
 message(STATUS "LIB_NAME: ${LIB_NAME}")
 message(STATUS "HEADERS_DIR: ${HEADERS_DIR}")
 message(STATUS "MODULE_NAME: ${MODULE_NAME}")
-message(STATUS "PREFER: ${PREFER_DOUBLE}")
 
 # Add a compile definition for the version and module name
 add_compile_definitions(LIB_VERSION="${VERSION_CONTENTS}")
@@ -37,47 +29,9 @@ file(GLOB_RECURSE LIB_HEADERS "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}/*.h" "${CMAKE_
 include_directories(${NLOHMANN_JSON_DIR})
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
-    message(STATUS "Building for WebAssembly with Emscripten")
-
-    # Ensure JSON library is included
-    include_directories(${NLOHMANN_JSON_DIR})
-
-    # Add include directories for the WASM target (so headers like compiler.h, pch.h, etc. are found)
-    include_directories("${CMAKE_SOURCE_DIR}/${HEADERS_DIR}")
-
-    # Locate JavaScript binding sources (written with Embind)
-    file(GLOB_RECURSE JS_BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/javascript/*.cpp")
-
-    # Build an executable target (Emscripten converts this to a .js loader + .wasm)
-    add_executable(_${LIB_NAME} ${LIB_SRC} ${JS_BINDING_SRC})
-
-    # Set properties so that Emscripten outputs a .js file and proper linker flags
-    set_target_properties(_${LIB_NAME} PROPERTIES 
-        SUFFIX ".js"
-        LINK_FLAGS "-s MODULARIZE=1 -s EXPORT_NAME='createSolverModule' -s EXPORT_ES6=1 -O3 -s ALLOW_MEMORY_GROWTH=1 -lembind -fexceptions"
-    )
-
+    include(${CMAKE_SOURCE_DIR}/tools/cmake/javascript.cmake)
 else()
-    message(STATUS "Building native Python bindings")
-
-    # Locate Python binding sources (using Pybind11)
-    file(GLOB_RECURSE BINDING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/bindings/python/*.cpp")
-
-    # Build the static core library
-    add_library(${LIB_NAME} STATIC ${LIB_SRC})
-
-    # Create a shared library for Python bindings
-    add_library(${MODULE_NAME} SHARED ${BINDING_SRC})
-
-    target_link_libraries(${MODULE_NAME} PRIVATE ${LIB_NAME})
-    target_link_libraries(${LIB_NAME} ${Python3_LIBRARIES})
-
-    # Rename the shared library to match the Python module name
-    set_target_properties(${MODULE_NAME} PROPERTIES PREFIX "" SUFFIX ".so")
-
-    # Include directories (using paths passed in as arguments)
-    include_directories(${Python3_INCLUDE_DIRS} "${CMAKE_SOURCE_DIR}/${HEADERS_DIR}")
-    include_directories(${PYBIND11_DIR})
+    include(${CMAKE_SOURCE_DIR}/tools/cmake/python.cmake)
 endif()
 
 
@@ -102,6 +56,16 @@ elseif(APPLE)
     message(STATUS "Building on macOS")
 else()
     message(STATUS "Building on Linux")
+endif()
+
+file(GLOB MAIN_SRC "${CMAKE_SOURCE_DIR}/src/main.cpp")
+if(MAIN_SRC)
+    add_executable(${LIB_NAME}_app ${MAIN_SRC})
+    # Link the executable with the core static library if available.
+    # In native builds, the core library target was created in python_bindings.cmake.
+    if(TARGET ${LIB_NAME})
+        target_link_libraries(${LIB_NAME}_app PRIVATE ${LIB_NAME})
+    endif()
 endif()
 
 # Output the built shared library to the build directory
