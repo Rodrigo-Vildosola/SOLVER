@@ -931,6 +931,34 @@ retroactively recover old cached values.
 Parameter ``useCache``:
     Pass true to enable expression caching, false to disable it.)doc";
 
+static const char *__doc_Solver_solveEquation =
+R"doc(Solves a single variable equation of the form f(x)=0.
+
+Given an equation string (e.g. "x + 5 = 10"), it converts it to f(x) = left -
+(right) and uses Newton–Raphson method to find a root.
+
+Parameter ``equation``:
+    The equation as a string (must contain '=')
+
+Parameter ``variable``:
+    The name of the variable to solve for (e.g., "x")
+
+Parameter ``initialGuess``:
+    An initial guess for the solution.
+
+Parameter ``tolerance``:
+    The tolerance for convergence (default 1e-6).
+
+Parameter ``maxIterations``:
+    Maximum number of iterations to attempt (default 100).
+
+Returns:
+    The computed value of the variable that solves the equation.
+
+Throws:
+    SolverException if the equation is malformed, if the derivative is zero, or
+    if the method fails to converge.)doc";
+
 static const char *__doc_Solver_symbolTable = R"doc(Symbol table for all declared variables and constants (manages their values).)doc";
 
 static const char *__doc_SubZeroRule = R"doc()doc";
@@ -1106,7 +1134,7 @@ R"doc(Validate the syntax of the given expression.
 Parameter ``expression``:
     The expression to validate.)doc";
 
-static const char *__doc__unnamed_class_at_Users_rodrigovildosola_VSPROJECTS_CPP_MATH_Solver_include_exception_h_11_7 =
+static const char *__doc__unnamed_class_at_include_exception_h_11_7 =
 R"doc(Custom exception class for handling errors in the Solver class.
 
 The SolverException class is derived from std::runtime_error and is thrown when

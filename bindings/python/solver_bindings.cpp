@@ -15,9 +15,17 @@ void bind_solver(py::module_ &m) {
         // Constructor
         .def(py::init<size_t>(), 
              py::arg("cache_size") = 100,
-             DOC(Solver, Solver))  // If docstrings are defined for constructor
+             DOC(Solver, Solver))
 
-        // Expose methods
+        .def("solve_equation", 
+             &Solver::solveEquation,
+             py::arg("equation"),
+             py::arg("variable"),
+             py::arg("initial_guess"),
+             py::arg("tolerance") = 1e-6,
+             py::arg("max_iterations") = 100,
+             DOC(Solver, solveEquation))
+
         .def("print_function_expressions", 
              &Solver::printFunctionExpressions, 
              DOC(Solver, printFunctionExpressions))

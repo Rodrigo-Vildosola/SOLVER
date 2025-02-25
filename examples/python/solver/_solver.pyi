@@ -380,6 +380,35 @@ class Solver:
         of storing postfix tokens. If the expression is identical to the previously
         stored one (and the AST is valid), we skip re-building unless debug is true.
         """
+    def solve_equation(self, equation: str, variable: str, initial_guess: float, tolerance: float = 1e-06, max_iterations: int = 100) -> float:
+        """
+        Solves a single variable equation of the form f(x)=0.
+        
+        Given an equation string (e.g. "x + 5 = 10"), it converts it to f(x) = left -
+        (right) and uses Newton–Raphson method to find a root.
+        
+        Parameter ``equation``:
+            The equation as a string (must contain '=')
+        
+        Parameter ``variable``:
+            The name of the variable to solve for (e.g., "x")
+        
+        Parameter ``initialGuess``:
+            An initial guess for the solution.
+        
+        Parameter ``tolerance``:
+            The tolerance for convergence (default 1e-6).
+        
+        Parameter ``maxIterations``:
+            Maximum number of iterations to attempt (default 100).
+        
+        Returns:
+            The computed value of the variable that solves the equation.
+        
+        Throws:
+            SolverException if the equation is malformed, if the derivative is zero, or
+            if the method fails to converge.
+        """
     def use_cache(self, useCache: bool) -> None:
         """
         Toggles whether the solver uses its LRU cache.

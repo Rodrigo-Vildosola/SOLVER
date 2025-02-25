@@ -19,3 +19,6 @@ print(solver.list_constants())
 solver.delete_constant("pi")
 print(solver.list_constants())
 
+solution = solver.solve_equation("x + 5 = 10", "x", 0.0, tolerance=1e-6, max_iterations=10000)
+
+print(solution)

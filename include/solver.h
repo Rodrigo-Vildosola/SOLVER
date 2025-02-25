@@ -42,6 +42,28 @@ public:
     }
 
     /**
+     * @brief Solves a single variable equation of the form f(x)=0.
+     *
+     * Given an equation string (e.g. "x + 5 = 10"), it converts it to
+     * f(x) = left - (right) and uses Newton–Raphson method to find a root.
+     *
+     * @param equation The equation as a string (must contain '=')
+     * @param variable The name of the variable to solve for (e.g., "x")
+     * @param initialGuess An initial guess for the solution.
+     * @param tolerance The tolerance for convergence (default 1e-6).
+     * @param maxIterations Maximum number of iterations to attempt (default 100).
+     * @return The computed value of the variable that solves the equation.
+     * @throws SolverException if the equation is malformed, if the derivative is zero,
+     *         or if the method fails to converge.
+     */
+    NUMBER_TYPE solveEquation(const std::string& equation,
+                            const std::string& variable,
+                            NUMBER_TYPE initialGuess,
+                            NUMBER_TYPE tolerance = 1e-6,
+                            size_t maxIterations = 100);
+
+
+    /**
      * @brief Resets the state of the solver.
      * 
      * Resets the state of the solver, removing all variables, 
