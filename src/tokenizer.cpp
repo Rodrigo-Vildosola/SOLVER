@@ -24,7 +24,7 @@ std::vector<Token> Tokenizer::tokenize(const std::string& equation) {
 std::sregex_iterator Tokenizer::tokenizeUsingRegex(const std::string& equation) {
     PROFILE_FUNCTION() // Profile the regex tokenization function
     // Regex definitions
-    static const std::regex tokenRegex(R"(\s*([+\-*/^]|\d+(\.\d+)?|[a-zA-Z_][a-zA-Z_0-9]*|[(),])\s*)");
+    static const std::regex tokenRegex(R"(\s*(==|[+\-*/^]|\d+(\.\d+)?|[a-zA-Z_][a-zA-Z_0-9]*|[(),])\s*)");
     
     return std::sregex_iterator(equation.begin(), equation.end(), tokenRegex);
 }
@@ -92,10 +92,6 @@ void Tokenizer::handleOperatorToken(const std::string& match, std::vector<Token>
         if (next_it != end && (*next_it)[1].str() == "^") {
             tokens.emplace_back(PAREN, "(");
         }
-    } else if (match == "==") {
-        Token token(OPERATOR, match);
-        token.op = OperatorType::EQU;
-        tokens.push_back(token);
     } else {
         // Create an operator token and assign the enumeration value.
         Token token(OPERATOR, match);
@@ -109,6 +105,8 @@ void Tokenizer::handleOperatorToken(const std::string& match, std::vector<Token>
             token.op = OperatorType::DIV;
         } else if (match == "^") {
             token.op = OperatorType::POW;
+        } else if (match == "==") {
+            token.op = OperatorType::EQU;
         } else {
             token.op = OperatorType::UNKNOWN;
         }

@@ -22,7 +22,7 @@ std::vector<NUMBER_TYPE> Solver::solveEquation(const std::string& equation, cons
     PROFILE_FUNCTION();
     DECLARE_ARENA_FACTORY(f);
 
-    Node* ast = parseAST(equation);
+    Node* ast = parseAST(equation, f);
 
     const EqualityNode* eq = dynamic_cast<const EqualityNode*>(ast);
     if (!eq) {

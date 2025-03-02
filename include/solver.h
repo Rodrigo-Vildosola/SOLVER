@@ -431,7 +431,7 @@ private:
      * @return A vector of Tokens representing the flattened postfix form.
      * @throws SolverException If a syntax error or unknown function is encountered.
      */
-    Node* parseAST(const std::string &expression, bool debug = false);
+    Node* parseAST(const std::string &expression, NodeFactory& f, bool debug = false);
 
     /**
      * @brief Generates an integer cache key based on an expression string and argument values.

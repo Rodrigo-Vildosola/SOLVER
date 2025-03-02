@@ -239,9 +239,7 @@ NUMBER_TYPE Solver::evaluateAST(const std::string &expression, bool debug)
 }
 
 
-Node* Solver::parseAST(const std::string& expression, bool debug) {
-    DECLARE_ARENA_FACTORY(f);
-    
+Node* Solver::parseAST(const std::string& expression, NodeFactory& f, bool debug) {    
     auto tokens   = Tokenizer::tokenize(expression);
     auto postfix  = Postfix::shuntingYard(tokens);
     auto flattened = Postfix::flattenPostfix(postfix, functions);
@@ -260,6 +258,8 @@ Node* Solver::parseAST(const std::string& expression, bool debug) {
 
 
 void Solver::setCurrentExpressionAST(const std::string &expression, bool debug) {
+    DECLARE_ARENA_FACTORY(f);
+
     if (expression == currentExpressionAST && currentAST != nullptr) {
         return; // no need to rebuild
     }
@@ -274,7 +274,7 @@ void Solver::setCurrentExpressionAST(const std::string &expression, bool debug) 
 
     try {
         // store it
-        currentAST = parseAST(expression, debug); // 'root' is no longer valid after the simplification returns the new root
+        currentAST = parseAST(expression, f, debug); // 'root' is no longer valid after the simplification returns the new root
 
     }
     catch (const SolverException &e) {
