@@ -5,6 +5,25 @@ using namespace Expression;
 
 namespace AST {
 
+inline int getFunctionArgCount(const std::string &funcName) {
+    static const std::unordered_map<std::string, int> funcArgCounts = {
+        {"sin", 1},
+        {"cos", 1},
+        {"tan", 1},
+        {"ln", 1},
+        {"neg", 1},
+        {"log", 2}
+        // Add more functions as needed.
+    };
+
+    auto it = funcArgCounts.find(funcName);
+    if (it != funcArgCounts.end()) {
+        return it->second;
+    }
+    // Default: assume 1 argument if unknown.
+    return 1;
+}
+
 Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory)
 {
     std::stack<Node*> st;
@@ -36,7 +55,7 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
             case OperatorType::ADD:
             {
                 if (st.size() < 2) 
-                    throw std::runtime_error("Not enough operands for + operator");
+                    throw SolverException("Not enough operands for + operator");
                 Node* right = st.top(); st.pop();
                 Node* left  = st.top(); st.pop();
                 Node* result = factory.add(left, right);
@@ -46,7 +65,7 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
             case OperatorType::SUB:
             {
                 if (st.size() < 2) 
-                    throw std::runtime_error("Not enough operands for - operator");
+                    throw SolverException("Not enough operands for - operator");
                 Node* right = st.top(); st.pop();
                 Node* left  = st.top(); st.pop();
                 Node* result = factory.sub(left, right);
@@ -56,7 +75,7 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
             case OperatorType::MUL:
             {
                 if (st.size() < 2) 
-                    throw std::runtime_error("Not enough operands for * operator");
+                    throw SolverException("Not enough operands for * operator");
                 Node* right = st.top(); st.pop();
                 Node* left  = st.top(); st.pop();
                 Node* result = factory.mul(left, right);
@@ -66,7 +85,7 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
             case OperatorType::DIV:
             {
                 if (st.size() < 2) 
-                    throw std::runtime_error("Not enough operands for / operator");
+                    throw SolverException("Not enough operands for / operator");
                 Node* right = st.top(); st.pop();
                 Node* left  = st.top(); st.pop();
                 Node* result = factory.div(left, right);
@@ -76,7 +95,7 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
             case OperatorType::POW:
             {
                 if (st.size() < 2) 
-                    throw std::runtime_error("Not enough operands for ^ operator");
+                    throw SolverException("Not enough operands for ^ operator");
                 Node* right = st.top(); st.pop();
                 Node* left  = st.top(); st.pop();
                 Node* result = factory.exp(left, right);
@@ -85,7 +104,7 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
             }
             case OperatorType::EQU:
             {
-                if (st.size() < 2) throw std::runtime_error("Not enough operands for ==");
+                if (st.size() < 2) throw SolverException("Not enough operands for ==");
                 Node* right = st.top(); st.pop();
                 Node* left  = st.top(); st.pop();
                 st.push(factory.eq(left, right));
@@ -93,7 +112,7 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
             }
             default:
                 // Unknown or unhandled operator
-                throw std::runtime_error("Unknown operator token in postfix: " + tk.value);
+                throw SolverException("Unknown operator token in postfix: " + tk.value);
             }
             break;
         }
@@ -104,30 +123,35 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
             // on the stack. For example, "x sin" => sin(x). Or if there's a multi-arg function
             // you might have an integer that tells how many arguments. 
             // For a single-argument function:
-            if (st.empty())
-                throw std::runtime_error("Not enough operands for function: " + tk.value);
+            int argCount = getFunctionArgCount(tk.value);
+            if (st.size() < static_cast<size_t>(argCount))
+                throw SolverException("Not enough operands for function: " + tk.value);
+            
+            // Pop arguments (in reverse order since they are pushed in order).
+            std::vector<Node*> args(argCount);
+            for (int i = argCount - 1; i >= 0; --i) {
+                args[i] = st.top();
+                st.pop();
+            }
 
-            Node* operand = st.top();
-            st.pop();
-
-            // In your code, you might handle "sin", "cos", "log", etc.:
-            // e.g.: 
-            if (tk.value == "sin") {
-                st.push(factory.sin(operand));
-            }
-            else if (tk.value == "cos") {
-                st.push(factory.cos(operand));
-            }
-            else if (tk.value == "tan") {
-                st.push(factory.tan(operand));
-            }
-            else if (tk.value == "ln") {
-                st.push(factory.ln(operand));
-            }
-            else {
-                // For user-defined function or unhandled function:
-                // Possibly factory.func(...) if you keep track of argument count/callback?
-                throw std::runtime_error("Unhandled function: " + tk.value);
+            // Create the function node. For built-in functions you may want to
+            // dispatch to specific factory methods; for example:
+            if (tk.value == "sin" && argCount == 1) {
+                st.push(factory.sin(args[0]));
+            } else if (tk.value == "cos" && argCount == 1) {
+                st.push(factory.cos(args[0]));
+            } else if (tk.value == "tan" && argCount == 1) {
+                st.push(factory.tan(args[0]));
+            } else if (tk.value == "ln" && argCount == 1) {
+                st.push(factory.ln(args[0]));
+            } else if (tk.value == "neg" && argCount == 1) {
+                st.push(factory.neg(args[0]));
+            } else if (tk.value == "log" && argCount == 2) {
+                // Convention: log(base, operand)
+                st.push(factory.log(args[0], args[1]));
+            } else {
+                // For user-defined or generic functions, use a generic factory call.
+                st.push(factory.func(tk.value, argCount, args, /* you may provide a callback if needed */ nullptr));
             }
             break;
         }
@@ -141,7 +165,7 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
     } // end for
 
     if (st.size() != 1) {
-        throw std::runtime_error("Invalid postfix expression: stack does not have exactly one element at the end.");
+        throw SolverException("Invalid postfix expression: stack does not have exactly one element at the end.");
     }
     return st.top();
 }

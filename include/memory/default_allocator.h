@@ -34,6 +34,9 @@ public:
     virtual Node* createSubtraction(Node* left, Node* right) override {
         return new SubtractionNode(left, right);
     }
+    virtual Node* createNeg(Node* operand) override {
+        return new NegNode(operand);
+    }
     virtual Node* createMultiplication(Node* left, Node* right) override {
         return new MultiplicationNode(left, right);
     }

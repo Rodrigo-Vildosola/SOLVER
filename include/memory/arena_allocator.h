@@ -16,6 +16,7 @@
 #include "expression/equality_node.h"
 #include "expression/function_node.h"
 #include "expression/tan_node.h"
+#include "expression/neg_node.h"
 
 namespace Expression {
 
@@ -36,6 +37,9 @@ public:
     }
     virtual Node* createSubtraction(Node* left, Node* right) override {
         return arena.make<SubtractionNode>(left, right);
+    }
+    virtual Node* createNeg(Node* operand) override {
+        return arena.make<NegNode>(operand);
     }
     virtual Node* createMultiplication(Node* left, Node* right) override {
         return arena.make<MultiplicationNode>(left, right);

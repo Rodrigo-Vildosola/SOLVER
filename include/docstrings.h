@@ -25,27 +25,11 @@
 
 static const char *__doc_AST_buildASTFromPostfix = R"doc()doc";
 
+static const char *__doc_AST_getFunctionArgCount = R"doc()doc";
+
 static const char *__doc_AddZeroRule = R"doc()doc";
 
 static const char *__doc_AddZeroRule_apply = R"doc()doc";
-
-static const char *__doc_AdditionNode = R"doc()doc";
-
-static const char *__doc_AdditionNode_2 = R"doc()doc";
-
-static const char *__doc_AdditionNode_AdditionNode = R"doc()doc";
-
-static const char *__doc_AdditionNode_derivative = R"doc()doc";
-
-static const char *__doc_AdditionNode_evaluate = R"doc()doc";
-
-static const char *__doc_AdditionNode_left = R"doc()doc";
-
-static const char *__doc_AdditionNode_right = R"doc()doc";
-
-static const char *__doc_AdditionNode_simplify = R"doc()doc";
-
-static const char *__doc_AdditionNode_toString = R"doc()doc";
 
 static const char *__doc_AssociativeAddRule = R"doc()doc";
 
@@ -62,24 +46,6 @@ static const char *__doc_ConstantFoldingRule_apply = R"doc()doc";
 static const char *__doc_DivOneRule = R"doc()doc";
 
 static const char *__doc_DivOneRule_apply = R"doc()doc";
-
-static const char *__doc_DivisionNode = R"doc()doc";
-
-static const char *__doc_DivisionNode_2 = R"doc()doc";
-
-static const char *__doc_DivisionNode_DivisionNode = R"doc()doc";
-
-static const char *__doc_DivisionNode_derivative = R"doc()doc";
-
-static const char *__doc_DivisionNode_evaluate = R"doc()doc";
-
-static const char *__doc_DivisionNode_left = R"doc()doc";
-
-static const char *__doc_DivisionNode_right = R"doc()doc";
-
-static const char *__doc_DivisionNode_simplify = R"doc()doc";
-
-static const char *__doc_DivisionNode_toString = R"doc()doc";
 
 static const char *__doc_Expression_AdditionNode = R"doc()doc";
 
@@ -138,6 +104,8 @@ static const char *__doc_Expression_ArenaAllocator_createLn = R"doc()doc";
 static const char *__doc_Expression_ArenaAllocator_createLog = R"doc()doc";
 
 static const char *__doc_Expression_ArenaAllocator_createMultiplication = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createNeg = R"doc()doc";
 
 static const char *__doc_Expression_ArenaAllocator_createNumber = R"doc()doc";
 
@@ -258,6 +226,8 @@ static const char *__doc_Expression_DefaultAllocator_createLn = R"doc()doc";
 static const char *__doc_Expression_DefaultAllocator_createLog = R"doc()doc";
 
 static const char *__doc_Expression_DefaultAllocator_createMultiplication = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createNeg = R"doc()doc";
 
 static const char *__doc_Expression_DefaultAllocator_createNumber = R"doc()doc";
 
@@ -403,6 +373,8 @@ static const char *__doc_Expression_IAllocator_createLog = R"doc()doc";
 
 static const char *__doc_Expression_IAllocator_createMultiplication = R"doc()doc";
 
+static const char *__doc_Expression_IAllocator_createNeg = R"doc()doc";
+
 static const char *__doc_Expression_IAllocator_createNumber = R"doc()doc";
 
 static const char *__doc_Expression_IAllocator_createSin = R"doc()doc";
@@ -503,6 +475,26 @@ static const char *__doc_Expression_MultiplicationNode_substitute = R"doc()doc";
 
 static const char *__doc_Expression_MultiplicationNode_toString = R"doc()doc";
 
+static const char *__doc_Expression_NegNode = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_NegNode = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_NegNode_toString = R"doc()doc";
+
 static const char *__doc_Expression_NegativeExpRule = R"doc()doc";
 
 static const char *__doc_Expression_NegativeExpRule_apply = R"doc()doc";
@@ -543,6 +535,8 @@ static const char *__doc_Expression_NodeFactory_15 = R"doc()doc";
 
 static const char *__doc_Expression_NodeFactory_16 = R"doc()doc";
 
+static const char *__doc_Expression_NodeFactory_17 = R"doc()doc";
+
 static const char *__doc_Expression_NodeFactory_NodeFactory = R"doc()doc";
 
 static const char *__doc_Expression_NodeFactory_add = R"doc()doc";
@@ -564,6 +558,8 @@ static const char *__doc_Expression_NodeFactory_ln = R"doc()doc";
 static const char *__doc_Expression_NodeFactory_log = R"doc()doc";
 
 static const char *__doc_Expression_NodeFactory_mul = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_neg = R"doc()doc";
 
 static const char *__doc_Expression_NodeFactory_num = R"doc()doc";
 
@@ -762,26 +758,6 @@ static const char *__doc_FunctionFoldingRule_apply = R"doc()doc";
 
 static const char *__doc_FunctionFoldingRule_functions = R"doc()doc";
 
-static const char *__doc_FunctionNode = R"doc()doc";
-
-static const char *__doc_FunctionNode_2 = R"doc()doc";
-
-static const char *__doc_FunctionNode_FunctionNode = R"doc()doc";
-
-static const char *__doc_FunctionNode_args = R"doc()doc";
-
-static const char *__doc_FunctionNode_derivative = R"doc()doc";
-
-static const char *__doc_FunctionNode_evaluate = R"doc()doc";
-
-static const char *__doc_FunctionNode_functionRef = R"doc()doc";
-
-static const char *__doc_FunctionNode_name = R"doc()doc";
-
-static const char *__doc_FunctionNode_simplify = R"doc()doc";
-
-static const char *__doc_FunctionNode_toString = R"doc()doc";
-
 static const char *__doc_Function_Function = R"doc()doc";
 
 static const char *__doc_Function_Function_2 = R"doc()doc";
@@ -816,26 +792,6 @@ static const char *__doc_LRUCache_maxSize = R"doc()doc";
 
 static const char *__doc_LRUCache_put = R"doc()doc";
 
-static const char *__doc_LoggingVisitor = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_steps = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_visit = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_visit_2 = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_visit_3 = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_visit_4 = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_visit_5 = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_visit_6 = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_visit_7 = R"doc()doc";
-
-static const char *__doc_LoggingVisitor_visit_8 = R"doc()doc";
-
 static const char *__doc_MultOneRule = R"doc()doc";
 
 static const char *__doc_MultOneRule_apply = R"doc()doc";
@@ -843,68 +799,6 @@ static const char *__doc_MultOneRule_apply = R"doc()doc";
 static const char *__doc_MultZeroRule = R"doc()doc";
 
 static const char *__doc_MultZeroRule_apply = R"doc()doc";
-
-static const char *__doc_MultiplicationNode = R"doc()doc";
-
-static const char *__doc_MultiplicationNode_2 = R"doc()doc";
-
-static const char *__doc_MultiplicationNode_MultiplicationNode = R"doc()doc";
-
-static const char *__doc_MultiplicationNode_derivative = R"doc()doc";
-
-static const char *__doc_MultiplicationNode_evaluate = R"doc()doc";
-
-static const char *__doc_MultiplicationNode_left = R"doc()doc";
-
-static const char *__doc_MultiplicationNode_right = R"doc()doc";
-
-static const char *__doc_MultiplicationNode_simplify = R"doc()doc";
-
-static const char *__doc_MultiplicationNode_toString = R"doc()doc";
-
-static const char *__doc_Node = R"doc()doc";
-
-static const char *__doc_NodeVisitor = R"doc()doc";
-
-static const char *__doc_NodeVisitor_visit = R"doc()doc";
-
-static const char *__doc_NodeVisitor_visit_2 = R"doc()doc";
-
-static const char *__doc_NodeVisitor_visit_3 = R"doc()doc";
-
-static const char *__doc_NodeVisitor_visit_4 = R"doc()doc";
-
-static const char *__doc_NodeVisitor_visit_5 = R"doc()doc";
-
-static const char *__doc_NodeVisitor_visit_6 = R"doc()doc";
-
-static const char *__doc_NodeVisitor_visit_7 = R"doc()doc";
-
-static const char *__doc_NodeVisitor_visit_8 = R"doc()doc";
-
-static const char *__doc_Node_derivative = R"doc()doc";
-
-static const char *__doc_Node_evaluate = R"doc()doc";
-
-static const char *__doc_Node_simplify = R"doc()doc";
-
-static const char *__doc_Node_toString = R"doc()doc";
-
-static const char *__doc_NumberNode = R"doc()doc";
-
-static const char *__doc_NumberNode_2 = R"doc()doc";
-
-static const char *__doc_NumberNode_NumberNode = R"doc()doc";
-
-static const char *__doc_NumberNode_derivative = R"doc()doc";
-
-static const char *__doc_NumberNode_evaluate = R"doc()doc";
-
-static const char *__doc_NumberNode_simplify = R"doc()doc";
-
-static const char *__doc_NumberNode_toString = R"doc()doc";
-
-static const char *__doc_NumberNode_value = R"doc()doc";
 
 static const char *__doc_OperatorType = R"doc()doc";
 
@@ -994,24 +888,6 @@ Parameter ``tokens``:
 
 Returns:
     A queue of tokens in postfix notation.)doc";
-
-static const char *__doc_PowerNode = R"doc()doc";
-
-static const char *__doc_PowerNode_2 = R"doc()doc";
-
-static const char *__doc_PowerNode_PowerNode = R"doc()doc";
-
-static const char *__doc_PowerNode_base = R"doc()doc";
-
-static const char *__doc_PowerNode_derivative = R"doc()doc";
-
-static const char *__doc_PowerNode_evaluate = R"doc()doc";
-
-static const char *__doc_PowerNode_exponent = R"doc()doc";
-
-static const char *__doc_PowerNode_simplify = R"doc()doc";
-
-static const char *__doc_PowerNode_toString = R"doc()doc";
 
 static const char *__doc_Profiler_InstrumentationSession = R"doc()doc";
 
@@ -1662,24 +1538,6 @@ static const char *__doc_SubZeroRule = R"doc()doc";
 
 static const char *__doc_SubZeroRule_apply = R"doc()doc";
 
-static const char *__doc_SubtractionNode = R"doc()doc";
-
-static const char *__doc_SubtractionNode_2 = R"doc()doc";
-
-static const char *__doc_SubtractionNode_SubtractionNode = R"doc()doc";
-
-static const char *__doc_SubtractionNode_derivative = R"doc()doc";
-
-static const char *__doc_SubtractionNode_evaluate = R"doc()doc";
-
-static const char *__doc_SubtractionNode_left = R"doc()doc";
-
-static const char *__doc_SubtractionNode_right = R"doc()doc";
-
-static const char *__doc_SubtractionNode_simplify = R"doc()doc";
-
-static const char *__doc_SubtractionNode_toString = R"doc()doc";
-
 static const char *__doc_SymbolEntry = R"doc()doc";
 
 static const char *__doc_SymbolEntry_SymbolEntry = R"doc()doc";
@@ -1848,22 +1706,6 @@ R"doc(Validate the syntax of the given expression.
 
 Parameter ``expression``:
     The expression to validate.)doc";
-
-static const char *__doc_VariableNode = R"doc()doc";
-
-static const char *__doc_VariableNode_2 = R"doc()doc";
-
-static const char *__doc_VariableNode_VariableNode = R"doc()doc";
-
-static const char *__doc_VariableNode_derivative = R"doc()doc";
-
-static const char *__doc_VariableNode_evaluate = R"doc()doc";
-
-static const char *__doc_VariableNode_name = R"doc()doc";
-
-static const char *__doc_VariableNode_simplify = R"doc()doc";
-
-static const char *__doc_VariableNode_toString = R"doc()doc";
 
 static const char *__doc__unnamed_class_at_include_exception_h_11_7 =
 R"doc(Custom exception class for handling errors in the Solver class.

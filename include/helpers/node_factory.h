@@ -36,6 +36,10 @@ public:
         return allocator->createSubtraction(left, right);
     }
 
+    Node* neg(Node* operand) {
+        return allocator->createNeg(operand);
+    }
+
     Node* mul(Node* left, Node* right) {
         return allocator->createMultiplication(left, right);
     }

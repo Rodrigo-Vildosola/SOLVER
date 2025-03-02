@@ -241,9 +241,11 @@ NUMBER_TYPE Solver::evaluateAST(const std::string &expression, bool debug)
 
 Node* Solver::parseAST(const std::string& expression, NodeFactory& f, bool debug) {    
     auto tokens   = Tokenizer::tokenize(expression);
+    printTokens(tokens);
     auto postfix  = Postfix::shuntingYard(tokens);
     auto flattened = Postfix::flattenPostfix(postfix, functions);
     auto inlined = replaceConstantSymbols(flattened, symbolTable);
+    printPostfix(inlined);
 
     Node * root = AST::buildASTFromPostfix(inlined, f);
 

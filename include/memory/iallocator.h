@@ -13,6 +13,7 @@ public:
     virtual Node* createVariable(const std::string &name) = 0;
     virtual Node* createAddition(Node* left, Node* right) = 0;
     virtual Node* createSubtraction(Node* left, Node* right) = 0;
+    virtual Node* createNeg(Node* operand) = 0;
     virtual Node* createMultiplication(Node* left, Node* right) = 0;
     virtual Node* createDivision(Node* left, Node* right) = 0;
     virtual Node* createExponentiation(Node* base, Node* exponent) = 0;
