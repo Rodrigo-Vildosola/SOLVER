@@ -83,6 +83,14 @@ Node* buildASTFromPostfix(const std::vector<Token> &tokens, NodeFactory &factory
                 st.push(result);
                 break;
             }
+            case OperatorType::EQU:
+            {
+                if (st.size() < 2) throw std::runtime_error("Not enough operands for ==");
+                Node* right = st.top(); st.pop();
+                Node* left  = st.top(); st.pop();
+                st.push(factory.eq(left, right));
+                break;
+            }
             default:
                 // Unknown or unhandled operator
                 throw std::runtime_error("Unknown operator token in postfix: " + tk.value);

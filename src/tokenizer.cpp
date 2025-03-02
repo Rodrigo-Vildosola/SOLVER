@@ -33,7 +33,7 @@ void Tokenizer::processMatch(const std::string& match, std::vector<Token>& token
     PROFILE_FUNCTION() // Profile the processMatch function
     static const std::regex numberRegex(R"(\d+(\.\d+)?)");
     static const std::regex variableRegex(R"([a-zA-Z_][a-zA-Z_0-9]*)");
-    static const std::regex operatorRegex(R"([+\-*/^])");
+    static const std::regex operatorRegex(R"((==|[+\-*/^]))");
     static const std::regex parenRegex(R"([\(\)])");
     static const std::regex separatorRegex(R"(,)");
 
@@ -92,6 +92,10 @@ void Tokenizer::handleOperatorToken(const std::string& match, std::vector<Token>
         if (next_it != end && (*next_it)[1].str() == "^") {
             tokens.emplace_back(PAREN, "(");
         }
+    } else if (match == "==") {
+        Token token(OPERATOR, match);
+        token.op = OperatorType::EQU;
+        tokens.push_back(token);
     } else {
         // Create an operator token and assign the enumeration value.
         Token token(OPERATOR, match);

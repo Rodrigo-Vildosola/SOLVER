@@ -25,6 +25,7 @@ enum class OperatorType {
     MUL,    // *
     DIV,    // /
     POW,    // ^
+    EQU,    // ==
     UNKNOWN // Fallback
 };
 

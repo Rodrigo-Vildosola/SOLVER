@@ -8,14 +8,16 @@ namespace Postfix {
 #pragma region Parsing and Shunting Yard
 
 int getPrecedence(const std::string& op) {
+    if (op == "==") return 0;
     if (op == "+" || op == "-") return 1;
     if (op == "*" || op == "/") return 2;
     if (op == "^") return 3;
-    return 0;
+    return -1;
 }
 
 bool isLeftAssociative(const std::string& op) {
-    return op != "^";  // "^" is right-associative, all others are left-associative
+    if (op == "^" || op == "==") return false;
+    return true;
 }
 
 void processOperatorStack(const Token& token, std::stack<Token>& operatorStack, std::vector<Token>& outputVector) {

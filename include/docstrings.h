@@ -23,70 +23,7 @@
 #endif
 
 
-static const char *__doc_ASTNode =
-R"doc(A node in the abstract syntax tree (AST) built from a flattened postfix
-expression.
-
-Each node holds: - A Token (NUMBER, VARIABLE, OPERATOR, or FUNCTION). - A list
-of children (for operators, typically 2 children; for a function, 'argCount'
-children).
-
-Note: This uses raw pointers for children; you will need to manage memory
-(delete) manually.)doc";
-
-static const char *__doc_ASTNode_ASTNode =
-R"doc(Constructor that initializes the node with a Token.
-
-Parameter ``t``:
-    The Token to store in this ASTNode.)doc";
-
-static const char *__doc_ASTNode_children =
-R"doc(Child pointers. For binary operators, typically size=2. For a function,
-size=argCount.)doc";
-
-static const char *__doc_ASTNode_token = R"doc(The token for this node (e.g., {OPERATOR, "+"} or {VARIABLE, "x"}).)doc";
-
-static const char *__doc_AST_buildASTFromPostfix =
-R"doc(Builds an AST from a flattened postfix expression.
-
-Parameter ``postfix``:
-    The flattened postfix tokens (no user-defined FUNCTION tokens remain).
-
-Parameter ``functions``:
-    Map of function name to Function struct (for predefined functions).
-
-Returns:
-    A pointer to the root ASTNode of the constructed tree. Caller is responsible
-    for deleting it.
-
-Throws:
-    SolverException if there's a mismatch in the stack usage, unknown function,
-    etc.)doc";
-
-static const char *__doc_AST_evaluateAST =
-R"doc(Recursively evaluates a simplified AST.
-
-Parameter ``node``:
-    Pointer to the root AST node (must not be null).
-
-Parameter ``symbolTable``:
-    The symbol table for looking up variables.
-
-Parameter ``functions``:
-    Map of predefined functions (for FUNCTION nodes).
-
-Returns:
-    The numeric result of evaluating the AST.
-
-Throws:
-    SolverException If an unknown operator or function is encountered, or if
-    division by zero occurs, etc.)doc";
-
-static const char *__doc_AST_printAST =
-R"doc(Public-facing function to pretty-print the AST from its root.
-
-Parameter ``root``:
-    Pointer to the root ASTNode of the tree.)doc";
+static const char *__doc_AST_buildASTFromPostfix = R"doc()doc";
 
 static const char *__doc_AddZeroRule = R"doc()doc";
 
@@ -143,6 +80,677 @@ static const char *__doc_DivisionNode_right = R"doc()doc";
 static const char *__doc_DivisionNode_simplify = R"doc()doc";
 
 static const char *__doc_DivisionNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_AdditionNode = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_AdditionNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_AllocationConfig = R"doc()doc";
+
+static const char *__doc_Expression_AllocationConfig_getPolicy = R"doc()doc";
+
+static const char *__doc_Expression_AllocationConfig_setPolicy = R"doc()doc";
+
+static const char *__doc_Expression_AllocatorPolicy = R"doc()doc";
+
+static const char *__doc_Expression_AllocatorPolicy_Arena = R"doc()doc";
+
+static const char *__doc_Expression_AllocatorPolicy_Default = R"doc()doc";
+
+static const char *__doc_Expression_Arena = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_ArenaAllocator = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_arena = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createAddition = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createCos = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createDivision = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createEquality = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createExponentiation = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createFunction = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createLn = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createLog = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createMultiplication = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createNumber = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createSin = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createSubtraction = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createTan = R"doc()doc";
+
+static const char *__doc_Expression_ArenaAllocator_createVariable = R"doc()doc";
+
+static const char *__doc_Expression_Arena_Arena =
+R"doc(Construct a new Arena object.
+
+Parameter ``blockSize``:
+    The default size for new blocks.
+
+Parameter ``alignment``:
+    The base alignment for blocks (default is alignof(std::max_align_t)).)doc";
+
+static const char *__doc_Expression_Arena_Arena_2 = R"doc()doc";
+
+static const char *__doc_Expression_Arena_Block = R"doc()doc";
+
+static const char *__doc_Expression_Arena_Block_Block = R"doc()doc";
+
+static const char *__doc_Expression_Arena_Block_alignment = R"doc()doc";
+
+static const char *__doc_Expression_Arena_Block_memory = R"doc()doc";
+
+static const char *__doc_Expression_Arena_Block_offset = R"doc()doc";
+
+static const char *__doc_Expression_Arena_Block_size = R"doc()doc";
+
+static const char *__doc_Expression_Arena_blockAlignment = R"doc(Base alignment for blocks)doc";
+
+static const char *__doc_Expression_Arena_blocks = R"doc(Vector of allocated blocks)doc";
+
+static const char *__doc_Expression_Arena_defaultBlockSize = R"doc(Default size for new blocks)doc";
+
+static const char *__doc_Expression_Arena_destructors = R"doc()doc";
+
+static const char *__doc_Expression_Arena_getBlockCount = R"doc()doc";
+
+static const char *__doc_Expression_Arena_make =
+R"doc(Allocate a new Node of type T using placement new.
+
+This version adjusts for proper alignment, registers a destructor callback if T
+has a non-trivial destructor, and allocates new blocks as needed.
+
+Template parameter ``T``:
+    Must be derived from Node.
+
+Template parameter ``Args``:
+    Constructor arguments for T.
+
+Returns:
+    T* Pointer to the new Node.)doc";
+
+static const char *__doc_Expression_Arena_nodeCount = R"doc(Count of allocated nodes)doc";
+
+static const char *__doc_Expression_Arena_operator_assign = R"doc()doc";
+
+static const char *__doc_Expression_Arena_printStats = R"doc()doc";
+
+static const char *__doc_Expression_BinaryOpNode = R"doc()doc";
+
+static const char *__doc_Expression_BinaryOpNode_BinaryOpNode = R"doc()doc";
+
+static const char *__doc_Expression_BinaryOpNode_left = R"doc()doc";
+
+static const char *__doc_Expression_BinaryOpNode_right = R"doc()doc";
+
+static const char *__doc_Expression_CSERewriter = R"doc()doc";
+
+static const char *__doc_Expression_CSERewriter_hashKey = R"doc()doc";
+
+static const char *__doc_Expression_CSERewriter_rewrite = R"doc()doc";
+
+static const char *__doc_Expression_CSERewriter_subexpressionCache = R"doc()doc";
+
+static const char *__doc_Expression_CosNode = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_CosNode = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_CosNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createAddition = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createCos = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createDivision = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createEquality = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createExponentiation = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createFunction = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createLn = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createLog = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createMultiplication = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createNumber = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createSin = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createSubtraction = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createTan = R"doc()doc";
+
+static const char *__doc_Expression_DefaultAllocator_createVariable = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_DivisionNode = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_DivisionNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_EqualityNode = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_left = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_right = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_solveFor = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_EqualityNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_ExpDivisionRule = R"doc()doc";
+
+static const char *__doc_Expression_ExpDivisionRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_ExpDivisionRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_ExpPowerRule = R"doc()doc";
+
+static const char *__doc_Expression_ExpPowerRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_ExpPowerRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_ExpProductRule = R"doc()doc";
+
+static const char *__doc_Expression_ExpProductRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_ExpProductRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_ExponentiationNode = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_ExponentiationNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_FactorizationRule = R"doc()doc";
+
+static const char *__doc_Expression_FactorizationRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_FactorizationRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode = R"doc(FunctionNode with an arbitrary number of arguments.)doc";
+
+static const char *__doc_Expression_FunctionNode_FunctionNode = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_arguments = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_callback = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_expectedArgCount = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_name = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_FunctionNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createAddition = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createCos = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createDivision = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createEquality = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createExponentiation = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createFunction = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createLn = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createLog = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createMultiplication = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createNumber = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createSin = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createSubtraction = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createTan = R"doc()doc";
+
+static const char *__doc_Expression_IAllocator_createVariable = R"doc()doc";
+
+static const char *__doc_Expression_LnAdditionRule = R"doc()doc";
+
+static const char *__doc_Expression_LnAdditionRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_LnAdditionRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_LnDifferenceRule = R"doc()doc";
+
+static const char *__doc_Expression_LnDifferenceRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_LnDifferenceRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_LnNode = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_LnNode = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_LnNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_LnPowerRule = R"doc()doc";
+
+static const char *__doc_Expression_LnPowerRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_LnPowerRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_LogAdditionRule = R"doc()doc";
+
+static const char *__doc_Expression_LogAdditionRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_LogAdditionRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_LogDifferenceRule = R"doc()doc";
+
+static const char *__doc_Expression_LogDifferenceRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_LogDifferenceRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_LogNode = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_LogNode = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_LogNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_MultiplicationNode = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_MultiplicationNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_NegativeExpRule = R"doc()doc";
+
+static const char *__doc_Expression_NegativeExpRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_NegativeExpRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_Node = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_2 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_3 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_4 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_5 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_6 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_7 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_8 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_9 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_10 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_11 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_12 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_13 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_14 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_15 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_16 = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_NodeFactory = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_add = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_allocator = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_cos = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_div = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_eq = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_exp = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_func = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_ln = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_log = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_mul = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_num = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_sin = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_sub = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_tan = R"doc()doc";
+
+static const char *__doc_Expression_NodeFactory_var = R"doc()doc";
+
+static const char *__doc_Expression_Node_clone = R"doc()doc";
+
+static const char *__doc_Expression_Node_derivative = R"doc()doc";
+
+static const char *__doc_Expression_Node_equals =
+R"doc(Check if this node is structurally equal to another node.
+
+The default implementation compares the string representations. Derived classes
+should override this with a more efficient and robust method.)doc";
+
+static const char *__doc_Expression_Node_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_Node_extractLinearCoeffs =
+R"doc(Attempt to extract coefficients from the expression assuming it is linear in
+`var`.
+
+If the node represents an expression of the form a*x + b, then it sets coeff = a
+and constant = b and returns true. Otherwise, returns false.)doc";
+
+static const char *__doc_Expression_Node_simplify = R"doc()doc";
+
+static const char *__doc_Expression_Node_substitute = R"doc()doc";
+
+static const char *__doc_Expression_Node_toString = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_NumberNode = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_getValue = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_NumberNode_value = R"doc()doc";
+
+static const char *__doc_Expression_PythagoreanRule = R"doc()doc";
+
+static const char *__doc_Expression_PythagoreanRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_PythagoreanRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_RewriteRule = R"doc()doc";
+
+static const char *__doc_Expression_RewriteRule_apply = R"doc()doc";
+
+static const char *__doc_Expression_RewriteRule_matches = R"doc()doc";
+
+static const char *__doc_Expression_Rewriter = R"doc()doc";
+
+static const char *__doc_Expression_Rewriter_Rewriter = R"doc()doc";
+
+static const char *__doc_Expression_Rewriter_add_rule = R"doc()doc";
+
+static const char *__doc_Expression_Rewriter_cse = R"doc()doc";
+
+static const char *__doc_Expression_Rewriter_rewrite = R"doc()doc";
+
+static const char *__doc_Expression_SinNode = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_SinNode = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_SinNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_SubtractionNode = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_SubtractionNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_TanNode = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_TanNode = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_TanNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_UnaryOpNode = R"doc()doc";
+
+static const char *__doc_Expression_UnaryOpNode_UnaryOpNode = R"doc()doc";
+
+static const char *__doc_Expression_UnaryOpNode_operand = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_VariableNode = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_clone = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_derivative = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_equals = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_evaluate = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_extractLinearCoeffs = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_getName = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_name = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_simplify = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_substitute = R"doc()doc";
+
+static const char *__doc_Expression_VariableNode_toString = R"doc()doc";
+
+static const char *__doc_Expression_add_poly = R"doc()doc";
+
+static const char *__doc_Expression_extract_poly = R"doc()doc";
+
+static const char *__doc_Expression_get_arena_factory = R"doc()doc";
+
+static const char *__doc_Expression_get_default_factory = R"doc()doc";
+
+static const char *__doc_Expression_mul_poly = R"doc()doc";
+
+static const char *__doc_Expression_poly_to_vector = R"doc()doc";
+
+static const char *__doc_Expression_solve_polynomial = R"doc()doc";
+
+static const char *__doc_Expression_sub_poly = R"doc()doc";
 
 static const char *__doc_Function = R"doc()doc";
 
@@ -303,6 +911,8 @@ static const char *__doc_OperatorType = R"doc()doc";
 static const char *__doc_OperatorType_ADD = R"doc()doc";
 
 static const char *__doc_OperatorType_DIV = R"doc()doc";
+
+static const char *__doc_OperatorType_EQU = R"doc()doc";
 
 static const char *__doc_OperatorType_MUL = R"doc()doc";
 
@@ -502,75 +1112,6 @@ Parameter ``output``:
 
 Returns:
     true if the rule was applied; false otherwise.)doc";
-
-static const char *__doc_Simplification_replaceConstantSymbols =
-R"doc(Replaces tokens that refer to constants with NUMBER tokens in a postfix
-sequence.
-
-If a token is of type VARIABLE but the symbol table indicates it is actually a
-constant, we convert that token’s type to NUMBER and set its value to the
-constant’s numeric string.
-
-Parameter ``postfix``:
-    The flattened postfix tokens (after flattenPostfix).
-
-Parameter ``symbolTable``:
-    The symbol table (holds variables and constants).
-
-Returns:
-    A new vector of tokens where any constant references have been inlined as
-    numbers.)doc";
-
-static const char *__doc_Simplification_simplifyAST =
-R"doc(Recursively simplifies the AST in place, applying constant folding and basic
-algebraic identities.
-
-Parameter ``node``:
-    The current AST node to simplify (may be modified in place).
-
-Parameter ``functions``:
-    A map of predefined functions (for function folding).
-
-Returns:
-    The (possibly replaced) pointer to the simplified AST node. If a node is
-    replaced, the old pointer is deleted.)doc";
-
-static const char *__doc_Simplification_simplifyPostfix = R"doc()doc";
-
-static const char *__doc_Simplification_singlePassSimplify =
-R"doc(Performs a single pass of local folding/simplification on a fully flattened
-postfix expression.
-
-Parameter ``postfix``:
-    The input postfix tokens (flattened).
-
-Parameter ``functions``:
-    The map of function names to Function definitions (for predefined funcs).
-
-Parameter ``changed``:
-    Set to true if any folding/simplification occurred during this pass, false
-    otherwise.
-
-Returns:
-    A (possibly) simplified postfix sequence after one pass.)doc";
-
-static const char *__doc_Simplification_trySimplifyBinary =
-R"doc(Attempts to simplify a binary operation (leftExpr op rightExpr) using local
-rules.
-
-Parameter ``leftExpr``:
-    Postfix tokens for the left operand (often a single token).
-
-Parameter ``rightExpr``:
-    Postfix tokens for the right operand (often a single token).
-
-Parameter ``opToken``:
-    The operator token (e.g. +, -, *, /, ^).
-
-Returns:
-    A new postfix token vector that represents the simplified expression.)doc";
-
-static const char *__doc_Simplification_trySimplifyFunction = R"doc()doc";
 
 static const char *__doc_Solver =
 R"doc(A class for evaluating mathematical expressions, managing variables, constants,
@@ -1345,11 +1886,80 @@ static const char *__doc_printPrecisionInfo = R"doc()doc";
 
 static const char *__doc_printTokens = R"doc()doc";
 
+static const char *__doc_replaceConstantSymbols =
+R"doc(Replaces tokens that refer to constants with NUMBER tokens in a postfix
+sequence.
+
+If a token is of type VARIABLE but the symbol table indicates it is actually a
+constant, we convert that token’s type to NUMBER and set its value to the
+constant’s numeric string.
+
+Parameter ``postfix``:
+    The flattened postfix tokens (after flattenPostfix).
+
+Parameter ``symbolTable``:
+    The symbol table (holds variables and constants).
+
+Returns:
+    A new vector of tokens where any constant references have been inlined as
+    numbers.)doc";
+
+static const char *__doc_simplifyAST =
+R"doc(Recursively simplifies the AST in place, applying constant folding and basic
+algebraic identities.
+
+Parameter ``node``:
+    The current AST node to simplify (may be modified in place).
+
+Parameter ``functions``:
+    A map of predefined functions (for function folding).
+
+Returns:
+    The (possibly replaced) pointer to the simplified AST node. If a node is
+    replaced, the old pointer is deleted.)doc";
+
+static const char *__doc_simplifyPostfix = R"doc()doc";
+
+static const char *__doc_singlePassSimplify =
+R"doc(Performs a single pass of local folding/simplification on a fully flattened
+postfix expression.
+
+Parameter ``postfix``:
+    The input postfix tokens (flattened).
+
+Parameter ``functions``:
+    The map of function names to Function definitions (for predefined funcs).
+
+Parameter ``changed``:
+    Set to true if any folding/simplification occurred during this pass, false
+    otherwise.
+
+Returns:
+    A (possibly) simplified postfix sequence after one pass.)doc";
+
 static const char *__doc_stringToNumber = R"doc()doc";
 
 static const char *__doc_stringToTokenType = R"doc()doc";
 
 static const char *__doc_tokenTypeToString = R"doc()doc";
+
+static const char *__doc_trySimplifyBinary =
+R"doc(Attempts to simplify a binary operation (leftExpr op rightExpr) using local
+rules.
+
+Parameter ``leftExpr``:
+    Postfix tokens for the left operand (often a single token).
+
+Parameter ``rightExpr``:
+    Postfix tokens for the right operand (often a single token).
+
+Parameter ``opToken``:
+    The operator token (e.g. +, -, *, /, ^).
+
+Returns:
+    A new postfix token vector that represents the simplified expression.)doc";
+
+static const char *__doc_trySimplifyFunction = R"doc()doc";
 
 static const char *__doc_version =
 R"doc(Get the software version information.

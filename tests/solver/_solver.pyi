@@ -380,7 +380,7 @@ class Solver:
         of storing postfix tokens. If the expression is identical to the previously
         stored one (and the AST is valid), we skip re-building unless debug is true.
         """
-    def solve_equation(self, equation: str, variable: str, initial_guess: float, tolerance: float = 1e-06, max_iterations: int = 100) -> float:
+    def solve_equation(self, equation: str, variable: str) -> list[float]:
         """
         Solves a single variable equation of the form f(x)=0.
         

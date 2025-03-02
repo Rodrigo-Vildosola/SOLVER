@@ -21,9 +21,6 @@ void bind_solver(py::module_ &m) {
              &Solver::solveEquation,
              py::arg("equation"),
              py::arg("variable"),
-             py::arg("initial_guess"),
-             py::arg("tolerance") = 1e-6,
-             py::arg("max_iterations") = 100,
              DOC(Solver, solveEquation))
 
         .def("print_function_expressions", 
