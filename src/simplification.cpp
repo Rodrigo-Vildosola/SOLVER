@@ -253,12 +253,12 @@ std::vector<Token> replaceConstantSymbols(const std::vector<Token> &postfix, con
 #pragma region AST simplification
 
 Node* simplifyAST(Node* node, NodeFactory& f) {
-    Node* simplified = node->simplify(f);
+    // Node* simplified = node->simplify(f);
 
-    Rewriter rewriter;
-    Node* normalized = rewriter.rewrite(simplified, f);
+    // Rewriter rewriter;
+    // Node* normalized = rewriter.rewrite(simplified, f);
 
-    return normalized->simplify(f);
+    return node->simplify(f);
 }
 
 

@@ -30,12 +30,6 @@ std::vector<NUMBER_TYPE> Solver::solveEquation(const std::string& equation, cons
     }
 
     Node* diff = f.sub(eq->left, eq->right);
-    // Node* simplified_diff = diff->simplify(factory);
-    
-    // Rewriter rewriter;
-    // Node* normalized = rewriter.rewrite(simplified_diff, factory);
-
-    std::cout << "Normalized Equation: " << diff->toString() << std::endl;
 
     auto poly = extract_poly(diff, variable);
     auto coeffs = poly_to_vector(poly);

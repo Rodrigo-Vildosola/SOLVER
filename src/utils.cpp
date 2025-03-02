@@ -247,13 +247,13 @@ Node* Solver::parseAST(const std::string& expression, NodeFactory& f, bool debug
 
     Node * root = AST::buildASTFromPostfix(inlined, f);
 
-    // Node * simplified = simplifyAST(root, f);
+    Node * simplified = simplifyAST(root, f);
 
     if (debug) {
-        std::cout << "Simplified AST: " << root->toString() << "\n";
+        std::cout << "Simplified AST: " << simplified->toString() << "\n";
     }
 
-    return root; 
+    return simplified; 
 }
 
 
