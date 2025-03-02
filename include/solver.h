@@ -56,11 +56,7 @@ public:
      * @throws SolverException if the equation is malformed, if the derivative is zero,
      *         or if the method fails to converge.
      */
-    NUMBER_TYPE solveEquation(const std::string& equation,
-                            const std::string& variable,
-                            NUMBER_TYPE initialGuess,
-                            NUMBER_TYPE tolerance = 1e-6,
-                            size_t maxIterations = 100);
+    NUMBER_TYPE solveEquation(const std::string& equation, const std::string& variable);
 
 
     /**
@@ -435,7 +431,7 @@ private:
      * @return A vector of Tokens representing the flattened postfix form.
      * @throws SolverException If a syntax error or unknown function is encountered.
      */
-    ASTNode* parseAST(const std::string &expression, bool debug = false);
+    Node* parseAST(const std::string &expression, bool debug = false);
 
     /**
      * @brief Generates an integer cache key based on an expression string and argument values.
@@ -482,5 +478,5 @@ private:
     std::string currentExpressionAST;
 
     /// The parsed (and flattened) AST tokens corresponding to currentExpression.
-    ASTNode* currentAST;
+    Node* currentAST;
 };

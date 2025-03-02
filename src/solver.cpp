@@ -6,7 +6,6 @@
 #include "tokenizer.h"
 #include "tokenizer_new.h"
 
-#include "ast.h"
 #include "compiler.h"
 
 Solver::Solver(size_t exprCacheSize)
@@ -76,9 +75,9 @@ EvalFunc Solver::compileExpression(const std::string &expression, bool debug) {
     // Flatten any user-defined functions
     auto flattened = Postfix::flattenPostfix(postfix, functions);
     // Replace constant symbols with their values from the symbol table
-    auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
+    auto inlined = replaceConstantSymbols(flattened, symbolTable);
     // Simplify the resulting postfix expression
-    auto simplified = Simplification::simplifyPostfix(inlined, functions);
+    auto simplified = simplifyPostfix(inlined, functions);
 
     if (debug) {
         std::cout << "Simplified postfix: ";

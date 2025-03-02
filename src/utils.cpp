@@ -5,8 +5,12 @@
 #include "tokenizer.h"
 #include "debug.h"
 #include "postfix.h"
+#include "helpers/arena_node_factory.h"
+#include "helpers/builder.h"
 
 using namespace nlohmann;
+using namespace Expression;
+
 
 std::string Solver::dumpState() const {
     json j;
@@ -220,10 +224,12 @@ NUMBER_TYPE Solver::evaluateAST(const std::string &expression, bool debug)
         throw SolverException("Cannot evaluate AST pipeline: currentAST is null.");
     }
 
+    Env env = symbolTable.getVariables();
+
     // Evaluate the final AST
     NUMBER_TYPE result = 0.0;
     try {
-        result = AST::evaluateAST(currentAST, symbolTable, functions);
+        result = currentAST->evaluate(env);
     }
     catch (const SolverException &e) {
         throw; // or handle differently
@@ -233,19 +239,20 @@ NUMBER_TYPE Solver::evaluateAST(const std::string &expression, bool debug)
 }
 
 
-ASTNode* Solver::parseAST(const std::string& expression, bool debug) {
+Node* Solver::parseAST(const std::string& expression, bool debug) {
+    DECLARE_ARENA_FACTORY(f);
+    
     auto tokens   = Tokenizer::tokenize(expression);
     auto postfix  = Postfix::shuntingYard(tokens);
     auto flattened = Postfix::flattenPostfix(postfix, functions);
-    auto inlined = Simplification::replaceConstantSymbols(flattened, symbolTable);
+    auto inlined = replaceConstantSymbols(flattened, symbolTable);
 
-    ASTNode * root = AST::buildASTFromPostfix(inlined, functions);
+    Node * root = AST::buildASTFromPostfix(inlined, f);
 
-    ASTNode * simplified = Simplification::simplifyAST(root, functions);
+    Node * simplified = simplifyAST(root, f);
 
     if (debug) {
-        std::cout << "Simplified AST: ";
-        AST::printAST(simplified);
+        std::cout << "Simplified AST: " << simplified->toString() << "\n";
     }
 
     return simplified; 
@@ -262,7 +269,6 @@ void Solver::setCurrentExpressionAST(const std::string &expression, bool debug) 
 
     // If we had an old AST, free it
     if (currentAST) {
-        delete currentAST;
         currentAST = nullptr;
     }
 
@@ -274,7 +280,6 @@ void Solver::setCurrentExpressionAST(const std::string &expression, bool debug) 
     catch (const SolverException &e) {
         // If there's an error, ensure we don't leave a partial AST
         if (currentAST) {
-            delete currentAST;
             currentAST = nullptr;
         }
         // rethrow 

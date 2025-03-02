@@ -98,8 +98,6 @@ static const char *__doc_AdditionNode_2 = R"doc()doc";
 
 static const char *__doc_AdditionNode_AdditionNode = R"doc()doc";
 
-static const char *__doc_AdditionNode_accept = R"doc()doc";
-
 static const char *__doc_AdditionNode_derivative = R"doc()doc";
 
 static const char *__doc_AdditionNode_evaluate = R"doc()doc";
@@ -134,8 +132,6 @@ static const char *__doc_DivisionNode_2 = R"doc()doc";
 
 static const char *__doc_DivisionNode_DivisionNode = R"doc()doc";
 
-static const char *__doc_DivisionNode_accept = R"doc()doc";
-
 static const char *__doc_DivisionNode_derivative = R"doc()doc";
 
 static const char *__doc_DivisionNode_evaluate = R"doc()doc";
@@ -163,8 +159,6 @@ static const char *__doc_FunctionNode = R"doc()doc";
 static const char *__doc_FunctionNode_2 = R"doc()doc";
 
 static const char *__doc_FunctionNode_FunctionNode = R"doc()doc";
-
-static const char *__doc_FunctionNode_accept = R"doc()doc";
 
 static const char *__doc_FunctionNode_args = R"doc()doc";
 
@@ -248,8 +242,6 @@ static const char *__doc_MultiplicationNode_2 = R"doc()doc";
 
 static const char *__doc_MultiplicationNode_MultiplicationNode = R"doc()doc";
 
-static const char *__doc_MultiplicationNode_accept = R"doc()doc";
-
 static const char *__doc_MultiplicationNode_derivative = R"doc()doc";
 
 static const char *__doc_MultiplicationNode_evaluate = R"doc()doc";
@@ -282,8 +274,6 @@ static const char *__doc_NodeVisitor_visit_7 = R"doc()doc";
 
 static const char *__doc_NodeVisitor_visit_8 = R"doc()doc";
 
-static const char *__doc_Node_accept = R"doc()doc";
-
 static const char *__doc_Node_derivative = R"doc()doc";
 
 static const char *__doc_Node_evaluate = R"doc()doc";
@@ -297,8 +287,6 @@ static const char *__doc_NumberNode = R"doc()doc";
 static const char *__doc_NumberNode_2 = R"doc()doc";
 
 static const char *__doc_NumberNode_NumberNode = R"doc()doc";
-
-static const char *__doc_NumberNode_accept = R"doc()doc";
 
 static const char *__doc_NumberNode_derivative = R"doc()doc";
 
@@ -402,8 +390,6 @@ static const char *__doc_PowerNode = R"doc()doc";
 static const char *__doc_PowerNode_2 = R"doc()doc";
 
 static const char *__doc_PowerNode_PowerNode = R"doc()doc";
-
-static const char *__doc_PowerNode_accept = R"doc()doc";
 
 static const char *__doc_PowerNode_base = R"doc()doc";
 
@@ -1141,8 +1127,6 @@ static const char *__doc_SubtractionNode_2 = R"doc()doc";
 
 static const char *__doc_SubtractionNode_SubtractionNode = R"doc()doc";
 
-static const char *__doc_SubtractionNode_accept = R"doc()doc";
-
 static const char *__doc_SubtractionNode_derivative = R"doc()doc";
 
 static const char *__doc_SubtractionNode_evaluate = R"doc()doc";
@@ -1329,8 +1313,6 @@ static const char *__doc_VariableNode = R"doc()doc";
 static const char *__doc_VariableNode_2 = R"doc()doc";
 
 static const char *__doc_VariableNode_VariableNode = R"doc()doc";
-
-static const char *__doc_VariableNode_accept = R"doc()doc";
 
 static const char *__doc_VariableNode_derivative = R"doc()doc";
 

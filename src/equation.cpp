@@ -14,11 +14,7 @@ static inline std::string trim(const std::string &s) {
     return std::string(start, end + 1);
 }
 
-NUMBER_TYPE Solver::solveEquation(const std::string& equation,
-                                  const std::string& variable,
-                                  NUMBER_TYPE initialGuess,
-                                  NUMBER_TYPE tolerance,
-                                  size_t maxIterations) {
+NUMBER_TYPE Solver::solveEquation(const std::string& equation, const std::string& variable) {
     PROFILE_FUNCTION();
 
     // Find the '=' sign in the equation
@@ -35,7 +31,7 @@ NUMBER_TYPE Solver::solveEquation(const std::string& equation,
     std::string f_expr = leftExpr + "-(" + rightExpr + ")";
 
     // Set current expression for evaluation
-    setCurrentExpression(f_expr, false);
+    setCurrentExpressionAST(f_expr, false);
 
     // Set the initial guess in the symbol table for the given variable
     declareVariable(variable, initialGuess);

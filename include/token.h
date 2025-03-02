@@ -36,10 +36,10 @@ enum class OperatorType {
  * the numericValue field. This saves us from having to call std::stold() during evaluation.
  */
 struct Token {
-    TokenType type;         ///< The type of the token
-    std::string value;      ///< The textual representation (for non-operator tokens)
-    NUMBER_TYPE numericValue;  ///< Precomputed numeric value (only valid if type == NUMBER)
-    OperatorType op;        ///< Operator type (only valid if type == OPERATOR)
+    TokenType type;             ///< The type of the token
+    std::string value;          ///< The textual representation (for non-operator tokens)
+    NUMBER_TYPE numericValue;   ///< Precomputed numeric value (only valid if type == NUMBER)
+    OperatorType op;            ///< Operator type (only valid if type == OPERATOR)
 
     // Constructor for all tokens:
     Token(TokenType t, const std::string &val)
