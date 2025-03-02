@@ -56,7 +56,7 @@ public:
      * @throws SolverException if the equation is malformed, if the derivative is zero,
      *         or if the method fails to converge.
      */
-    std::vector<NUMBER_TYPE> solveEquation(const std::string& equation, const std::string& variable);
+    std::vector<NUMBER_TYPE> solveEquation(const std::string& equation, const std::string& variable, bool debug = false);
 
 
     /**

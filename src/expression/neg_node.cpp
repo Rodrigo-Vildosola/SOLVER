@@ -20,17 +20,23 @@ std::string NegNode::toString() const {
 }
 
 Node* NegNode::simplify(NodeFactory &factory) const {
-    // Simplify the operand first.
+    // First, simplify the operand.
     Node* simplifiedOperand = operand->simplify(factory);
     
-    // If the operand simplifies to a constant, perform constant folding.
+    // If the operand is a constant, perform constant folding.
     if (auto num = dynamic_cast<NumberNode*>(simplifiedOperand)) {
         double foldedValue = -num->getValue();
         return factory.num(foldedValue);
     }
+    
+    // Eliminate double negation: -(-x) => x.
+    if (auto innerNeg = dynamic_cast<NegNode*>(simplifiedOperand)) {
+        // Simply return the inner operand's simplified form.
+        return innerNeg->operand->simplify(factory);
+    }
+    
     // Otherwise, return a new NegNode constructed via the factory.
-    Node* result = factory.neg(simplifiedOperand);
-    return result;
+    return factory.neg(simplifiedOperand);
 }
 
 Node* NegNode::derivative(const std::string& variable, NodeFactory &factory) const {

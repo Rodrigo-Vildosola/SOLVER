@@ -18,11 +18,11 @@ static inline std::string trim(const std::string &s) {
     return std::string(start, end + 1);
 }
 
-std::vector<NUMBER_TYPE> Solver::solveEquation(const std::string& equation, const std::string& variable) {
+std::vector<NUMBER_TYPE> Solver::solveEquation(const std::string& equation, const std::string& variable, bool debug) {
     PROFILE_FUNCTION();
     DECLARE_ARENA_FACTORY(f);
 
-    Node* ast = parseAST(equation, f);
+    Node* ast = parseAST(equation, f, debug);
 
     const EqualityNode* eq = dynamic_cast<const EqualityNode*>(ast);
     if (!eq) {
